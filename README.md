@@ -26,6 +26,7 @@
 
 - React
 - Typescript
+- Nextjs
 - styled components
 - Vite
 
