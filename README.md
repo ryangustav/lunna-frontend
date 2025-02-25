@@ -40,7 +40,7 @@
 How to clone
 
 ```bash
-git clone https://github.com/ryangustav/lunna_site
+git clone https://github.com/ryangustav/lunna-frontend
 ```
 
 <h3>Starting</h3>
@@ -60,7 +60,7 @@ Special thank you for all people that contributed for this project.
   <tr>
     <td align="center">
       <a href="#">
-        <img src="https://avatars.githubusercontent.com/u/70548699?s=96&v=4" width="100px;" alt="Fernanda Kipper Profile Picture"/><br>
+        <img src="https://avatars.githubusercontent.com/u/70548699?s=96&v=4" width="100px;" alt="Ryan Gustavo Profile Picture"/><br>
         <sub>
           <b>Ryan Gustavo</b>
         </sub>
