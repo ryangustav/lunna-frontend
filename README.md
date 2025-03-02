@@ -1,6 +1,6 @@
 # Lunna Frontend
 
-![Lunna Logo]([https://cdn.discordapp.com/attachments/1061639923487604778/1214998649459634206/Web_Lunna_Logo.png?ex=66b14e2a&is=669ed92a&hm=fd46c9a4bacc5d1f0a0da8c2c9c11fa8c09a48fdc15c9c767a0a2bed7ba38b60&](https://images-ext-1.discordapp.net/external/NZ_dorUki3G2Zqn1QS9k8JBAntC6roCemFe742AQDOk/https/cdn.discordapp.com/avatars/1222333304028659792/1379470a71f0ccf52e446b6e794e1cae.webp?format=webp))
+![Lunna Logo](https://images-ext-1.discordapp.net/external/NZ_dorUki3G2Zqn1QS9k8JBAntC6roCemFe742AQDOk/https/cdn.discordapp.com/avatars/1222333304028659792/1379470a71f0ccf52e446b6e794e1cae.webp?format=webp)
 
 Interface web para gerenciamento do bot de Discord Lunna, oferecendo recursos como visualização e compra de LunarCoins, acesso a funcionalidades VIP e gerenciamento de conta.
 
