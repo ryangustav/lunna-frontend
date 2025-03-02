@@ -1,86 +1,178 @@
-<h1 align="center" style="font-weight: bold;">Lunna's website</h1>
+# Lunna Frontend
 
-<p align="center">
- <a href="#tech">Technologies</a> • 
- <a href="#started">Getting Started</a> • 
-  <a href="#colab">Collaborators</a> •
- <a href="#contribute">Contribute</a>
-</p>
+![Lunna Logo](https://cdn.discordapp.com/attachments/1061639923487604778/1214998649459634206/Web_Lunna_Logo.png?ex=66b14e2a&is=669ed92a&hm=fd46c9a4bacc5d1f0a0da8c2c9c11fa8c09a48fdc15c9c767a0a2bed7ba38b60&)
 
-<p align="center">
-    <b>Website developed with react for the discord bot "lunna"</b>
-</p>
+Interface web para gerenciamento do bot de Discord Lunna, oferecendo recursos como visualização e compra de LunarCoins, acesso a funcionalidades VIP e gerenciamento de conta.
 
-<p align="center">
-     <a href="https://discord.gg/DaUhFcjJfH">📱 Visit this Project</a>
-</p>
+## 📋 Sobre o Projeto
 
-<h2 id="layout">🎨 Layout</h2>
+O Lunna Frontend é uma aplicação web desenvolvida com Next.js que serve como interface para usuários do bot Lunna do Discord. Os usuários podem gerenciar seus LunarCoins (moeda virtual), adquirir pacotes VIP, verificar histórico de transações e utilizar recursos premium como geração de imagens e prompts de IA.
 
-<p align="center">
-    <img src="https://media.discordapp.net/attachments/1302339483831894086/1341077289752072252/jbQSj38eheygAAAABJRU5ErkJggg.png?ex=67b4af0d&is=67b35d8d&hm=fa56755fd51fcdb3362d95321de47045cbc3801b3da600383158810803fc2e08&=&format=webp&quality=lossless&width=1037&height=559" alt="Home" width="400px">
-    <img src="https://media.discordapp.net/attachments/1302339483831894086/1341077590081011732/HDB06yiMAAQszAggAASAABIAAEAACQAAIAAEgAASAABAAAkAg1whAwMr18KBxQAAIAAEgAASAABAAAkAACAABIAAEgAAQAAIQsDAHgAAQAAJAAAgAASAABIAAEAACQAAIAAEgAARyjQAErFwPDxoHBIAAEAACQAAIAAEgAASAABAAAkAACAABIAABC3MACAABIAAEgAAQAAJAAAgAASAABIAAEAACQCDXCEDAyvXwoHFAAAgAASAABIAAEAACQAAIAAEgAASAABAAAhCwMAeAABAAAkAACAABIAAEgAAQAAJAAAgAASAABHKNAASsXA8PGgcEgAAQAAJAAAgAASAABIAAEAACQAAIAAEgAAELcwAIAAEgAASAABAAAkAACAABIAAEgAAQAAJAINcIQMDK9fCgcUAACAABIAAEgAAQAAJAAAgAASAABIAAEAACELAwB4AAEAACQAAIAAEgAASAABAAAkAACAABIAAEco0ABKxcDw8aBwSAABAAAkA..png?ex=67b4af55&is=67b35dd5&hm=fa2c5a2f929838c75b86863e2da61793e0178c6e905433dc22033edf7bbe3e5d&=&format=webp&quality=lossless&width=1159&height=559" alt="Image Example" width="400px">
-</p>
+## 🚀 Tecnologias Utilizadas
 
-<h2 id="technologies">💻 Technologies</h2>
+- **Next.js 14** - Framework React com SSR e otimização
+- **React** - Biblioteca JavaScript para construção de interfaces
+- **Tailwind CSS** - Framework de estilização utilitário
+- **Shadcn UI** - Componentes reutilizáveis e acessíveis
+- **TypeScript** - Linguagem tipada para desenvolvimento seguro
+- **NextAuth.js** - Autenticação e sessões de usuário
+- **Axios** - Cliente HTTP para requisições à API
+- **Zustand** - Gerenciamento de estado global
+- **React Hook Form** - Formulários com validação
 
-- React
-- Typescript
-- Nextjs
-- styled components
-- Vite
+## ⚙️ Funcionalidades Principais
 
-<h2 id="started">🚀 Getting started</h2>
+- **Autenticação OAuth com Discord**
+- **Dashboard de usuário**
+  - Visualização de saldo de LunarCoins
+  - Status VIP e benefícios ativos
+  - Histórico de prompts e imagens geradas
+- **Loja Virtual**
+  - Compra de pacotes de LunarCoins
+  - Assinaturas VIP com diferentes benefícios
+  - Redirecionamento para processamento de pagamentos seguro
+- **Gerenciamento de Conta**
+  - Preferências de idioma
+  - Configurações de renovação automática
+  - Histórico de transações
+- **Recursos Premium**
+  - Acesso a modelos avançados de IA
+  - Geração de imagens com diferentes estilos
+  - Prompts exclusivos para membros VIP
 
-<h3>Prerequisites</h3>
+## 🛠️ Configuração e Instalação
 
-- [NodeJS]([https://github.com/](https://nodejs.org/en))
+### Pré-requisitos
+- Node.js 18.x ou superior
+- NPM ou Yarn
 
-<h3>Cloning</h3>
+### Passos para instalação
 
-How to clone
-
+1. Clone o repositório:
 ```bash
-git clone https://github.com/ryangustav/lunna-frontend
+git clone https://github.com/ryangustav/lunna-frontend.git
+cd lunna-frontend
 ```
 
-<h3>Starting</h3>
-
-How to start your project
-
+2. Instale as dependências:
 ```bash
-cd lunna_site
+npm install
+# ou
+yarn install
+```
+
+3. Configure as variáveis de ambiente:
+Crie um arquivo `.env.local` na raiz do projeto com as seguintes variáveis:
+```
+NEXT_PUBLIC_API_URL=http://localhost:8000 # URL do backend
+```
+
+Nota: A maioria das configurações (incluindo chaves de API e segredos) são gerenciadas pelo backend, o frontend apenas consome a API.
+
+4. Inicie o servidor de desenvolvimento:
+```bash
 npm run dev
+# ou
+yarn dev
 ```
 
-<h2 id="colab">🤝 Collaborators</h2>
+5. Acesse a aplicação em:
+```
+http://localhost:3000
+```
 
-Special thank you for all people that contributed for this project.
+## 📂 Estrutura do Projeto
 
-<table>
-  <tr>
-    <td align="center">
-      <a href="#">
-        <img src="https://avatars.githubusercontent.com/u/70548699?s=96&v=4" width="100px;" alt="Ryan Gustavo Profile Picture"/><br>
-        <sub>
-          <b>Ryan Gustavo</b>
-        </sub>
-      </a>
-    </td>
-  </tr>
-</table>
+```
+lunna-frontend/
+├── app/                    # App Router do Next.js
+│   ├── dashboard/          # Páginas de dashboard
+│   ├── store/              # Páginas da loja
+│   ├── auth/               # Autenticação
+│   └── layout.tsx          # Layout principal
+├── components/             # Componentes React
+│   ├── ui/                 # Componentes básicos da UI
+│   ├── forms/              # Componentes de formulário
+│   ├── dashboard/          # Componentes do dashboard
+│   └── store/              # Componentes da loja
+├── lib/                    # Utilitários e configurações
+│   ├── api.ts              # Cliente Axios
+│   └── utils/              # Funções auxiliares
+├── hooks/                  # Hooks personalizados
+├── store/                  # Estados Zustand
+├── types/                  # Definições de tipos TypeScript
+├── styles/                 # Estilos globais
+└── public/                 # Arquivos estáticos
+```
 
-<h2 id="contribute">📫 Contribute</h2>
+## 🔐 Autenticação
 
-Here you will explain how other developers can contribute to your project. For example, explaining how can create their branches, which patterns to follow and how to open an pull request
+A autenticação é gerenciada pelo backend através da integração com OAuth do Discord. O frontend:
+- Redireciona o usuário para o fluxo de autenticação
+- Armazena e gerencia o token recebido do backend
+- Usa o token para autenticar requisições à API
+- Implementa rotas protegidas para usuários autenticados
 
-1. `git clone https://github.com/ryangustav/lunna_site.git`
-2. `git checkout -b feature/NAME`
-3. Follow commit patterns
-4. Open a Pull Request explaining the problem solved or feature made, if exists, append screenshot of visual modifications and wait for the review!
+## 💰 Integração com Pagamentos
 
-<h3>Documentations that might help</h3>
+O processamento de pagamentos é totalmente gerenciado pelo backend:
 
-[📝 How to create a Pull Request](https://www.atlassian.com/br/git/tutorials/making-a-pull-request)
+1. O usuário seleciona um produto (pacote VIP ou LunarCoins) na interface
+2. O frontend envia a solicitação para o backend
+3. O backend cria a sessão de pagamento e retorna o URL
+4. O frontend redireciona o usuário para a página de pagamento
+5. Após a conclusão, o usuário é redirecionado de volta com os benefícios já processados pelo backend
 
-[💾 Commit pattern](https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716)
+## 🌐 Implantação
+
+### Vercel (Recomendado)
+```bash
+npm run build
+# Deploy automático ao conectar ao GitHub
+```
+
+### Docker
+```bash
+# Construir a imagem
+docker build -t lunna-frontend .
+
+# Executar o container
+docker run -p 3000:3000 lunna-frontend
+```
+
+## 📱 Responsividade
+
+A interface foi desenvolvida seguindo o princípio de Mobile First, garantindo uma experiência otimizada em:
+- Dispositivos móveis
+- Tablets
+- Desktops
+- Telas largas
+
+## 🌍 Internacionalização
+
+Suporte para múltiplos idiomas:
+- Português (Brasil)
+- Inglês
+- Espanhol
+
+## 👥 Contribuição
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está licenciado sob os termos da licença [MIT](LICENSE).
+
+## 📧 Contato
+
+Para suporte ou dúvidas sobre o projeto:
+- Discord: [Servidor Oficial da Lunna](https://discord.gg/lunna)
+- GitHub: [ryangustav](https://github.com/ryangustav)
+
+---
+
+Desenvolvido com ❤️ pela equipe Lunna
