@@ -170,7 +170,7 @@ Este projeto está licenciado sob os termos da licença [MIT](LICENSE).
 ## 📧 Contato
 
 Para suporte ou dúvidas sobre o projeto:
-- Discord: [Servidor Oficial da Lunna](https://discord.gg/lunna)
+- Discord: [Servidor Oficial da Lunna](https://discord.gg/sfFvh6cPUc)
 - GitHub: [ryangustav](https://github.com/ryangustav)
 
 ---
