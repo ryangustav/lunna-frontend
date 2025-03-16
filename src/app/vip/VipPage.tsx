@@ -168,7 +168,7 @@ function VipPage() {
   };
 
 
-  const getIconForTier = (index: number): any => {
+  const getIconForTier = (index: number) => {
     switch(index) {
       case 0: return <Star className="w-8 h-8" />;
       case 1: return <Crown className="w-8 h-8" />;

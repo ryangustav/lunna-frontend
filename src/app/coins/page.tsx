@@ -4,7 +4,7 @@ import '@/src/styles/Shop.css';
 interface CoinsProps {
     amount: string;
     price: string;
-    bonus: Number | String | any;
+    bonus: string;
 
 }
 
@@ -39,28 +39,28 @@ const LunnarCoins = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="flex justify-center">
-              <CoinPackage amount="10,000" price="4.99" bonus={500} />
+              <CoinPackage amount="10,000" price="4.99" bonus="500" />
               </div>
               <div className="flex justify-center">
-              <CoinPackage amount="50,000" price="9.99" bonus={5000} />
+              <CoinPackage amount="50,000" price="9.99" bonus="5000" />
               </div>
               <div className="flex justify-center">
-              <CoinPackage amount="100,000" price="17.99" bonus={10500} />
+              <CoinPackage amount="100,000" price="17.99" bonus="10500" />
               </div>
               <div className="flex justify-center">
-              <CoinPackage amount="250,000" price="34.99" bonus={50000}/>
+              <CoinPackage amount="250,000" price="34.99" bonus="50000"/>
               </div>
               <div className="flex justify-center">
-              <CoinPackage amount="500,000" price="79.99" bonus={100000} />
+              <CoinPackage amount="500,000" price="79.99" bonus="100000" />
               </div>
               <div className="flex justify-center">
-              <CoinPackage amount="1,000,000" price="149.99" bonus={200000} />
+              <CoinPackage amount="1,000,000" price="149.99" bonus="200000" />
               </div>
               <div className="flex justify-center">
-              <CoinPackage amount="5,000,000" price="249.99" bonus={500000} />
+              <CoinPackage amount="5,000,000" price="249.99" bonus="500000" />
               </div>
               <div className="flex justify-center">
-              <CoinPackage amount="10,000,000" price="449.99" bonus={750000} />
+              <CoinPackage amount="10,000,000" price="449.99" bonus="750000" />
               </div>
             </div>
           </section>

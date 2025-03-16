@@ -17,11 +17,9 @@ const Nav = () => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserData = async () => {
-      // Pegar o token do cookie ao invés do localStorage
       const token = document.cookie
         .split('; ')
         .find(row => row.startsWith('token='))
@@ -30,7 +28,7 @@ const Nav = () => {
       if (!token) {
         console.log("No token found");
         setUser(null);
-        setLoading(false);
+
         return;
       }
 
@@ -55,7 +53,7 @@ const Nav = () => {
         console.log("Error fetching user data", error);
         setUser(null);
       } finally {
-        setLoading(false);
+        
       }
     };
 
