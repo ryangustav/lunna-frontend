@@ -109,7 +109,7 @@ function VipPage() {
       console.error('Error fetching tiers:', err);
     }
   };
-  const handlePurchase = async (tierId: string, price: number) => {
+  const handlePurchase = async (tierId: string) => {
     if (!tierId) {
       setError('Invalid tier selected');
       return;
@@ -168,7 +168,7 @@ function VipPage() {
   };
 
 
-  const getIconForTier = (index: number): any => {
+  const getIconForTier = (index: number) => {
     switch(index) {
       case 0: return <Star className="w-8 h-8" />;
       case 1: return <Crown className="w-8 h-8" />;
