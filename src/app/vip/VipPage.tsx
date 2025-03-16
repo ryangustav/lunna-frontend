@@ -109,7 +109,7 @@ function VipPage() {
       console.error('Error fetching tiers:', err);
     }
   };
-  const handlePurchase = async (tierId: string, price: number) => {
+  const handlePurchase = async (tierId: string) => {
     if (!tierId) {
       setError('Invalid tier selected');
       return;
