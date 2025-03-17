@@ -115,7 +115,7 @@ const Nav = () => {
               </>
             ) : (
               <a
-                href="https://discord.com/oauth2/authorize?client_id=1240128600439521292&response_type=code&redirect_uri=http%3A%2F%2F%5B%3A%3A1%5D%3A8080%2Fauth%2Fdiscord%2Fcallback&scope=identify+email"
+                href="https://discord.com/oauth2/authorize?client_id=1222333304028659792&response_type=code&redirect_uri=https%3A%2F%2Flunna-api.discloud.app%2Fauth%2Fdiscord%2Fcallback&scope=guilds+email+identify"
                 className="nav-link"
                 onClick={() => setIsOpen(false)}
               >
