@@ -1,10 +1,9 @@
-// components/Nav.tsx
 'use client';
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Globe, ChevronUp } from "lucide-react";
 import '@/src/styles/Nav.css';
 
 interface User {
@@ -13,12 +12,62 @@ interface User {
   avatar?: string;
 }
 
+interface Translation {
+  home: string;
+  vip: string;
+  coins: string;
+  privacy: string;
+  support: string;
+  guidelines: string;
+  pleaseLogIn: string;
+}
+
+const translations: Record<string, Translation> = {
+  en: {
+    home: "Home",
+    vip: "Vip",
+    coins: "Coins",
+    privacy: "Privacy",
+    support: "Support",
+    guidelines: "Guidelines",
+    pleaseLogIn: "Please log in",
+  },
+  pt: {
+    home: "Início",
+    vip: "Vip",
+    coins: "Coins",
+    privacy: "Privacidade",
+    support: "Suporte",
+    guidelines: "Regras",
+    pleaseLogIn: "Fazer login",
+  }
+};
+
 const Nav = () => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [language, setLanguage] = useState<string>("en");
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
   useEffect(() => {
+    // Load language preference from localStorage
+    const savedLanguage = localStorage.getItem('language');
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    }
+
+    // Function to close language menu when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      const languageSelector = document.querySelector('.language-selector');
+      if (languageSelector && !languageSelector.contains(event.target as Node)) {
+        setShowLanguageMenu(false);
+      }
+    };
+
+    // Add global click listener
+    document.addEventListener('mousedown', handleClickOutside);
+
     const fetchUserData = async () => {
       const token = document.cookie
         .split('; ')
@@ -28,7 +77,6 @@ const Nav = () => {
       if (!token) {
         console.log("No token found");
         setUser(null);
-
         return;
       }
 
@@ -43,7 +91,6 @@ const Nav = () => {
 
         if (response.ok) {
           const data = await response.json();
-          console.log(data.data.avatar)
           setUser(data.data);
         } else {
           console.log("User not authenticated");
@@ -52,19 +99,33 @@ const Nav = () => {
       } catch (error) {
         console.log("Error fetching user data", error);
         setUser(null);
-      } finally {
-        
       }
     };
 
     fetchUserData();
+
+    // Remove listener when component unmounts
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
+  const toggleLanguageMenu = () => {
+    setShowLanguageMenu(!showLanguageMenu);
+  };
+
+  const changeLanguage = (lang: string) => {
+    setLanguage(lang);
+    localStorage.setItem('language', lang);
+    setShowLanguageMenu(false);
+  };
+
   const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/vip", label: "Vip" },
-    { href: "/coins", label: "Coins" },
-    { href: "/privacy", label: "Privacy" },
+    { href: "/", label: translations[language].home },
+    { href: "/vip", label: translations[language].vip },
+    { href: "/coins", label: translations[language].coins },
+    { href: "/privacy", label: translations[language].privacy },
+    { href: "/guidelines", label: translations[language].guidelines },
   ];
 
   return (
@@ -100,7 +161,7 @@ const Nav = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Support
+            {translations[language].support}
           </a>
 
           <div className="mobile">
@@ -119,10 +180,32 @@ const Nav = () => {
                 className="nav-link"
                 onClick={() => setIsOpen(false)}
               >
-                Please log in
+                {translations[language].pleaseLogIn}
               </a>
             )}
           </div>
+
+          <div className="language-selector">
+            <button 
+              className="language-button" 
+              onClick={toggleLanguageMenu}
+            >
+              <Globe size={20} />
+              <span>{language.toUpperCase()}</span>
+              <ChevronUp 
+                size={16} 
+                className={`language-chevron ${showLanguageMenu ? 'open' : ''}`} 
+              />
+            </button>
+
+            {showLanguageMenu && (
+              <div className="language-menu">
+                <button onClick={() => changeLanguage("en")}>English</button>
+                <button onClick={() => changeLanguage("pt")}>Português</button>
+              </div>
+            )}
+          </div>
+          
         </div>
 
         <div className="nav-user">
@@ -141,7 +224,7 @@ const Nav = () => {
               className="nav-link"
               onClick={() => setIsOpen(false)}
             >
-              Please log in
+              {translations[language].pleaseLogIn}
             </a>
           )}
         </div>
