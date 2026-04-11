@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Globe, ChevronUp } from "lucide-react";
+import { Menu, X, Globe, ChevronUp, User as UserIcon, LayoutDashboard, Backpack, LogOut } from "lucide-react";
 import '@/src/styles/Nav.css';
 
 interface User {
@@ -49,6 +49,7 @@ const Nav = () => {
   const [user, setUser] = useState<User | null>(null);
   const [language, setLanguage] = useState<string>("en");
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
    
@@ -60,8 +61,14 @@ const Nav = () => {
    
     const handleClickOutside = (event: MouseEvent) => {
       const languageSelector = document.querySelector('.language-selector');
+      const userSelector = document.querySelector('.nav-user-container');
+      
       if (languageSelector && !languageSelector.contains(event.target as Node)) {
         setShowLanguageMenu(false);
+      }
+      
+      if (userSelector && !userSelector.contains(event.target as Node)) {
+        setShowUserMenu(false);
       }
     };
 
@@ -122,6 +129,14 @@ const Nav = () => {
     setLanguage(lang);
     localStorage.setItem('language', lang);
     setShowLanguageMenu(false);
+  };
+
+  const handleLogout = () => {
+    // Limpar cookie de token
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    setUser(null);
+    setShowUserMenu(false);
+    window.location.href = '/';
   };
 
   const navLinks = [
@@ -214,14 +229,56 @@ const Nav = () => {
 
         <div className="nav-user">
           {user ? (
-            <>
-              <span className="nav-link username">{user.username}</span>
-              <img 
-                src={user.avatar} 
-                alt={user.username} 
-                className="user-avatar"  
-              />
-            </>
+            <div className="nav-user-container relative">
+              <button 
+                className="flex items-center gap-3 hover:bg-white/5 p-2 rounded-xl transition-all"
+                onClick={() => setShowUserMenu(!showUserMenu)}
+              >
+                <span className="username font-medium text-gray-200">{user.username}</span>
+                <img 
+                  src={user.avatar} 
+                  alt={user.username} 
+                  className="user-avatar w-10 h-10 rounded-full border-2 border-purple-500/50"  
+                />
+              </button>
+
+              {showUserMenu && (
+                <div className="absolute right-0 mt-3 w-56 bg-[#0B0C10]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in slide-in-from-top-2">
+                  <Link 
+                    href="/dashboard" 
+                    className="flex items-center gap-3 w-full p-3 text-gray-300 hover:bg-purple-500/20 hover:text-white rounded-xl transition-all"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    <LayoutDashboard size={18} />
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link 
+                    href="/profile" 
+                    className="flex items-center gap-3 w-full p-3 text-gray-300 hover:bg-purple-500/20 hover:text-white rounded-xl transition-all"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    <UserIcon size={18} />
+                    <span>Perfil</span>
+                  </Link>
+                  <Link 
+                    href="/inventory" 
+                    className="flex items-center gap-3 w-full p-3 text-gray-300 hover:bg-purple-500/20 hover:text-white rounded-xl transition-all"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    <Backpack size={18} />
+                    <span>Inventário</span>
+                  </Link>
+                  <div className="h-px bg-white/5 my-2 mx-1" />
+                  <button 
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 w-full p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
+                  >
+                    <LogOut size={18} />
+                    <span>Sair</span>
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <a
               href="https://discord.com/oauth2/authorize?client_id=1222333304028659792&response_type=code&redirect_uri=https%3A%2F%2Fapi.lunnabot.fun%2Fv1%2Fauth%2Fdiscord%2Fcallback&scope=guilds+email+identify"
