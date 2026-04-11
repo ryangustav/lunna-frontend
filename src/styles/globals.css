@@ -1,5 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-    --background: #16161a;
+    --background: #111111;
     --headline: #fffffe;
     --paragraph: #94a1b2;
     --button: #7f5af0;
