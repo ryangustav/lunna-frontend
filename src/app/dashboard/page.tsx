@@ -86,14 +86,14 @@ export default function DashboardPage() {
 
         {/* Loading State */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {[1, 2, 3].map((skeleton) => (
               <div key={skeleton} className="bg-brand-card/20 rounded-[3rem] h-[350px] border border-white/5 animate-pulse" />
             ))}
           </div>
         ) : (
           /* Guild Grid */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {guilds.map((guild, index) => (
               <div 
                 key={guild.id} 
