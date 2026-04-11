@@ -18,8 +18,8 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-[calc(100-rem)] text-gray-200 pb-24 px-6 sm:px-12">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen text-gray-200 pb-24 px-6 sm:px-12 flex flex-col items-center">
+      <div className="w-full max-w-5xl space-y-16">
         
         {/* Profile Hero Section */}
         <div className="flex flex-col items-center text-center space-y-6 py-12">
