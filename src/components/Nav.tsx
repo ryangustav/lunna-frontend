@@ -80,7 +80,8 @@ const Nav = () => {
       }
 
       try {
-        const response = await fetch("http://192.168.0.101:8080/auth/me", {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${API_URL}/auth/me`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

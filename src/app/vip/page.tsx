@@ -118,7 +118,8 @@ function VipPage() {
     }
 
     try {
-      const response = await fetch("http://192.168.0.101:8080/auth/me", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${API_URL}/auth/me`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -144,7 +145,8 @@ function VipPage() {
 
   const fetchTiers = async () => {
     try {
-      const response = await fetch('http://192.168.0.101:8080/vip/tiers', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${API_URL}/vip/tiers`, {
         credentials: 'include',
       });
       
@@ -193,7 +195,8 @@ function VipPage() {
   
       console.log(payload)
 
-      const response = await fetch('http://192.168.0.101:8080/vip/purchase', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${API_URL}/vip/purchase`, {
         method: 'POST',
         credentials: 'include',
         headers: {
