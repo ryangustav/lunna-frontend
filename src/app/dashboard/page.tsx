@@ -55,69 +55,87 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0C10] text-gray-200 p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen bg-brand-dark text-gray-200 py-20 px-6 sm:px-12">
+      <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Header Section */}
-        <div className="space-y-2">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 drop-shadow-md">
+        <div className="space-y-3 text-center md:text-left">
+          <h1 className="text-5xl font-black text-white tracking-tight">
             Meus Servidores
           </h1>
-          <p className="text-gray-400 text-lg">Selecione um servidor para gerenciar as configurações da bot.</p>
+          <p className="text-gray-400 text-lg font-medium max-w-2xl">
+            Selecione seu reino para gerenciar as forças da Lunna e configurar as proteções místicas do servidor.
+          </p>
         </div>
 
         {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-6 rounded-2xl flex items-center gap-4 animate-in fade-in slide-in-from-top-4">
+                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                 {error}
             </div>
         )}
 
         {/* Loading State */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
-            {[1, 2, 3].map((skeleton) => (
-              <div key={skeleton} className="bg-gray-800/40 rounded-xl h-44 border border-gray-700/50" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {[1, 2, 3, 4].map((skeleton) => (
+              <div key={skeleton} className="bg-brand-card/20 rounded-3xl h-64 border border-white/5 animate-pulse" />
             ))}
           </div>
         ) : (
           /* Guild Grid */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
             {guilds.map((guild) => (
-              <div key={guild.id} className="group relative overflow-hidden bg-[#1F2833] rounded-2xl border border-gray-700/50 hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(168,85,247,0.15)] flex flex-col items-center justify-center p-6 text-center">
+              <div 
+                key={guild.id} 
+                className="group relative bg-brand-card/40 backdrop-blur-md rounded-[2.5rem] border border-white/5 hover:border-brand-purple/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(127,90,240,0.15)] p-8 flex flex-col items-center justify-between min-h-[320px] overflow-hidden"
+              >
+                  {/* Decorative Background Glow */}
+                  <div className="absolute -top-24 -right-24 w-48 h-48 bg-brand-purple/10 rounded-full blur-[80px] group-hover:bg-brand-purple/20 transition-all duration-700" />
                   
-                  {/* Glowing core effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-cyan-500/0 group-hover:from-purple-500/5 group-hover:to-cyan-500/5 transition-colors duration-500" />
+                  <div className="relative flex flex-col items-center w-full">
+                    {guild.icon ? (
+                        <div className="p-1 rounded-full bg-gradient-to-tr from-white/10 to-transparent group-hover:from-brand-purple/40 transition-all duration-500">
+                          <img src={guild.icon} alt={guild.name} className="w-24 h-24 rounded-full border-4 border-brand-dark object-cover shadow-2xl" />
+                        </div>
+                    ) : (
+                        <div className="w-24 h-24 rounded-full bg-black/40 flex items-center justify-center border-4 border-white/5 group-hover:border-brand-purple/20 transition-all duration-500">
+                          <Server className="w-10 h-10 text-gray-600 group-hover:text-brand-purple transition-colors" />
+                        </div>
+                    )}
+                    
+                    <h3 className="mt-6 text-2xl font-bold text-white group-hover:text-white transition-colors text-center line-clamp-2 px-2">
+                        {guild.name}
+                    </h3>
+                  </div>
                   
-                  {guild.icon ? (
-                    <img src={guild.icon} alt={guild.name} className="w-20 h-20 rounded-full shadow-lg ring-4 ring-gray-800 group-hover:ring-purple-500/30 transition-all duration-300" />
-                  ) : (
-                    <div className="w-20 h-20 rounded-full bg-gray-800 flex items-center justify-center ring-4 ring-gray-800 group-hover:ring-purple-500/30 transition-all duration-300">
-                      <Server className="w-8 h-8 text-gray-400" />
-                    </div>
-                  )}
-                  
-                  <h3 className="mt-4 text-xl font-bold text-gray-100 group-hover:text-white transition-colors truncate w-full px-4">
-                    {guild.name}
-                  </h3>
-                  
-                  <div className="mt-6 w-full">
+                  <div className="w-full pt-6 relative">
                       {guild.isBotIn ? (
-                          <Link href={`/dashboard/${guild.id}/moderation`} className="flex items-center justify-center w-full px-4 py-2 border border-purple-500/50 rounded-lg text-purple-400 hover:bg-purple-500/10 transition-all font-semibold">
-                              <Settings className="w-4 h-4 mr-2" /> Configurar
+                          <Link 
+                            href={`/dashboard/${guild.id}/moderation`} 
+                            className="flex items-center justify-center w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-gray-300 hover:bg-brand-purple/10 hover:text-white hover:border-brand-purple/30 transition-all font-bold text-sm tracking-wide uppercase group-hover:scale-[1.02]"
+                          >
+                               <Settings className="w-4 h-4 mr-2 text-brand-purple" /> Painel de Controle
                           </Link>
                       ) : (
                           <a 
                             href={`https://discord.com/oauth2/authorize?client_id=1222333304028659792&permissions=8&scope=bot%20applications.commands&guild_id=${guild.id}&disable_guild_select=true`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center justify-center w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-lg text-white hover:from-purple-500 hover:to-cyan-500 transition-all font-bold"
+                            className="flex items-center justify-center w-full px-6 py-4 bg-gradient-to-r from-brand-purple to-cyan-600 rounded-2xl text-white shadow-lg shadow-brand-purple/10 hover:shadow-brand-purple/30 hover:brightness-110 active:scale-[0.98] transition-all font-bold text-sm tracking-wide uppercase"
                           >
-                              <PlusCircle className="w-4 h-4 mr-2" /> Convidar
+                               <PlusCircle className="w-4 h-4 mr-2" /> Ativar Lunna
                           </a>
                       )}
                   </div>
               </div>
             ))}
+
+            {/* Empty State / Add New */}
+            <div className="group border-2 border-dashed border-white/5 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center space-y-4 opacity-40 hover:opacity-100 hover:border-brand-purple/20 transition-all duration-500 cursor-pointer min-h-[320px]">
+                <PlusCircle className="w-12 h-12 text-gray-600 group-hover:text-brand-purple transition-colors" />
+                <p className="text-gray-500 font-medium">Não achou seu servidor?<br/>Tente atualizar a lista.</p>
+            </div>
           </div>
         )}
       </div>

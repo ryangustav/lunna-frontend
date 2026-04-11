@@ -1,70 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Backpack, Shield, Sword, FlaskConical, CircleDot, Info } from "lucide-react";
+import { getCookie } from 'cookies-next';
+
 
 // Categorias de itens
 type Category = "Todos" | "Equipamentos" | "Consumíveis" | "Acessórios";
 
-interface Item {
-  id: string;
-  name: string;
-  description: string;
-  category: Category;
-  rarity: "Comum" | "Raro" | "Épico" | "Lendário";
-  icon: string;
-  stats?: {
-    name: string;
-    value: string | number;
-  }[];
-}
+// Tipos de raridade para validação
+type Rarity = "Comum" | "Raro" | "Épico" | "Lendário";
 
-const MOCK_ITEMS: Item[] = [
-  {
-    id: "1",
-    name: "Espada da Estrela Cadente",
-    description: "Uma lâmina lendária forjada com restos de um meteoro que caiu nas montanhas lunares.",
-    category: "Equipamentos",
-    rarity: "Lendário",
-    icon: "/sprites/sword_legendary.png",
-    stats: [
-      { name: "Ataque", value: "+150" },
-      { name: "Velocidade", value: "+15%" }
-    ]
-  },
-  {
-    id: "2",
-    name: "Escudo de Obsidiana",
-    description: "Absorve 70% do dano de magias sombrias. Extremamente pesado, mas inquebrável.",
-    category: "Equipamentos",
-    rarity: "Épico",
-    icon: "/sprites/shield_obsidian.png",
-    stats: [
-      { name: "Defesa", value: "+85" },
-      { name: "Peso", value: "30kg" }
-    ]
-  },
-  {
-    id: "3",
-    name: "Poção de Vitalidade Pura",
-    description: "Restaura instantaneamente 100% da vida e remove efeitos de sangramento.",
-    category: "Consumíveis",
-    rarity: "Raro",
-    icon: "/sprites/potion_health.png"
-  },
-  {
-    id: "4",
-    name: "Anel de Safira Mística",
-    description: "Aumenta passivamente a regeneração de mana enquanto o usuário estiver imóvel.",
-    category: "Acessórios",
-    rarity: "Épico",
-    icon: "/sprites/ring_mana.png",
-    stats: [
-      { name: "Regen Mana", value: "+10/s" }
-    ]
-  },
-];
 
 const rarityStyles = {
   Lendário: "ring-2 ring-yellow-400/50 shadow-[0_0_20px_-5px_rgba(250,204,21,0.4)] border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-transparent",
@@ -82,11 +29,69 @@ const rarityText = {
 
 export default function InventoryPage() {
   const [activeTab, setActiveTab] = useState<Category>("Todos");
-  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [inventory, setInventory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredItems = MOCK_ITEMS.filter(item => 
-    activeTab === "Todos" || item.category === activeTab
+  useEffect(() => {
+    fetchInventory();
+  }, []);
+
+  const fetchInventory = async () => {
+    try {
+      setLoading(true);
+      const token = getCookie('token');
+      if (!token) throw new Error("Acesse sua conta para ver seu inventário.");
+
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${API_URL}/rpg/inventory`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error("Falha ao comunicar com o servidor.");
+
+      const result = await response.json();
+      if (result.success) {
+        setInventory(result.data);
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEquip = async (userItemId: string) => {
+    try {
+        const token = getCookie('token');
+        const API_URL = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${API_URL}/rpg/equip/${userItemId}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+  
+        if (response.ok) {
+            setInventory(prev => prev.map(inv => 
+                inv.id === userItemId ? { ...inv, equipped: !inv.equipped } : inv
+            ));
+            if (selectedItem?.id === userItemId) {
+                setSelectedItem((prev: any) => ({ ...prev, equipped: !prev.equipped }));
+            }
+        }
+    } catch (err) {
+        console.error("Erro ao equipar:", err);
+    }
+  };
+
+  const filteredItems = inventory.filter(inv => 
+    activeTab === "Todos" || inv.item.category === activeTab
   );
+
 
   return (
     <div className="min-h-screen bg-brand-dark text-gray-200 p-8 font-sans">
@@ -125,23 +130,23 @@ export default function InventoryPage() {
             {/* Grid de Itens */}
             <div className="lg:col-span-8 flex flex-col gap-6">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {filteredItems.map(item => (
+                    {filteredItems.map(inv => (
                         <button
-                            key={item.id}
-                            onClick={() => setSelectedItem(item)}
+                            key={inv.id}
+                            onClick={() => setSelectedItem(inv)}
                             className={`relative aspect-square rounded-2xl p-4 transition-all duration-300 hover:scale-105 flex items-center justify-center border group overflow-hidden ${
-                                selectedItem?.id === item.id ? "ring-2 ring-brand-purple border-brand-purple animate-pulse" : rarityStyles[item.rarity]
+                                selectedItem?.id === inv.id ? "ring-2 ring-brand-purple border-brand-purple animate-pulse" : rarityStyles[inv.item.rarity as Rarity]
                             }`}
                         >
                             <img 
-                                src={item.icon} 
-                                alt={item.name}
+                                src={inv.item.icon} 
+                                alt={inv.item.name}
                                 className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] max-h-32"
                             />
                             
                             {/* Rarity Label (Mobile) */}
                             <span className="absolute bottom-2 right-2 text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 transition-opacity">
-                                {item.rarity}
+                                {inv.item.rarity}
                             </span>
                         </button>
                     ))}
@@ -162,47 +167,47 @@ export default function InventoryPage() {
                         
                         <div className="relative aspect-square w-48 mx-auto bg-white/5 rounded-3xl p-6 border border-white/5 shadow-2xl">
                              <img 
-                                src={selectedItem.icon} 
-                                alt={selectedItem.name}
+                                src={selectedItem.item.icon} 
+                                alt={selectedItem.item.name}
                                 className="w-full h-full object-contain"
                             />
                         </div>
 
                         <div className="text-center space-y-2">
-                            <span className={`text-xs font-bold uppercase tracking-[0.2em] ${rarityText[selectedItem.rarity]}`}>
-                                {selectedItem.rarity}
+                            <span className={`text-xs font-bold uppercase tracking-[0.2em] ${rarityText[selectedItem.item.rarity as Rarity]}`}>
+                                {selectedItem.item.rarity}
                             </span>
                             <h2 className="text-2xl font-bold text-white leading-tight">
-                                {selectedItem.name}
+                                {selectedItem.item.name}
                             </h2>
                             <div className="flex items-center justify-center gap-2 text-sm text-gray-400 bg-white/5 py-1 px-3 rounded-full w-fit mx-auto">
-                                {selectedItem.category === "Equipamentos" && <Sword size={14} />}
-                                {selectedItem.category === "Consumíveis" && <FlaskConical size={14} />}
-                                {selectedItem.category === "Acessórios" && <Shield size={14} />}
-                                {selectedItem.category}
+                                {selectedItem.item.category === "Equipamentos" && <Sword size={14} />}
+                                {selectedItem.item.category === "Consumíveis" && <FlaskConical size={14} />}
+                                {selectedItem.item.category === "Acessórios" && <Shield size={14} />}
+                                {selectedItem.item.category}
                             </div>
                         </div>
 
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-sm font-semibold text-gray-300">
-                                <Info size={16} className="text-brand-purple" />
+                                <span className="text-brand-purple"><Info size={16} /></span>
                                 <span>Descrição</span>
                             </div>
                             <p className="text-gray-400 leading-relaxed text-sm italic">
-                                "{selectedItem.description}"
+                                "{selectedItem.item.description}"
                             </p>
                         </div>
 
-                        {selectedItem.stats && (
+                        {selectedItem.item.stats && (
                              <div className="space-y-4 pt-4 border-t border-white/5">
                                 <div className="grid grid-cols-2 gap-3">
-                                    {selectedItem.stats.map(stat => (
-                                        <div key={stat.name} className="bg-white/5 p-3 rounded-2xl flex flex-col items-center justify-center border border-white/5">
+                                    {Object.entries(selectedItem.item.stats).map(([key, value]: [string, any]) => (
+                                        <div key={key} className="bg-white/5 p-3 rounded-2xl flex flex-col items-center justify-center border border-white/5">
                                             <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">
-                                                {stat.name}
+                                                {key}
                                             </span>
                                             <span className="text-lg font-bold text-brand-purple">
-                                                {stat.value}
+                                                +{value}
                                             </span>
                                         </div>
                                     ))}
@@ -210,11 +215,19 @@ export default function InventoryPage() {
                              </div>
                         )}
 
-                        <button className="w-full py-4 bg-gradient-to-r from-brand-purple to-cyan-600 rounded-2xl font-bold text-white shadow-xl hover:shadow-brand-purple/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                            Equipar Item
+                        <button 
+                            onClick={() => handleEquip(selectedItem.id)}
+                            className={`w-full py-4 rounded-2xl font-bold text-white shadow-xl transition-all ${
+                                selectedItem.equipped 
+                                ? "bg-red-500/20 border border-red-500/50 hover:bg-red-500/30" 
+                                : "bg-gradient-to-r from-brand-purple to-cyan-600 hover:shadow-brand-purple/20 hover:scale-[1.02] active:scale-[0.98]"
+                            }`}
+                        >
+                            {selectedItem.equipped ? "Desequipar Item" : "Equipar Item"}
                         </button>
 
                     </div>
+
                 ) : (
                     <div className="h-[500px] border-2 border-dashed border-white/5 rounded-3xl flex flex-col items-center justify-center text-center p-8 space-y-4 opacity-50">
                         <Backpack size={48} className="text-gray-700" />
