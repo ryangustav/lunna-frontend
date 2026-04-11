@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Server, Settings, PlusCircle } from "lucide-react";
+import { Server, Settings, PlusCircle, Sparkles } from "lucide-react";
 import { getCookie } from 'cookies-next';
 
 interface Guild {
