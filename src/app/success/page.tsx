@@ -1,11 +1,12 @@
 'use client';
-import { useEffect, useState } from 'react';
+
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import '@/src/styles/globals.css';
 import '@/src/styles/Shop.css';
 
-export default function SuccessPage() {
+function SuccessPageContent() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [purchaseType, setPurchaseType] = useState<string>('');
   const [showConfetti, setShowConfetti] = useState(false);
@@ -156,5 +157,13 @@ export default function SuccessPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<div className="shop-container"><div className="shop-content text-center">Carregando confirmação...</div></div>}>
+      <SuccessPageContent />
+    </Suspense>
   );
 }
