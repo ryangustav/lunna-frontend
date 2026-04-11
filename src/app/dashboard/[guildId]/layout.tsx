@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { use } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShieldAlert, Settings, LayoutDashboard } from "lucide-react";
@@ -10,10 +10,10 @@ export default function GuildDashboardLayout({
   params
 }: {
   children: React.ReactNode;
-  params: { guildId: string };
+  params: Promise<{ guildId: string }>;
 }) {
   const pathname = usePathname();
-  const { guildId } = params;
+  const { guildId } = use(params);
 
   const links = [
     { name: "Overview", href: `/dashboard/${guildId}`, icon: <LayoutDashboard className="w-5 h-5 mr-3" /> },
