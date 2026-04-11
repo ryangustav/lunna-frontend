@@ -243,35 +243,35 @@ const Nav = () => {
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-3 w-56 bg-[#0B0C10]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 mt-3 w-56 bg-brand-card/98 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in slide-in-from-top-2">
                   <Link 
                     href="/dashboard" 
-                    className="flex items-center gap-3 w-full p-3 text-gray-300 hover:bg-purple-500/20 hover:text-white rounded-xl transition-all"
+                    className="flex items-center gap-3 w-full p-3 text-gray-300 hover:bg-brand-purple/20 hover:text-white rounded-xl transition-all"
                     onClick={() => setShowUserMenu(false)}
                   >
                     <LayoutDashboard size={18} />
-                    <span>Dashboard</span>
+                    <span className="font-medium">Dashboard</span>
                   </Link>
                   <Link 
                     href="/profile" 
-                    className="flex items-center gap-3 w-full p-3 text-gray-300 hover:bg-purple-500/20 hover:text-white rounded-xl transition-all"
+                    className="flex items-center gap-3 w-full p-3 text-gray-300 hover:bg-brand-purple/20 hover:text-white rounded-xl transition-all"
                     onClick={() => setShowUserMenu(false)}
                   >
                     <UserIcon size={18} />
-                    <span>Perfil</span>
+                    <span className="font-medium">Perfil</span>
                   </Link>
                   <Link 
                     href="/inventory" 
-                    className="flex items-center gap-3 w-full p-3 text-gray-300 hover:bg-purple-500/20 hover:text-white rounded-xl transition-all"
+                    className="flex items-center gap-3 w-full p-3 text-gray-300 hover:bg-brand-purple/20 hover:text-white rounded-xl transition-all"
                     onClick={() => setShowUserMenu(false)}
                   >
                     <Backpack size={18} />
-                    <span>Inventário</span>
+                    <span className="font-medium">Inventário</span>
                   </Link>
                   <div className="h-px bg-white/5 my-2 mx-1" />
                   <button 
                     onClick={handleLogout}
-                    className="flex items-center gap-3 w-full p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
+                    className="flex items-center gap-3 w-full p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-all font-medium text-left"
                   >
                     <LogOut size={18} />
                     <span>Sair</span>

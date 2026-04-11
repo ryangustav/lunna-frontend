@@ -89,14 +89,14 @@ export default function InventoryPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0B0C10] text-gray-200 p-8 font-sans">
+    <div className="min-h-screen bg-brand-dark text-gray-200 p-8 font-sans">
       <div className="max-w-6xl mx-auto">
         
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
             <div className="space-y-1">
                 <div className="flex items-center gap-3">
-                    <Backpack className="w-8 h-8 text-purple-500" />
+                    <Backpack className="w-8 h-8 text-brand-purple" />
                     <h1 className="text-4xl font-extrabold tracking-tight text-white">Inventário</h1>
                 </div>
                 <p className="text-gray-400">Gerencie seus equipamentos e itens mágicos coletados no RPG.</p>
@@ -110,7 +110,7 @@ export default function InventoryPage() {
                         onClick={() => setActiveTab(tab)}
                         className={`px-5 py-2.5 rounded-xl transition-all text-sm font-medium ${
                             activeTab === tab 
-                            ? "bg-purple-600 text-white shadow-lg" 
+                            ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20" 
                             : "text-gray-400 hover:text-white hover:bg-white/5"
                         }`}
                     >
@@ -129,14 +129,14 @@ export default function InventoryPage() {
                         <button
                             key={item.id}
                             onClick={() => setSelectedItem(item)}
-                            className={`relative aspect-square rounded-2xl p-4 transition-all duration-300 hover:scale-105 flex items-center justify-center border group ${
-                                selectedItem?.id === item.id ? "ring-2 ring-purple-500 border-purple-500 animate-pulse" : rarityStyles[item.rarity]
+                            className={`relative aspect-square rounded-2xl p-4 transition-all duration-300 hover:scale-105 flex items-center justify-center border group overflow-hidden ${
+                                selectedItem?.id === item.id ? "ring-2 ring-brand-purple border-brand-purple animate-pulse" : rarityStyles[item.rarity]
                             }`}
                         >
                             <img 
                                 src={item.icon} 
                                 alt={item.name}
-                                className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]"
+                                className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] max-h-32"
                             />
                             
                             {/* Rarity Label (Mobile) */}
@@ -148,7 +148,7 @@ export default function InventoryPage() {
                     
                     {/* Placeholder Slots */}
                     {Array.from({ length: 12 - filteredItems.length }).map((_, i) => (
-                        <div key={`empty-${i}`} className="aspect-square rounded-2xl bg-[#1F2833]/20 border border-white/5 flex items-center justify-center opacity-30">
+                        <div key={`empty-${i}`} className="aspect-square rounded-2xl bg-brand-card/20 border border-white/5 flex items-center justify-center opacity-30">
                             <CircleDot className="w-6 h-6 text-gray-700" />
                         </div>
                     ))}
@@ -156,9 +156,9 @@ export default function InventoryPage() {
             </div>
 
             {/* Sidebar de Detalhes */}
-            <div className="lg:col-span-4 self-start sticky top-8">
+            <div className="lg:col-span-4 self-start sticky top-24">
                 {selectedItem ? (
-                    <div className="bg-[#1F2833]/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 space-y-8 animate-in fade-in slide-in-from-right-4">
+                    <div className="bg-brand-card/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 space-y-8 animate-in fade-in slide-in-from-right-4">
                         
                         <div className="relative aspect-square w-48 mx-auto bg-white/5 rounded-3xl p-6 border border-white/5 shadow-2xl">
                              <img 
@@ -185,7 +185,7 @@ export default function InventoryPage() {
 
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-sm font-semibold text-gray-300">
-                                <Info size={16} className="text-purple-400" />
+                                <Info size={16} className="text-brand-purple" />
                                 <span>Descrição</span>
                             </div>
                             <p className="text-gray-400 leading-relaxed text-sm italic">
@@ -201,7 +201,7 @@ export default function InventoryPage() {
                                             <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">
                                                 {stat.name}
                                             </span>
-                                            <span className="text-lg font-bold text-purple-400">
+                                            <span className="text-lg font-bold text-brand-purple">
                                                 {stat.value}
                                             </span>
                                         </div>
@@ -210,7 +210,7 @@ export default function InventoryPage() {
                              </div>
                         )}
 
-                        <button className="w-full py-4 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-2xl font-bold text-white shadow-xl hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                        <button className="w-full py-4 bg-gradient-to-r from-brand-purple to-cyan-600 rounded-2xl font-bold text-white shadow-xl hover:shadow-brand-purple/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
                             Equipar Item
                         </button>
 
@@ -226,16 +226,6 @@ export default function InventoryPage() {
         </div>
 
       </div>
-
-      <style jsx global>{`
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-out;
-        }
-      `}</style>
     </div>
   );
 }

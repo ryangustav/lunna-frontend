@@ -11,6 +11,11 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        brand: {
+          purple: "#7f5af0",
+          dark: "#111111",
+          card: "#16161a",
+        }
       },
     },
   },
