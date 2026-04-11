@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Server, Settings, ShieldAlert, Cpu } from "lucide-react";
+import { Server, Settings } from "lucide-react";
 
 interface Guild {
   id: string;

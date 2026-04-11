@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ShieldAlert, Save, Info } from "lucide-react";
+import { ShieldAlert, Save } from "lucide-react";
 
 export default function ModerationPage({ params }: { params: { guildId: string } }) {
   const { guildId } = params;
