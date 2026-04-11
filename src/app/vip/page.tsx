@@ -118,7 +118,7 @@ function VipPage() {
     }
 
     try {
-      const response = await fetch("https://lunna-api.discloud.app/auth/me", {
+      const response = await fetch("http://192.168.0.101:8080/auth/me", {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -144,7 +144,7 @@ function VipPage() {
 
   const fetchTiers = async () => {
     try {
-      const response = await fetch('https://lunna-api.discloud.app/vip/tiers', {
+      const response = await fetch('http://192.168.0.101:8080/vip/tiers', {
         credentials: 'include',
       });
       
@@ -193,7 +193,7 @@ function VipPage() {
   
       console.log(payload)
 
-      const response = await fetch('https://lunna-api.discloud.app/vip/purchase', {
+      const response = await fetch('http://192.168.0.101:8080/vip/purchase', {
         method: 'POST',
         credentials: 'include',
         headers: {

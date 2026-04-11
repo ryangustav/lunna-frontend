@@ -33,6 +33,13 @@
     padding: 0 2rem;
   }
   
+  .gif {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+  }
+
   .nav {
     position: fixed;
     top: 0;
@@ -104,6 +111,8 @@
     margin: 0 0.5rem;
   }
   
+
+
   .button-primary:hover {
     background-color: var(--button-hover);
     transform: translateY(-2px);

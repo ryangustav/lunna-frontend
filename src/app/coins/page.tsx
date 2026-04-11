@@ -8,6 +8,7 @@ import '@/src/styles/globals.css';
 interface Translation {
   shopTitle: string;
   shopDescription: string;
+  ShopAlert: string;
   coinPackageBonus: string;
   purchase: string;
 }
@@ -16,12 +17,14 @@ const translations: Record<string, Translation> = {
   en: {
     shopTitle: "Lunna Shop",
     shopDescription: "Enhance your Lunna experience with premium features and Lunar Coins",
+    ShopAlert: "",
     coinPackageBonus: "Bonus Coins",
     purchase: "Purchase"
   },
   pt: {
     shopTitle: "Loja da Lunna",
     shopDescription: "Melhore sua experiência Lunna com recursos premium e Lunar Coins",
+    ShopAlert: "",
     coinPackageBonus: "Bônus Coins",
     purchase: "Comprar"
   }

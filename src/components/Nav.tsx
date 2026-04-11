@@ -51,13 +51,13 @@ const Nav = () => {
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
   useEffect(() => {
-    // Load language preference from localStorage
+   
     const savedLanguage = localStorage.getItem('language');
     if (savedLanguage) {
       setLanguage(savedLanguage);
     }
 
-    // Function to close language menu when clicking outside
+   
     const handleClickOutside = (event: MouseEvent) => {
       const languageSelector = document.querySelector('.language-selector');
       if (languageSelector && !languageSelector.contains(event.target as Node)) {
@@ -65,7 +65,6 @@ const Nav = () => {
       }
     };
 
-    // Add global click listener
     document.addEventListener('mousedown', handleClickOutside);
 
     const fetchUserData = async () => {
@@ -81,7 +80,7 @@ const Nav = () => {
       }
 
       try {
-        const response = await fetch("https://lunna-api.discloud.app/auth/me", {
+        const response = await fetch("http://192.168.0.101:8080/auth/me", {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -92,6 +91,10 @@ const Nav = () => {
         if (response.ok) {
           const data = await response.json();
           setUser(data.data);
+
+          if (data.admin) {
+            navLinks.push({ href: "/admin", label: "Admin" });
+          }
         } else {
           console.log("User not authenticated");
           setUser(null);
@@ -176,7 +179,7 @@ const Nav = () => {
               </>
             ) : (
               <a
-                href="https://discord.com/oauth2/authorize?client_id=1222333304028659792&response_type=code&redirect_uri=https%3A%2F%2Flunna-api.discloud.app%2Fauth%2Fdiscord%2Fcallback&scope=guilds+email+identify"
+                href="https://discord.com/oauth2/authorize?client_id=1222333304028659792&response_type=code&redirect_uri=https%3A%2F%2Fapi.lunnabot.fun%2Fv1%2Fauth%2Fdiscord%2Fcallback&scope=guilds+email+identify"
                 className="nav-link"
                 onClick={() => setIsOpen(false)}
               >
@@ -220,7 +223,7 @@ const Nav = () => {
             </>
           ) : (
             <a
-              href="https://discord.com/oauth2/authorize?client_id=1222333304028659792&response_type=code&redirect_uri=https%3A%2F%2Flunna-api.discloud.app%2Fauth%2Fdiscord%2Fcallback&scope=guilds+email+identify"
+              href="https://discord.com/oauth2/authorize?client_id=1222333304028659792&response_type=code&redirect_uri=https%3A%2F%2Fapi.lunnabot.fun%2Fv1%2Fauth%2Fdiscord%2Fcallback&scope=guilds+email+identify"
               className="nav-link"
               onClick={() => setIsOpen(false)}
             >
