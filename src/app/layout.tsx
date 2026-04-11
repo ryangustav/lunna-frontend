@@ -1,4 +1,5 @@
 import Nav from '../components/Nav'
+import '../styles/globals.css'
 
 export default function RootLayout({
   children,
