@@ -94,29 +94,35 @@ export default function InventoryPage() {
 
 
   return (
-    <div className="min-h-screen bg-brand-dark text-gray-200 p-8 font-sans">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-brand-dark text-gray-200 py-12 px-6 sm:px-12 font-sans relative overflow-hidden">
+        {/* Abstract Background Glows */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-purple/5 rounded-full blur-[120px] -z-10 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[120px] -z-10 pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto space-y-12">
         
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-            <div className="space-y-1">
-                <div className="flex items-center gap-3">
-                    <Backpack className="w-8 h-8 text-brand-purple" />
-                    <h1 className="text-4xl font-extrabold tracking-tight text-white">Inventário</h1>
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 animate-in fade-in slide-in-from-top-4 duration-700">
+            <div className="space-y-3">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-brand-purple/20 rounded-2xl border border-brand-purple/20">
+                        <Backpack className="w-8 h-8 text-brand-purple" />
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white italic capitalize">Teu Arsenal</h1>
                 </div>
-                <p className="text-gray-400">Gerencie seus equipamentos e itens mágicos coletados no RPG.</p>
+                <p className="text-gray-400 font-medium text-lg">Gerencie seus artefatos e equipamentos coletados em suas jornadas.</p>
             </div>
 
-            {/* Tabs */}
-            <div className="flex p-1 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
+            {/* Premium Tabs */}
+            <div className="flex p-1.5 bg-brand-card/30 backdrop-blur-xl rounded-[1.5rem] border border-white/5 w-fit">
                 {(["Todos", "Equipamentos", "Consumíveis", "Acessórios"] as Category[]).map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`px-5 py-2.5 rounded-xl transition-all text-sm font-medium ${
+                        className={`px-6 py-3 rounded-2xl transition-all text-sm font-bold uppercase tracking-wider ${
                             activeTab === tab 
-                            ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20" 
-                            : "text-gray-400 hover:text-white hover:bg-white/5"
+                            ? "bg-gradient-to-r from-brand-purple to-purple-600 text-white shadow-xl shadow-brand-purple/20" 
+                            : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
                         }`}
                     >
                         {tab}
@@ -127,111 +133,114 @@ export default function InventoryPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             
-            {/* Grid de Itens */}
-            <div className="lg:col-span-8 flex flex-col gap-6">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {/* Item Grid Area */}
+            <div className="lg:col-span-8 space-y-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 animate-in fade-in slide-in-from-left-4 duration-1000">
                     {filteredItems.map(inv => (
                         <button
                             key={inv.id}
                             onClick={() => setSelectedItem(inv)}
-                            className={`relative aspect-square rounded-2xl p-4 transition-all duration-300 hover:scale-105 flex items-center justify-center border group overflow-hidden ${
-                                selectedItem?.id === inv.id ? "ring-2 ring-brand-purple border-brand-purple animate-pulse" : rarityStyles[inv.item.rarity as Rarity]
+                            className={`relative aspect-square rounded-[2rem] p-6 transition-all duration-500 hover:scale-105 flex items-center justify-center border group overflow-hidden bg-brand-card/20 backdrop-blur-sm ${
+                                selectedItem?.id === inv.id 
+                                ? "ring-2 ring-brand-purple border-brand-purple shadow-[0_0_30px_rgba(127,90,240,0.2)]" 
+                                : rarityStyles[inv.item.rarity as Rarity]
                             }`}
                         >
+                            {/* Rare Glow Effect */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            
                             <img 
                                 src={inv.item.icon} 
                                 alt={inv.item.name}
-                                className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] max-h-32"
+                                className="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(255,255,255,0.3)] group-hover:rotate-3 transition-transform duration-500"
                             />
                             
-                            {/* Rarity Label (Mobile) */}
-                            <span className="absolute bottom-2 right-2 text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 transition-opacity">
-                                {inv.item.rarity}
-                            </span>
+                            {inv.equipped && (
+                                <div className="absolute top-3 right-3 bg-brand-purple text-white p-1 rounded-lg border border-white/20 shadow-lg">
+                                    <Shield size={12} className="fill-current" />
+                                </div>
+                            )}
                         </button>
                     ))}
                     
                     {/* Placeholder Slots */}
-                    {Array.from({ length: 12 - filteredItems.length }).map((_, i) => (
-                        <div key={`empty-${i}`} className="aspect-square rounded-2xl bg-brand-card/20 border border-white/5 flex items-center justify-center opacity-30">
-                            <CircleDot className="w-6 h-6 text-gray-700" />
+                    {Array.from({ length: Math.max(0, 12 - filteredItems.length) }).map((_, i) => (
+                        <div key={`empty-${i}`} className="aspect-square rounded-[2rem] bg-white/[0.02] border border-white/[0.03] flex items-center justify-center opacity-20">
+                            <CircleDot className="w-6 h-6 text-gray-800" />
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Sidebar de Detalhes */}
+            {/* Sidebar Details */}
             <div className="lg:col-span-4 self-start sticky top-24">
                 {selectedItem ? (
-                    <div className="bg-brand-card/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 space-y-8 animate-in fade-in slide-in-from-right-4">
+                    <div className="bg-brand-card/40 backdrop-blur-[40px] border border-white/10 rounded-[3rem] p-10 space-y-10 animate-in fade-in zoom-in-95 duration-500 shadow-2xl overflow-hidden relative">
+                        <div className="absolute -top-20 -right-20 w-48 h-48 bg-brand-purple/10 rounded-full blur-[60px]" />
                         
-                        <div className="relative aspect-square w-48 mx-auto bg-white/5 rounded-3xl p-6 border border-white/5 shadow-2xl">
+                        <div className="relative aspect-square w-full bg-black/20 rounded-[2.5rem] p-10 border border-white/5 shadow-inner flex items-center justify-center">
                              <img 
                                 src={selectedItem.item.icon} 
                                 alt={selectedItem.item.name}
-                                className="w-full h-full object-contain"
+                                className="w-full h-full object-contain filter drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
                             />
                         </div>
 
-                        <div className="text-center space-y-2">
-                            <span className={`text-xs font-bold uppercase tracking-[0.2em] ${rarityText[selectedItem.item.rarity as Rarity]}`}>
-                                {selectedItem.item.rarity}
-                            </span>
-                            <h2 className="text-2xl font-bold text-white leading-tight">
+                        <div className="text-center space-y-3">
+                            <div className="flex items-center justify-center gap-2 mb-2">
+                                <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border ${rarityStyles[selectedItem.item.rarity as Rarity]} bg-transparent`}>
+                                    {selectedItem.item.rarity}
+                                </span>
+                            </div>
+                            <h2 className="text-3xl font-black text-white leading-tight tracking-tight">
                                 {selectedItem.item.name}
                             </h2>
-                            <div className="flex items-center justify-center gap-2 text-sm text-gray-400 bg-white/5 py-1 px-3 rounded-full w-fit mx-auto">
-                                {selectedItem.item.category === "Equipamentos" && <Sword size={14} />}
-                                {selectedItem.item.category === "Consumíveis" && <FlaskConical size={14} />}
-                                {selectedItem.item.category === "Acessórios" && <Shield size={14} />}
+                            <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500">
                                 {selectedItem.item.category}
                             </div>
                         </div>
 
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-sm font-semibold text-gray-300">
-                                <span className="text-brand-purple"><Info size={16} /></span>
-                                <span>Descrição</span>
-                            </div>
-                            <p className="text-gray-400 leading-relaxed text-sm italic">
+                            <p className="text-gray-400 leading-relaxed text-sm italic text-center px-4">
                                 "{selectedItem.item.description}"
                             </p>
                         </div>
 
                         {selectedItem.item.stats && (
-                             <div className="space-y-4 pt-4 border-t border-white/5">
-                                <div className="grid grid-cols-2 gap-3">
-                                    {Object.entries(selectedItem.item.stats).map(([key, value]: [string, any]) => (
-                                        <div key={key} className="bg-white/5 p-3 rounded-2xl flex flex-col items-center justify-center border border-white/5">
-                                            <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">
-                                                {key}
-                                            </span>
-                                            <span className="text-lg font-bold text-brand-purple">
-                                                +{value}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
+                             <div className="grid grid-cols-2 gap-4">
+                                {Object.entries(selectedItem.item.stats).map(([key, value]: [string, any]) => (
+                                    <div key={key} className="bg-white/5 p-4 rounded-3xl flex flex-col items-center justify-center border border-white/5 transition-colors hover:bg-white/10">
+                                        <span className="text-[10px] uppercase font-black text-gray-500 tracking-widest mb-1">
+                                            {key}
+                                        </span>
+                                        <span className="text-xl font-black text-brand-purple italic">
+                                            +{value}
+                                        </span>
+                                    </div>
+                                ))}
                              </div>
                         )}
 
                         <button 
                             onClick={() => handleEquip(selectedItem.id)}
-                            className={`w-full py-4 rounded-2xl font-bold text-white shadow-xl transition-all ${
+                            className={`w-full py-5 rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-2xl transition-all relative group overflow-hidden ${
                                 selectedItem.equipped 
-                                ? "bg-red-500/20 border border-red-500/50 hover:bg-red-500/30" 
-                                : "bg-gradient-to-r from-brand-purple to-cyan-600 hover:shadow-brand-purple/20 hover:scale-[1.02] active:scale-[0.98]"
+                                ? "bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20" 
+                                : "bg-gradient-to-r from-brand-purple to-cyan-600 text-white hover:shadow-brand-purple/40 hover:scale-[1.02] active:scale-[0.98]"
                             }`}
                         >
-                            {selectedItem.equipped ? "Desequipar Item" : "Equipar Item"}
+                            <span className="relative z-10">{selectedItem.equipped ? "Remover Equipamento" : "Equipar Artefato"}</span>
+                            {!selectedItem.equipped && <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />}
                         </button>
 
                     </div>
 
                 ) : (
-                    <div className="h-[500px] border-2 border-dashed border-white/5 rounded-3xl flex flex-col items-center justify-center text-center p-8 space-y-4 opacity-50">
-                        <Backpack size={48} className="text-gray-700" />
-                        <p className="text-gray-500">Selecione um item para ver detalhes e estatísticas.</p>
+                    <div className="h-[600px] bg-brand-card/10 backdrop-blur-sm border-2 border-dashed border-white/5 rounded-[3rem] flex flex-col items-center justify-center text-center p-12 space-y-6 opacity-40">
+                        <div className="p-6 bg-white/5 rounded-full">
+                            <Backpack size={48} className="text-gray-700" />
+                        </div>
+                        <p className="text-gray-500 font-medium max-w-[200px]">Invoque a informação selecionando um item do seu arsenal.</p>
                     </div>
                 )}
             </div>
@@ -240,5 +249,6 @@ export default function InventoryPage() {
 
       </div>
     </div>
+
   );
 }
