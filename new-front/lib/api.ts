@@ -26,5 +26,5 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
 
 export const api = {
   getGuilds: () => apiFetch("/auth/guilds"),
-  // Add other endpoints as needed
+  getPublicStats: () => apiFetch("/public/stats"),
 }
