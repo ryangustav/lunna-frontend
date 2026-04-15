@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "cd new-front && next dev",
-    "build": "cd new-front && next build",
+    "build": "cd new-front && next build && cp -r .next ../.next",
     "start": "cd new-front && next start",
     "lint": "cd new-front && eslint ."
   },
