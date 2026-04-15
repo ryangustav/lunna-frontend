@@ -1,11 +1,35 @@
-const stats = [
-  { value: "2.4K+", label: "Servidores" },
-  { value: "180K+", label: "Usuários" },
-  { value: "99.9%", label: "Uptime" },
-  { value: "24/7", label: "Suporte" },
-]
+"use client"
+
+import { useEffect, useState } from "react"
+import { api } from "@/lib/api"
 
 export function StatsBar() {
+  const [statsData, setStatsData] = useState<{
+    servers?: number
+    users?: number
+    uptime?: number
+  }>({})
+
+  useEffect(() => {
+    api.getPublicStats()
+      .then((res) => {
+        setStatsData(res?.data || res)
+      })
+      .catch((err) => {
+        console.error("Falha ao buscar stats bar", err)
+      })
+  }, [])
+
+  const fmt = (num?: number, suffix = "") => 
+    num ? new Intl.NumberFormat("pt-BR", { notation: "compact" }).format(num) + suffix : "..."
+
+  const stats = [
+    { value: statsData.servers ? fmt(statsData.servers, "+") : "2.4K+", label: "Servidores" },
+    { value: statsData.users ? fmt(statsData.users, "+") : "180K+", label: "Usuários" },
+    { value: statsData.uptime ? `${statsData.uptime}%` : "99.9%", label: "Uptime" },
+    { value: "24/7", label: "Suporte" },
+  ]
+
   return (
     <div
       className="mx-auto mt-10 w-full max-w-[860px]"

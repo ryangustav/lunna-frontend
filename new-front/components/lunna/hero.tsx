@@ -1,5 +1,6 @@
 import Image from "next/image"
 import { HeroStats } from "./hero-stats"
+import { HeroBadge } from "./hero-badge"
 
 export function Hero() {
   return (
@@ -10,18 +11,7 @@ export function Hero() {
       <div className="flex flex-col items-center gap-12 md:flex-row md:items-start">
         {/* Left column */}
         <div className="flex flex-1 flex-col gap-6">
-          {/* Badge */}
-          <div className="flex">
-            <span
-              className="flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-[13px] font-semibold text-primary"
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
-              </span>
-              Online agora em 2.400+ servidores
-            </span>
-          </div>
+          <HeroBadge />
 
           {/* Title */}
           <h1
