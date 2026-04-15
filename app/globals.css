@@ -1,0 +1,209 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* Vibrant Dark Theme - Single theme, always dark */
+:root {
+  /* Core Colors */
+  --background: #16161a;
+  --foreground: #fffffe;
+  
+  /* Cards with glassmorphism support */
+  --card: #242629;
+  --card-foreground: #fffffe;
+  
+  /* Popover/Dropdown */
+  --popover: #242629;
+  --popover-foreground: #fffffe;
+  
+  /* Primary - Purple Accent */
+  --primary: #7f5af0;
+  --primary-foreground: #fffffe;
+  
+  /* Secondary */
+  --secondary: #242629;
+  --secondary-foreground: #fffffe;
+  
+  /* Muted text */
+  --muted: #242629;
+  --muted-foreground: #94a1b2;
+  
+  /* Accent */
+  --accent: #7f5af0;
+  --accent-foreground: #fffffe;
+  
+  /* Destructive */
+  --destructive: #ff6b6b;
+  --destructive-foreground: #fffffe;
+  
+  /* Borders - subtle white opacity */
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #7f5af0;
+  
+  /* Charts */
+  --chart-1: #7f5af0;
+  --chart-2: #2cb67d;
+  --chart-3: #e53170;
+  --chart-4: #ffb800;
+  --chart-5: #00d4ff;
+  
+  --radius: 0.75rem;
+  
+  /* Sidebar */
+  --sidebar: #1a1a1f;
+  --sidebar-foreground: #fffffe;
+  --sidebar-primary: #7f5af0;
+  --sidebar-primary-foreground: #fffffe;
+  --sidebar-accent: #242629;
+  --sidebar-accent-foreground: #fffffe;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #7f5af0;
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(127, 90, 240, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(127, 90, 240, 0.6);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.6s ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.6s ease-out forwards;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Stagger animations for children */
+.stagger-children > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(36, 38, 41, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-strong {
+  background: rgba(36, 38, 41, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Gradient text utility */
+.text-gradient {
+  background: linear-gradient(135deg, #fffffe 0%, #7f5af0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Purple glow effect */
+.glow-primary {
+  box-shadow: 0 0 20px rgba(127, 90, 240, 0.4);
+}
+
+.glow-primary-lg {
+  box-shadow: 0 0 40px rgba(127, 90, 240, 0.5);
+}

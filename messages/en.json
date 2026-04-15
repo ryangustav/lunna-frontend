@@ -1,0 +1,150 @@
+{
+  "Header": {
+    "features": "Features",
+    "vip": "VIP",
+    "coins": "Coins",
+    "dashboard": "Dashboard",
+    "addBot": "Add me"
+  },
+  "Hero": {
+    "badge": "The #1 bot for Discord communities",
+    "title": "Transform your server into an epic experience",
+    "subtitle": "Complete economy, immersive RPG and smart moderation. All in one powerful bot.",
+    "cta": "Add to Discord",
+    "secondaryCta": "View Dashboard"
+  },
+  "Features": {
+    "title": "Powerful Features",
+    "subtitle": "Everything you need to create the best Discord community",
+    "economy": {
+      "title": "Economy",
+      "description": "Complete virtual currency system, bank, daily jobs and customizable shop. Your members will love competing in the rankings."
+    },
+    "rpg": {
+      "title": "RPG",
+      "description": "Challenging dungeons, unique classes, legendary items and epic battles. A complete adventure inside Discord."
+    },
+    "moderation": {
+      "title": "Moderation",
+      "description": "Advanced anti-raid, smart anti-spam, automatic logs and configurable automod. Protect your server with ease."
+    }
+  },
+  "Stats": {
+    "servers": "Servers",
+    "users": "Users",
+    "commands": "Commands/day",
+    "uptime": "Uptime"
+  },
+  "CTA": {
+    "title": "Ready to elevate your server?",
+    "subtitle": "Join thousands of communities that have already transformed their servers.",
+    "button": "Add Now"
+  },
+  "Footer": {
+    "description": "The ultimate bot for Discord communities. Economy, RPG and Moderation in one place.",
+    "links": "Links",
+    "features": "Features",
+    "legal": "Legal",
+    "support": "Support",
+    "discord": "Discord",
+    "privacy": "Privacy",
+    "terms": "Terms of Service",
+    "guidelines": "Guidelines",
+    "copyright": "All rights reserved."
+  },
+  "VIP": {
+    "badge": "Exclusive",
+    "title": "Elevate your experience",
+    "subtitle": "Unlock exclusive powers and show your status in the community with VIP plans.",
+    "monthlyLabel": "Monthly",
+    "yearlyLabel": "Yearly",
+    "yearlySave": "Save 20%",
+    "mostPopular": "Most popular",
+    "getStarted": "Get started",
+    "currentPlan": "Current plan",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "featuresTitle": "What's included",
+    "faqTitle": "Frequently asked questions",
+    "faqSubtitle": "Get your questions answered about VIP plans.",
+    "faq": {
+      "q1": "How do I activate my VIP?",
+      "a1": "After purchase, run /vip redeem in any server. Your plan will be activated automatically within 5 minutes.",
+      "q2": "Is VIP per server or per account?",
+      "a2": "VIP is linked to your Discord account and applies to all servers where the bot is present.",
+      "q3": "Can I cancel at any time?",
+      "a3": "Yes! You can cancel your subscription at any time. The plan remains active until the end of the paid period.",
+      "q4": "Are benefits permanent?",
+      "a4": "VIP benefits are active while your subscription is valid. Purchased cosmetic items remain permanently."
+    },
+    "plans": {
+      "vip": {
+        "name": "VIP",
+        "description": "For those who want to stand out in the community.",
+        "features": [
+          "Exclusive VIP badge on profile",
+          "Early access to new commands",
+          "XP multiplier x1.5",
+          "Customizable name color",
+          "50,000 monthly bonus coins",
+          "Priority support"
+        ]
+      },
+      "premium": {
+        "name": "Premium",
+        "description": "For the true Discord warriors.",
+        "features": [
+          "Everything in VIP, plus:",
+          "Animated Premium badge",
+          "XP multiplier x2",
+          "Access to exclusive RPG items",
+          "150,000 monthly bonus coins",
+          "Private VIP support channel",
+          "RPG character with exclusive skin"
+        ]
+      },
+      "gods": {
+        "name": "Gods",
+        "description": "The maximum level of power and prestige.",
+        "features": [
+          "Everything in Premium, plus:",
+          "Legendary animated badge",
+          "XP multiplier x3",
+          "Access to all secret RPG classes",
+          "500,000 monthly bonus coins",
+          "Your name in the bot credits",
+          "Access to the private Gods server",
+          "Unique and non-transferable RPG item"
+        ]
+      }
+    }
+  },
+  "Language": {
+    "label": "Language",
+    "pt": "Português",
+    "en": "English"
+  },
+  "Coins": {
+    "badge": "Lunar Treasure",
+    "title": "Lunar Coins",
+    "subtitle": "Enhance your Lunna experience with premium features and virtual coins.",
+    "bonus": "Bonus",
+    "purchase": "Purchase"
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Manage your servers and settings",
+    "selectServer": "Select a Server",
+    "noServers": "No servers found with administrator permissions.",
+    "manage": "Configure",
+    "guest": "Invite"
+  },
+  "Privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: April 13, 2026"
+  },
+  "Guidelines": {
+    "title": "Community Guidelines",
+    "lastUpdated": "Last updated: April 13, 2026"
+  }
+}

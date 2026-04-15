@@ -1,0 +1,149 @@
+{
+  "Navigation": {
+    "features": "Features",
+    "commands": "Commands",
+    "dashboard": "Dashboard",
+    "support": "Support",
+    "addDiscord": "Add Bot",
+    "login": "Login"
+  },
+  "Hero": {
+    "badge": "The #1 Bot for Discord communities",
+    "titleStart": "Transform your server into an",
+    "titleEnd": "epic experience",
+    "subtitle": "Complete economy, immersive RPG, and smart moderation. All in one powerful bot.",
+    "primaryCta": "Add to Discord",
+    "secondaryCta": "View Dashboard"
+  },
+  "Stats": {
+    "servers": "Servers",
+    "users": "Users",
+    "uptime": "Uptime"
+  },
+  "Features": {
+    "sectionTitle": "Powerful Features",
+    "sectionSubtitle": "Everything you need to create the best Discord community",
+    "economy": {
+      "title": "Economy",
+      "description": "Complete virtual currency system, bank, daily jobs, and customizable shop."
+    },
+    "rpg": {
+      "title": "RPG",
+      "description": "Challenging dungeons, unique classes, legendary items, and epic battles."
+    },
+    "moderation": {
+      "title": "Moderation",
+      "description": "Advanced anti-raid, smart anti-spam, and automatic logs."
+    },
+    "ai": {
+      "title": "Artificial Intelligence",
+      "description": "AI-powered moderation and smart responses for your members."
+    },
+    "dashboard": {
+      "title": "Web Dashboard",
+      "description": "Manage everything easily through an intuitive web panel."
+    },
+    "engagement": {
+      "title": "Engagement",
+      "description": "Leveling systems, achievements, and rewards for active members."
+    }
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Manage your servers and settings",
+    "sectionTitle": "Total control in your pocket",
+    "overview": "Overview",
+    "members": "Members",
+    "quests": "Quests",
+    "economy": "Economy",
+    "moderation": "Moderation",
+    "settings": "Settings",
+    "myServer": "My Server",
+    "activity": "Activity",
+    "manage": "Configure",
+    "guest": "Invite",
+    "noServers": "No servers found.",
+    "backHome": "Back Home"
+  },
+  "CTA": {
+    "title": "Ready to level up your server?",
+    "subtitle": "Join thousands of communities that have already transformed their servers.",
+    "primaryCta": "Add Now",
+    "secondaryCta": "Support"
+  },
+  "VIP": {
+    "badge": "Exclusive",
+    "title": "Elevate your experience",
+    "subtitle": "Unlock exclusive powers and show your status with VIP plans.",
+    "monthlyLabel": "Monthly",
+    "yearlyLabel": "Yearly",
+    "yearlySave": "Save 20%",
+    "mostPopular": "Most popular",
+    "getStarted": "Get Started",
+    "perMonth": "month",
+    "perYear": "year",
+    "featuresTitle": "What's included",
+    "backHome": "Back Home",
+    "plans": {
+      "vip": {
+        "name": "VIP",
+        "description": "For those who want to stand out.",
+        "features": [
+          "Exclusive VIP Badge",
+          "1.5x XP Boost",
+          "Custom name color",
+          "50k monthly coins"
+        ]
+      },
+      "premium": {
+        "name": "Premium",
+        "description": "For the true warriors.",
+        "features": [
+          "Everything in VIP, plus:",
+          "2x XP Boost",
+          "Exclusive skins",
+          "150k monthly coins"
+        ]
+      },
+      "gods": {
+        "name": "Gods",
+        "description": "The ultimate level of prestige.",
+        "features": [
+          "Everything in Premium, plus:",
+          "3x XP Boost",
+          "Secret classes",
+          "500k monthly coins"
+        ]
+      }
+    }
+  },
+  "Coins": {
+    "badge": "Lunar Treasure",
+    "titleStart": "Lunar",
+    "titleEnd": "Coins",
+    "subtitle": "Get virtual coins to use in our global economy and RPG.",
+    "bonus": "Bonus",
+    "popular": "Popular",
+    "purchase": "Purchase",
+    "backHome": "Back Home"
+  },
+  "Privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: April 2026",
+    "backHome": "Back Home"
+  },
+  "Guidelines": {
+    "title": "Community Guidelines",
+    "lastUpdated": "Last updated: April 2026",
+    "backHome": "Back Home"
+  },
+  "CommandsPage": {
+    "badge": "Documentation",
+    "title": "Lunna Commands",
+    "subtitle": "Automatically updated list with description and usage of each command.",
+    "loading": "Loading commands...",
+    "usage": "How to use",
+    "empty": "No commands available right now.",
+    "error": "Could not load commands now. Please try again shortly."
+  }
+}
