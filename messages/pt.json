@@ -1,0 +1,150 @@
+{
+  "Header": {
+    "features": "Funcionalidades",
+    "vip": "VIP",
+    "coins": "Moedas",
+    "dashboard": "Dashboard",
+    "addBot": "Me adicione"
+  },
+  "Hero": {
+    "badge": "O bot #1 para comunidades Discord",
+    "title": "Transforme seu servidor em uma experiência épica",
+    "subtitle": "Economia completa, RPG imersivo e moderação inteligente. Tudo em um único bot poderoso.",
+    "cta": "Adicionar ao Discord",
+    "secondaryCta": "Ver Dashboard"
+  },
+  "Features": {
+    "title": "Funcionalidades Poderosas",
+    "subtitle": "Tudo que você precisa para criar a melhor comunidade Discord",
+    "economy": {
+      "title": "Economia",
+      "description": "Sistema completo de moedas virtuais, banco, trabalhos diários e loja customizável. Seus membros vão adorar competir no ranking."
+    },
+    "rpg": {
+      "title": "RPG",
+      "description": "Dungeons desafiadoras, classes únicas, itens lendários e batalhas épicas. Uma aventura completa dentro do Discord."
+    },
+    "moderation": {
+      "title": "Moderação",
+      "description": "Anti-raid avançado, anti-spam inteligente, logs automáticos e automod configurável. Proteja seu servidor com facilidade."
+    }
+  },
+  "Stats": {
+    "servers": "Servidores",
+    "users": "Usuários",
+    "commands": "Comandos/dia",
+    "uptime": "Uptime"
+  },
+  "CTA": {
+    "title": "Pronto para elevar seu servidor?",
+    "subtitle": "Junte-se a milhares de comunidades que já transformaram seus servidores.",
+    "button": "Adicionar Agora"
+  },
+  "Footer": {
+    "description": "O bot definitivo para comunidades Discord. Economia, RPG e Moderação em um só lugar.",
+    "links": "Links",
+    "features": "Funcionalidades",
+    "legal": "Legal",
+    "support": "Suporte",
+    "discord": "Discord",
+    "privacy": "Privacidade",
+    "terms": "Termos de Uso",
+    "guidelines": "Diretrizes",
+    "copyright": "Todos os direitos reservados."
+  },
+  "VIP": {
+    "badge": "Exclusivo",
+    "title": "Eleve sua experiência",
+    "subtitle": "Desbloqueie poderes exclusivos e mostre seu status na comunidade com os planos VIP.",
+    "monthlyLabel": "Mensal",
+    "yearlyLabel": "Anual",
+    "yearlySave": "Economize 20%",
+    "mostPopular": "Mais popular",
+    "getStarted": "Começar agora",
+    "currentPlan": "Plano atual",
+    "perMonth": "/mês",
+    "perYear": "/ano",
+    "featuresTitle": "O que está incluso",
+    "faqTitle": "Perguntas frequentes",
+    "faqSubtitle": "Tire suas dúvidas sobre os planos VIP.",
+    "faq": {
+      "q1": "Como faço para ativar meu VIP?",
+      "a1": "Após a compra, envie o comando /vip resgatar no servidor. Seu plano será ativado automaticamente em até 5 minutos.",
+      "q2": "O VIP é por servidor ou por conta?",
+      "a2": "O VIP é vinculado à sua conta do Discord e vale em todos os servidores onde o bot está presente.",
+      "q3": "Posso cancelar a qualquer momento?",
+      "a3": "Sim! Você pode cancelar sua assinatura a qualquer momento. O plano continua ativo até o fim do período pago.",
+      "q4": "Os benefícios são permanentes?",
+      "a4": "Os benefícios do VIP são ativos enquanto sua assinatura estiver vigente. Itens cosméticos comprados permanecem permanentemente."
+    },
+    "plans": {
+      "vip": {
+        "name": "VIP",
+        "description": "Para quem quer se destacar na comunidade.",
+        "features": [
+          "Badge VIP exclusiva no perfil",
+          "Acesso antecipado a novos comandos",
+          "Multiplicador de XP x1.5",
+          "Cor de nome customizável",
+          "50.000 moedas mensais de bônus",
+          "Suporte prioritário"
+        ]
+      },
+      "premium": {
+        "name": "Premium",
+        "description": "Para os verdadeiros guerreiros do Discord.",
+        "features": [
+          "Tudo do VIP, mais:",
+          "Badge Premium animada",
+          "Multiplicador de XP x2",
+          "Acesso a itens RPG exclusivos",
+          "150.000 moedas mensais de bônus",
+          "Canal de suporte VIP privado",
+          "Personagem RPG com skin exclusiva"
+        ]
+      },
+      "gods": {
+        "name": "Deuses",
+        "description": "O nível máximo de poder e prestígio.",
+        "features": [
+          "Tudo do Premium, mais:",
+          "Badge animada lendária",
+          "Multiplicador de XP x3",
+          "Acesso a todas as classes RPG secretas",
+          "500.000 moedas mensais de bônus",
+          "Seu nome nos créditos do bot",
+          "Acesso ao servidor privado dos Deuses",
+          "Item RPG único e intransferível"
+        ]
+      }
+    }
+  },
+  "Language": {
+    "label": "Idioma",
+    "pt": "Português",
+    "en": "English"
+  },
+  "Coins": {
+    "badge": "Tesouro Lunar",
+    "title": "Lunar Coins",
+    "subtitle": "Melhore sua experiência Lunna com recursos premium e moedas virtuais.",
+    "bonus": "Bônus",
+    "purchase": "Comprar"
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Gerencie seus servidores e configurações",
+    "selectServer": "Selecione um Servidor",
+    "noServers": "Nenhum servidor encontrado com permissões de administrador.",
+    "manage": "Configurar",
+    "guest": "Convidar"
+  },
+  "Privacy": {
+    "title": "Política de Privacidade",
+    "lastUpdated": "Última atualização: 13 de Abril de 2026"
+  },
+  "Guidelines": {
+    "title": "Diretrizes da Comunidade",
+    "lastUpdated": "Última atualização: 13 de Abril de 2026"
+  }
+}

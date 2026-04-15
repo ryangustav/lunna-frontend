@@ -1,0 +1,149 @@
+{
+  "Navigation": {
+    "features": "Recursos",
+    "commands": "Comandos",
+    "dashboard": "Dashboard",
+    "support": "Suporte",
+    "addDiscord": "Me adicione",
+    "login": "Login"
+  },
+  "Hero": {
+    "badge": "O bot #1 para comunidades Discord",
+    "titleStart": "Transforme seu servidor em uma",
+    "titleEnd": "experiência épica",
+    "subtitle": "Economia completa, RPG imersivo e moderação inteligente. Tudo em um único bot poderoso.",
+    "primaryCta": "Adicionar ao Discord",
+    "secondaryCta": "Ver Dashboard"
+  },
+  "Stats": {
+    "servers": "Servidores",
+    "users": "Usuários",
+    "uptime": "Uptime"
+  },
+  "Features": {
+    "sectionTitle": "Funcionalidades Poderosas",
+    "sectionSubtitle": "Tudo que você precisa para criar a melhor comunidade Discord",
+    "economy": {
+      "title": "Economia",
+      "description": "Sistema completo de moedas virtuais, banco, trabalhos diários e loja customizável."
+    },
+    "rpg": {
+      "title": "RPG",
+      "description": "Dungeons desafiadoras, classes únicas, itens lendários e batalhas épicas."
+    },
+    "moderation": {
+      "title": "Moderação",
+      "description": "Anti-raid avançado, anti-spam inteligente e logs automáticos."
+    },
+    "ai": {
+      "title": "Inteligência Artificial",
+      "description": "Moderação com IA e respostas inteligentes para seus membros."
+    },
+    "dashboard": {
+      "title": "Painel Web",
+      "description": "Gerencie tudo com facilidade através de um painel web intuitivo."
+    },
+    "engagement": {
+      "title": "Engajamento",
+      "description": "Sistemas de níveis, conquistas e recompensas para membros ativos."
+    }
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Gerencie seus servidores e configurações",
+    "sectionTitle": "Controle total na palma da mão",
+    "overview": "Visão geral",
+    "members": "Membros",
+    "quests": "Missões",
+    "economy": "Economia",
+    "moderation": "Moderação",
+    "settings": "Configurações",
+    "myServer": "Meu Servidor",
+    "activity": "Atividade",
+    "manage": "Configurar",
+    "guest": "Convidar",
+    "noServers": "Nenhum servidor encontrado.",
+    "backHome": "Voltar para Home"
+  },
+  "CTA": {
+    "title": "Pronto para elevar seu servidor?",
+    "subtitle": "Junte-se a milhares de comunidades que já transformaram seus servidores.",
+    "primaryCta": "Adicionar Agora",
+    "secondaryCta": "Suporte"
+  },
+  "VIP": {
+    "badge": "Exclusivo",
+    "title": "Eleve sua experiência",
+    "subtitle": "Desbloqueie poderes exclusivos e mostre seu status na comunidade com os planos VIP.",
+    "monthlyLabel": "Mensal",
+    "yearlyLabel": "Anual",
+    "yearlySave": "Economize 20%",
+    "mostPopular": "Mais popular",
+    "getStarted": "Começar agora",
+    "perMonth": "mês",
+    "perYear": "ano",
+    "featuresTitle": "O que está incluso",
+    "backHome": "Voltar para Home",
+    "plans": {
+      "vip": {
+        "name": "VIP",
+        "description": "Para quem quer se destacar na comunidade.",
+        "features": [
+          "Badge VIP exclusiva",
+          "XP x1.5",
+          "Cor de nome customizada",
+          "50k moedas mensais"
+        ]
+      },
+      "premium": {
+        "name": "Premium",
+        "description": "Para os verdadeiros guerreiros.",
+        "features": [
+          "Tudo do VIP, mais:",
+          "XP x2",
+          "Skins exclusivas",
+          "150k moedas mensais"
+        ]
+      },
+      "gods": {
+        "name": "Deuses",
+        "description": "O nível máximo de prestígio.",
+        "features": [
+          "Tudo do Premium, mais:",
+          "XP x3",
+          "Classes secretas",
+          "500k moedas mensais"
+        ]
+      }
+    }
+  },
+  "Coins": {
+    "badge": "Tesouro Lunar",
+    "titleStart": "Lunar",
+    "titleEnd": "Coins",
+    "subtitle": "Adquira moedas virtuais para usar em nossa economia e RPG global.",
+    "bonus": "Bônus",
+    "popular": "Popular",
+    "purchase": "Comprar",
+    "backHome": "Voltar para Home"
+  },
+  "Privacy": {
+    "title": "Política de Privacidade",
+    "lastUpdated": "Última atualização: Abril 2026",
+    "backHome": "Voltar para Home"
+  },
+  "Guidelines": {
+    "title": "Diretrizes",
+    "lastUpdated": "Última atualização: Abril 2026",
+    "backHome": "Voltar para Home"
+  },
+  "CommandsPage": {
+    "badge": "Documentação",
+    "title": "Comandos da Lunna",
+    "subtitle": "Lista atualizada automaticamente com descrição e forma de uso de cada comando.",
+    "loading": "Carregando comandos...",
+    "usage": "Como usar",
+    "empty": "Nenhum comando disponível no momento.",
+    "error": "Não foi possível carregar os comandos agora. Tente novamente em instantes."
+  }
+}
