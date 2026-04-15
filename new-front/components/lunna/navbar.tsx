@@ -5,17 +5,31 @@ import { useEffect, useMemo, useState } from "react"
 import { useTranslations } from "next-intl"
 import { Link } from "@/src/i18n/routing"
 import { Button } from "@/components/ui/button"
-import { Menu, Moon, Sun } from "lucide-react"
+import { Menu, Moon, Sun, LayoutDashboard, User as UserIcon, Backpack, LogOut, ChevronDown } from "lucide-react"
 import { useTheme } from "next-themes"
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+interface User {
+  id: string
+  username: string
+  avatar?: string
+}
 
 export function Navbar() {
   const t = useTranslations("Navigation")
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
 
@@ -25,6 +39,18 @@ export function Navbar() {
   useEffect(() => {
     let active = true
 
+    // Retrieve Token from URL
+    const urlParams = new URLSearchParams(window.location.search)
+    const tokenFromUrl = urlParams.get("token")
+
+    if (tokenFromUrl) {
+      const expirationDate = new Date()
+      expirationDate.setDate(expirationDate.getDate() + 7)
+      document.cookie = `token=${tokenFromUrl}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Strict`
+      const newUrl = window.location.pathname
+      window.history.replaceState({}, document.title, newUrl)
+    }
+
     async function checkAuth() {
       const token =
         document.cookie
@@ -33,7 +59,10 @@ export function Navbar() {
           ?.split("=")[1] ?? null
 
       if (!token) {
-        if (active) setIsAuthenticated(false)
+        if (active) {
+          setIsAuthenticated(false)
+          setUser(null)
+        }
         return
       }
 
@@ -48,9 +77,23 @@ export function Navbar() {
           cache: "no-store",
         })
 
-        if (active) setIsAuthenticated(response.ok)
+        if (response.ok) {
+          const data = await response.json()
+          if (active) {
+            setIsAuthenticated(true)
+            setUser(data.data) // Assuming user object is inside data.data
+          }
+        } else {
+          if (active) {
+            setIsAuthenticated(false)
+            setUser(null)
+          }
+        }
       } catch {
-        if (active) setIsAuthenticated(false)
+        if (active) {
+          setIsAuthenticated(false)
+          setUser(null)
+        }
       }
     }
 
@@ -64,6 +107,13 @@ export function Navbar() {
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const handleLogout = () => {
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+    setIsAuthenticated(false)
+    setUser(null)
+    window.location.href = "/"
+  }
 
   const navLinks = useMemo(
     () => [
@@ -125,13 +175,55 @@ export function Navbar() {
             {mounted && theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
 
-          <Button asChild className="hidden rounded-full font-semibold md:flex">
-            {isAuthenticated ? (
-              <Link href="/dashboard">{t("dashboard")}</Link>
+          <div className="hidden items-center gap-3 md:flex">
+            {isAuthenticated && user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 rounded-full p-1 pl-3 pr-2 transition-colors hover:bg-secondary">
+                    <span className="text-sm font-medium text-foreground">{user.username}</span>
+                    <div className="relative h-8 w-8 overflow-hidden rounded-full border border-border">
+                      <Image
+                        src={user.avatar || "/placeholder-user.jpg"}
+                        alt={user.username}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 rounded-xl">
+                  <DropdownMenuItem asChild className="cursor-pointer gap-2 rounded-lg p-2.5">
+                    <Link href="/dashboard">
+                      <LayoutDashboard className="h-4 w-4" />
+                      <span className="font-medium">Dashboard</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="cursor-pointer gap-2 rounded-lg p-2.5">
+                    <Link href="/profile">
+                      <UserIcon className="h-4 w-4" />
+                      <span className="font-medium">Perfil</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="cursor-pointer gap-2 rounded-lg p-2.5">
+                    <Link href="/inventory">
+                      <Backpack className="h-4 w-4" />
+                      <span className="font-medium">Inventário</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer gap-2 rounded-lg p-2.5 text-red-500 focus:bg-red-500/10 focus:text-red-500">
+                    <LogOut className="h-4 w-4" />
+                    <span className="font-medium">Sair</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
-              <a href={loginUrl}>{t("login")}</a>
+              <Button asChild className="rounded-full font-semibold">
+                <a href={loginUrl}>{t("login")}</a>
+              </Button>
             )}
-          </Button>
+          </div>
 
           {/* Mobile Menu */}
           <Sheet>
@@ -159,13 +251,33 @@ export function Navbar() {
                 >
                   {t("support")}
                 </a>
-                <Button asChild className="mt-4 rounded-xl font-bold">
-                  {isAuthenticated ? (
-                    <Link href="/dashboard">{t("dashboard")}</Link>
-                  ) : (
+
+                {isAuthenticated && user ? (
+                  <div className="mt-4 flex flex-col gap-4 border-t pt-4">
+                    <div className="flex items-center gap-3">
+                      <div className="relative h-10 w-10 overflow-hidden rounded-full border border-border">
+                        <Image src={user.avatar || "/placeholder-user.jpg"} alt={user.username} fill className="object-cover" />
+                      </div>
+                      <span className="text-lg font-bold text-foreground">{user.username}</span>
+                    </div>
+                    <Link href="/dashboard" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">
+                      <LayoutDashboard className="h-5 w-5" /> Dashboard
+                    </Link>
+                    <Link href="/profile" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">
+                      <UserIcon className="h-5 w-5" /> Perfil
+                    </Link>
+                    <Link href="/inventory" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">
+                      <Backpack className="h-5 w-5" /> Inventário
+                    </Link>
+                    <button onClick={handleLogout} className="flex items-center gap-3 text-lg font-semibold text-red-500 transition-colors hover:opacity-80">
+                      <LogOut className="h-5 w-5" /> Sair
+                    </button>
+                  </div>
+                ) : (
+                  <Button asChild className="mt-4 rounded-xl font-bold">
                     <a href={loginUrl}>{t("login")}</a>
-                  )}
-                </Button>
+                  </Button>
+                )}
               </nav>
             </SheetContent>
           </Sheet>
@@ -174,4 +286,3 @@ export function Navbar() {
     </header>
   )
 }
-

@@ -1,28 +1,5 @@
 import Image from "next/image"
-
-function FloatingPill({
-  dotColor,
-  text,
-  className,
-  animationClass,
-}: {
-  dotColor: string
-  text: string
-  className?: string
-  animationClass: string
-}) {
-  return (
-    <div
-      className={`absolute flex items-center gap-2 rounded-full border border-border/70 bg-card/95 px-3 py-2 text-[12px] font-semibold text-foreground shadow-sm backdrop-blur ${animationClass} ${className}`}
-    >
-      <span
-        className="h-2 w-2 shrink-0 rounded-full"
-        style={{ backgroundColor: dotColor }}
-      />
-      {text}
-    </div>
-  )
-}
+import { HeroStats } from "./hero-stats"
 
 export function Hero() {
   return (
@@ -98,29 +75,7 @@ export function Hero() {
             />
           </div>
 
-          {/* Floating pill — top left */}
-          <FloatingPill
-            dotColor="#4ade80"
-            text="47 membros online"
-            animationClass="animate-float"
-            className="-left-8 top-8"
-          />
-
-          {/* Floating pill — center left */}
-          <FloatingPill
-            dotColor="#a78bfa"
-            text="Masmorra desbloqueada"
-            animationClass="animate-float-delayed"
-            className="-left-10 top-1/2 -translate-y-1/2"
-          />
-
-          {/* Floating pill — bottom right */}
-          <FloatingPill
-            dotColor="#f9a8d4"
-            text="1.200 moedas ganhas"
-            animationClass="animate-float-slow"
-            className="-right-8 bottom-10"
-          />
+          <HeroStats />
         </div>
       </div>
     </section>
