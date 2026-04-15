@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd new-front && npm run build",
+  "outputDirectory": "new-front/.next",
+  "framework": "nextjs"
+}
