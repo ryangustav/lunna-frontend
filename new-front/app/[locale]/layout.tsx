@@ -7,6 +7,7 @@ import "../globals.css"
 import { routing } from "@/src/i18n/routing"
 import { notFound } from "next/navigation"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Footer } from "@/components/lunna/footer"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,7 +49,10 @@ export default async function LocaleLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <NextIntlClientProvider messages={messages}>
-            {children}
+            <div className="relative flex min-h-screen flex-col">
+              {children}
+              <Footer />
+            </div>
             {process.env.NODE_ENV === "production" && <Analytics />}
           </NextIntlClientProvider>
         </ThemeProvider>
