@@ -1,10 +1,12 @@
 import Image from "next/image"
 
 const navLinks = [
-  { label: "Recursos" },
-  { label: "Comandos" },
-  { label: "Dashboard" },
-  { label: "Suporte" },
+  { label: "Recursos", href: "/#features" },
+  { label: "Comandos", href: "/commands" },
+  { label: "VIP", href: "/vip" },
+  { label: "Moedas", href: "/coins" },
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "Suporte", href: "https://discord.gg/DaUhFcjJfH" },
 ]
 
 export function Navbar() {
@@ -40,7 +42,7 @@ export function Navbar() {
           {navLinks.map((link) => (
             <a
               key={link.label}
-              href="#"
+              href={link.href}
               className="rounded-full px-[14px] py-[7px] text-sm font-medium text-[#16161a] transition-colors hover:bg-[#f7f7fa]"
             >
               {link.label}
