@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useTranslations } from "next-intl"
 import { Link } from "@/src/i18n/routing"
 import { Button } from "@/components/ui/button"
-import { Menu, Moon, Sun, LayoutDashboard, User as UserIcon, Backpack, LogOut, ChevronDown } from "lucide-react"
+import { Menu, Moon, Sun, LayoutDashboard, User as UserIcon, Backpack, LogOut, ChevronDown, Crown, Coins } from "lucide-react"
 import { useTheme } from "next-themes"
 import {
   Sheet,
@@ -119,6 +119,9 @@ export function Navbar() {
     () => [
       { label: t("features"), href: "/#features" },
       { label: t("commands"), href: "/commands" },
+      { label: t("vip"), href: "/vip", icon: Crown },
+      { label: t("coins"), href: "/coins", icon: Coins },
+      { label: t("support"), href: "https://discord.gg/DaUhFcjJfH", isExternal: true },
     ],
     [t]
   )
@@ -147,19 +150,14 @@ export function Navbar() {
             <Link
               key={link.label}
               href={link.href}
-              className="rounded-full px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-secondary hover:text-foreground"
+              target={link.isExternal ? "_blank" : undefined}
+              rel={link.isExternal ? "noopener noreferrer" : undefined}
+              className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-secondary hover:text-foreground"
             >
+              {link.icon && <link.icon className="h-4 w-4" />}
               {link.label}
             </Link>
           ))}
-          <a
-            href="https://discord.gg/DaUhFcjJfH"
-            target="_blank"
-            rel="noreferrer noopener"
-            className="rounded-full px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-secondary hover:text-foreground"
-          >
-            {t("support")}
-          </a>
         </nav>
 
         {/* Action Buttons */}
@@ -238,19 +236,14 @@ export function Navbar() {
                   <Link
                     key={link.label}
                     href={link.href}
-                    className="text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground"
+                    target={link.isExternal ? "_blank" : undefined}
+                    rel={link.isExternal ? "noopener noreferrer" : undefined}
+                    className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground"
                   >
+                    {link.icon && <link.icon className="h-5 w-5" />}
                     {link.label}
                   </Link>
                 ))}
-                <a
-                  href="https://discord.gg/DaUhFcjJfH"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground"
-                >
-                  {t("support")}
-                </a>
 
                 {isAuthenticated && user ? (
                   <div className="mt-4 flex flex-col gap-4 border-t pt-4">
