@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Link } from "@/src/i18n/routing"
 import { Navbar } from "@/components/lunna/navbar"
 import { useLocale } from "next-intl"
+import { API_URL } from "@/lib/api"
 
 interface Translation {
   shopTitle: string;
@@ -83,7 +84,7 @@ export default function LunnarCoinsPage() {
     }
 
     try {
-      const response = await fetch("https://lunna-api.discloud.app/auth/me", {
+      const response = await fetch(`${API_URL}/auth/me`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -123,7 +124,7 @@ export default function LunnarCoinsPage() {
         packageId: packageId
       }
   
-      const response = await fetch('https://lunna-api.discloud.app/coins/purchase', {
+      const response = await fetch(`${API_URL}/coins/purchase`, {
         method: 'POST',
         credentials: 'include',
         headers: {
