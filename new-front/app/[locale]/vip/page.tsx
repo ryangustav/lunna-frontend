@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Link } from "@/src/i18n/routing"
 import { Navbar } from "@/components/lunna/navbar"
 import { useLocale } from "next-intl"
+import { API_URL } from "@/lib/api"
 
 interface Translation {
   shopTitle: string;
@@ -89,7 +90,7 @@ export default function VipPage() {
     }
 
     try {
-      const response = await fetch("https://lunna-api.discloud.app/auth/me", {
+      const response = await fetch(`${API_URL}/auth/me`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -111,7 +112,7 @@ export default function VipPage() {
 
   const fetchTiers = async () => {
     try {
-      const response = await fetch('https://lunna-api.discloud.app/vip/tiers', {
+      const response = await fetch(`${API_URL}/vip/tiers`, {
         credentials: 'include',
       })
       
@@ -150,7 +151,7 @@ export default function VipPage() {
         tierId: tierId
       }
   
-      const response = await fetch('https://lunna-api.discloud.app/vip/purchase', {
+      const response = await fetch(`${API_URL}/vip/purchase`, {
         method: 'POST',
         credentials: 'include',
         headers: {
