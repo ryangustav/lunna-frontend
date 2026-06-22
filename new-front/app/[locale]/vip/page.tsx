@@ -225,7 +225,7 @@ export default function VipPage() {
         {/* Plans Grid */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {tiers.map((tier, index) => {
-            const IconComponent = getIconForTier(index)
+            const IconComponent = getIconForTier(tier.name)
             const isFeatured = index === 1
             const formattedPrice = tier.price.toFixed(2).replace(".", ",")
 
