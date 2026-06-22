@@ -358,19 +358,35 @@ export default function DailyPage() {
                 )}
               </CardContent>
 
-              <CardFooter className="pb-8 pt-2 px-8">
+              <CardFooter className="pb-8 pt-2 px-8 flex flex-col gap-4 w-full">
                 {userData?.collected || success ? (
                   <Button disabled className="w-full h-14 rounded-2xl font-bold bg-secondary/50 text-muted-foreground border border-border">
                     {t("alreadyClaimed")}
                   </Button>
                 ) : (
-                  <Button
-                    onClick={handleClaim}
-                    disabled={!captchaToken || isPending}
-                    className="w-full h-14 rounded-2xl font-bold shadow-lg shadow-purple-500/20 transition-transform hover:scale-[1.02] bg-[#7c3aed] text-white hover:bg-[#6d28d9] disabled:bg-secondary disabled:text-muted-foreground"
-                  >
-                    {isPending ? t("claiming") : t("claim")}
-                  </Button>
+                  <>
+                    <Button
+                      onClick={handleClaim}
+                      disabled={!captchaToken || isPending}
+                      className="w-full h-14 rounded-2xl font-bold shadow-lg shadow-purple-500/20 transition-transform hover:scale-[1.02] bg-[#7c3aed] text-white hover:bg-[#6d28d9] disabled:bg-secondary disabled:text-muted-foreground"
+                    >
+                      {isPending ? t("claiming") : t("claim")}
+                    </Button>
+                    <p className="text-center text-[11px] font-medium text-muted-foreground/80 leading-relaxed px-4">
+                      {t.rich("agreementText", {
+                        guidelines: (chunks) => (
+                          <Link href="/guidelines" className="text-purple-400 hover:text-purple-300 font-bold underline transition-colors">
+                            {chunks}
+                          </Link>
+                        ),
+                        privacy: (chunks) => (
+                          <Link href="/privacy" className="text-purple-400 hover:text-purple-300 font-bold underline transition-colors">
+                            {chunks}
+                          </Link>
+                        )
+                      })}
+                    </p>
+                  </>
                 )}
               </CardFooter>
             </>
