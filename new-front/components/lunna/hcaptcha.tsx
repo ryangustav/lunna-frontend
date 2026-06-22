@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 declare global {
   interface Window {
     hcaptcha: any;
+    onloadHCaptchaCallback: () => void;
   }
 }
 
@@ -17,6 +18,7 @@ export function HCaptcha({ onVerify, onExpire }: HCaptchaProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(false);
   const sitekey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || "10000000-ffff-ffff-ffff-ffffffffffff";
+  const widgetIdRef = useRef<any>(null);
 
   useEffect(() => {
     if (window.hcaptcha) {
@@ -24,40 +26,77 @@ export function HCaptcha({ onVerify, onExpire }: HCaptchaProps) {
       return;
     }
 
-    const script = document.createElement("script");
-    script.src = "https://js.hcaptcha.com/1/api.js";
-    script.async = true;
-    script.defer = true;
-    script.onload = () => setLoaded(true);
-    document.body.appendChild(script);
+    // Check if script is already injected
+    let script = document.querySelector('script[src*="hcaptcha.com/1/api.js"]') as HTMLScriptElement;
 
-    return () => {
-      // Optional cleanup of script if wanted, but generally script is fine to persist
-    };
+    if (script) {
+      // If script is already in document but window.hcaptcha is not ready yet, wait for it
+      const checkInterval = setInterval(() => {
+        if (window.hcaptcha) {
+          setLoaded(true);
+          clearInterval(checkInterval);
+        }
+      }, 100);
+      return () => clearInterval(checkInterval);
+    } else {
+      // Inject script explicitly
+      script = document.createElement("script");
+      script.src = "https://js.hcaptcha.com/1/api.js?onload=onloadHCaptchaCallback&render=explicit";
+      script.async = true;
+      script.defer = true;
+      
+      window.onloadHCaptchaCallback = () => {
+        setLoaded(true);
+      };
+
+      document.body.appendChild(script);
+    }
   }, []);
+
+  const onVerifyRef = useRef(onVerify);
+  const onExpireRef = useRef(onExpire);
+
+  useEffect(() => {
+    onVerifyRef.current = onVerify;
+  }, [onVerify]);
+
+  useEffect(() => {
+    onExpireRef.current = onExpire;
+  }, [onExpire]);
 
   useEffect(() => {
     if (!loaded || !containerRef.current || !window.hcaptcha) return;
 
-    const widgetId = window.hcaptcha.render(containerRef.current, {
-      sitekey,
-      theme: "dark",
-      callback: (token: string) => onVerify(token),
-      "expired-callback": () => {
-        if (onExpire) onExpire();
-      },
-    });
+    // VERY IMPORTANT: Clear any previous elements to avoid "Only one captcha is permitted per parent container"
+    containerRef.current.innerHTML = "";
+
+    try {
+      const widgetId = window.hcaptcha.render(containerRef.current, {
+        sitekey,
+        theme: "dark",
+        callback: (token: string) => onVerifyRef.current(token),
+        "expired-callback": () => {
+          if (onExpireRef.current) onExpireRef.current();
+        },
+      });
+      widgetIdRef.current = widgetId;
+    } catch (e) {
+      console.warn("hCaptcha render warning:", e);
+    }
 
     return () => {
-      if (window.hcaptcha && widgetId !== undefined) {
+      if (window.hcaptcha && widgetIdRef.current !== null) {
         try {
-          window.hcaptcha.reset(widgetId);
+          window.hcaptcha.reset(widgetIdRef.current);
         } catch (e) {
-          // Ignore reset errors on unmount
+          // Ignore
         }
       }
+      if (containerRef.current) {
+        containerRef.current.innerHTML = "";
+      }
     };
-  }, [loaded, sitekey, onVerify, onExpire]);
+  }, [loaded, sitekey]);
 
   return (
     <div className="flex justify-center my-4 min-h-[78px]">
