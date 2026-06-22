@@ -165,6 +165,7 @@
     "rewardText": "Você recebeu {amount} moedas!",
     "login": "Entrar com Discord",
     "currentBalance": "Saldo Atual",
-    "nextDaily": "Próximo Daily"
+    "nextDaily": "Próximo Daily",
+    "agreementText": "Ao resgatar a sua recompensa diária você concorda com as <guidelines>guidelines</guidelines> e com as nossas <privacy>políticas de privacidade</privacy>."
   }
 }

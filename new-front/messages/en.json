@@ -165,6 +165,7 @@
     "rewardText": "You received {amount} coins!",
     "login": "Login with Discord",
     "currentBalance": "Current Balance",
-    "nextDaily": "Next Daily"
+    "nextDaily": "Next Daily",
+    "agreementText": "By claiming your daily reward you agree to the <guidelines>guidelines</guidelines> and our <privacy>privacy policy</privacy>."
   }
 }
