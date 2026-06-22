@@ -166,8 +166,8 @@ export default function DailyPage() {
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden flex flex-col">
       {/* Decorative gradient glowing spots */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-yellow-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-20%] left-[-20%] w-[600px] h-[600px] bg-[#7c3aed]/10 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-20%] w-[600px] h-[600px] bg-[#c084fc]/5 rounded-full blur-[160px] pointer-events-none" />
 
       <Navbar />
 
