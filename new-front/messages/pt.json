@@ -147,5 +147,24 @@
     "usage": "Como usar",
     "empty": "Nenhum comando disponível no momento.",
     "error": "Não foi possível carregar os comandos agora. Tente novamente em instantes."
+  },
+  "Daily": {
+    "badge": "Recompensa",
+    "titleStart": "Recompensa",
+    "titleEnd": "Diária",
+    "subtitle": "Resgate moedas gratuitas todos os dias e ganhe bônus por apoiar a Lunna!",
+    "backHome": "Voltar para Home",
+    "coins": "Lunnar Coins",
+    "claim": "Resgatar Recompensa",
+    "claiming": "Resgatando...",
+    "alreadyClaimed": "Você já resgatou seu daily hoje!",
+    "cooldownMessage": "Volte amanhã para resgatar mais moedas e continuar sua jornada lunar.",
+    "loginToClaim": "Faça login com o Discord para resgatar",
+    "successClaimed": "Recompensa resgatada com sucesso!",
+    "solveCaptcha": "Por favor, resolva o hCaptcha abaixo primeiro.",
+    "rewardText": "Você recebeu {amount} moedas!",
+    "login": "Entrar com Discord",
+    "currentBalance": "Saldo Atual",
+    "nextDaily": "Próximo Daily"
   }
 }

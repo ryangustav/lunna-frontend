@@ -181,14 +181,12 @@ export default function VipPage() {
     }
   }
 
-  const getIconForTier = (index: number) => {
-    switch(index) {
-      case 0: return Star
-      case 1: return Zap
-      case 2: return Crown
-      case 3: return Diamond
-      default: return Star
-    }
+  const getIconForTier = (name: string) => {
+    const n = name.toLowerCase()
+    if (n.includes('lunar')) return Star
+    if (n.includes('cosmico')) return Zap
+    if (n.includes('galactico')) return Diamond
+    return Crown
   }
 
   return (
