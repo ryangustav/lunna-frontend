@@ -28,6 +28,7 @@ export const api = {
   getGuilds: () => apiFetch("/auth/guilds"),
   getPublicStats: () => apiFetch("/public/stats"),
   getDailyStatus: () => apiFetch("/daily/status"),
+  getCurrentUser: () => apiFetch("/auth/me"),
   collectDaily: (token: string) => apiFetch("/daily/collect", {
     method: "POST",
     body: JSON.stringify({ token })
