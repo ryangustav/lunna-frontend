@@ -147,5 +147,24 @@
     "usage": "How to use",
     "empty": "No commands available right now.",
     "error": "Could not load commands now. Please try again shortly."
+  },
+  "Daily": {
+    "badge": "Reward",
+    "titleStart": "Daily",
+    "titleEnd": "Reward",
+    "subtitle": "Claim free coins every day and earn bonuses for supporting Lunna!",
+    "backHome": "Back Home",
+    "coins": "Lunnar Coins",
+    "claim": "Claim Reward",
+    "claiming": "Claiming...",
+    "alreadyClaimed": "You have already claimed your daily today!",
+    "cooldownMessage": "Come back tomorrow to claim more coins and continue your cosmic journey.",
+    "loginToClaim": "Log in with Discord to claim",
+    "successClaimed": "Reward successfully claimed!",
+    "solveCaptcha": "Please solve the hCaptcha below first.",
+    "rewardText": "You received {amount} coins!",
+    "login": "Login with Discord",
+    "currentBalance": "Current Balance",
+    "nextDaily": "Next Daily"
   }
 }

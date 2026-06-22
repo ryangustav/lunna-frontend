@@ -27,4 +27,9 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
 export const api = {
   getGuilds: () => apiFetch("/auth/guilds"),
   getPublicStats: () => apiFetch("/public/stats"),
+  getDailyStatus: () => apiFetch("/daily/status"),
+  collectDaily: (token: string) => apiFetch("/daily/collect", {
+    method: "POST",
+    body: JSON.stringify({ token })
+  }),
 }
