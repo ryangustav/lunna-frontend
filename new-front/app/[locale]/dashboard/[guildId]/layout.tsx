@@ -3,7 +3,24 @@
 import React, { use } from "react"
 import { usePathname } from "next/navigation"
 import { Link } from "@/src/i18n/routing"
-import { ShieldAlert, Settings, LayoutDashboard, ChevronLeft } from "lucide-react"
+import { 
+  ShieldAlert, 
+  Settings, 
+  LayoutDashboard, 
+  ChevronLeft,
+  MessageSquare,
+  UserCheck,
+  Users,
+  Key,
+  Ban,
+  Skull,
+  FileText,
+  AlertTriangle,
+  HelpCircle,
+  Activity,
+  Shield,
+  Lock
+} from "lucide-react"
 
 export default function GuildDashboardLayout({
   children,
@@ -15,22 +32,97 @@ export default function GuildDashboardLayout({
   const pathname = usePathname()
   const { guildId } = use(params)
 
-  const links = [
+  const categories = [
     {
-      name: "Visão Geral",
-      href: `/dashboard/${guildId}`,
-      icon: <LayoutDashboard className="mr-3 h-5 w-5" />,
+      title: "GERAL",
+      items: [
+        {
+          name: "Visão Geral",
+          href: `/dashboard/${guildId}`,
+          icon: <LayoutDashboard className="mr-3 h-5 w-5" />,
+        }
+      ]
     },
     {
-      name: "Moderação e Anti-Raid",
-      href: `/dashboard/${guildId}/moderation`,
-      icon: <ShieldAlert className="mr-3 h-5 w-5" />,
+      title: "COMUNIDADE",
+      items: [
+        {
+          name: "Mensagens de Entrada/Saída",
+          href: `/dashboard/${guildId}/welcome`,
+          icon: <MessageSquare className="mr-3 h-5 w-5" />,
+        },
+        {
+          name: "Autorole",
+          href: `/dashboard/${guildId}/autorole`,
+          icon: <UserCheck className="mr-3 h-5 w-5" />,
+        },
+        {
+          name: "Contador de Membros",
+          href: "#",
+          icon: <Users className="mr-3 h-5 w-5" />,
+          disabled: true,
+        },
+        {
+          name: "Permissões",
+          href: "#",
+          icon: <Key className="mr-3 h-5 w-5" />,
+          disabled: true,
+        }
+      ]
     },
     {
-      name: "Preferências Locais",
-      href: `/dashboard/${guildId}/settings`,
-      icon: <Settings className="mr-3 h-5 w-5" />,
-    },
+      title: "MODERAÇÃO",
+      items: [
+        {
+          name: "Moderação & Anti-Raid",
+          href: `/dashboard/${guildId}/moderation`,
+          icon: <ShieldAlert className="mr-3 h-5 w-5" />,
+        },
+        {
+          name: "Bloqueador de Convites",
+          href: "#",
+          icon: <Ban className="mr-3 h-5 w-5" />,
+          disabled: true,
+        },
+        {
+          name: "Canais de Armadilha",
+          href: "#",
+          icon: <Skull className="mr-3 h-5 w-5" />,
+          disabled: true,
+          badge: "NOVO!"
+        },
+        {
+          name: "Registro de Punições",
+          href: "#",
+          icon: <FileText className="mr-3 h-5 w-5" />,
+          disabled: true,
+        },
+        {
+          name: "Punições de Avisos",
+          href: "#",
+          icon: <AlertTriangle className="mr-3 h-5 w-5" />,
+          disabled: true,
+        },
+        {
+          name: "Motivos de Punição...",
+          href: "#",
+          icon: <HelpCircle className="mr-3 h-5 w-5" />,
+          disabled: true,
+          badge: "NOVO!"
+        },
+        {
+          name: "Registro de Eventos",
+          href: `/dashboard/${guildId}/logs`,
+          icon: <Activity className="mr-3 h-5 w-5" />,
+        },
+        {
+          name: "GamerSafer",
+          href: "#",
+          icon: <Shield className="mr-3 h-5 w-5" />,
+          disabled: true,
+        }
+      ]
+    }
   ]
 
   return (
@@ -46,25 +138,64 @@ export default function GuildDashboardLayout({
             Voltar aos Servidores
           </Link>
 
-          <div className="flex flex-col space-y-2">
-            {links.map((link) => {
-              const isActive = pathname === link.href
+          <div className="flex flex-col space-y-6">
+            {categories.map((cat) => (
+              <div key={cat.title} className="flex flex-col space-y-2">
+                <span className="px-4 text-xs font-black tracking-wider text-sky-400 uppercase select-none">
+                  {cat.title}
+                </span>
+                
+                <div className="flex flex-col space-y-1">
+                  {cat.items.map((item) => {
+                    const isActive = pathname === item.href
+                    
+                    if (item.disabled) {
+                      return (
+                        <div
+                          key={item.name}
+                          className="flex w-full items-center justify-between rounded-xl px-4 py-2 text-sm font-semibold text-muted-foreground/45 cursor-not-allowed select-none"
+                        >
+                          <div className="flex items-center">
+                            {item.icon}
+                            {item.name}
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            {item.badge && (
+                              <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-[10px] font-bold text-destructive">
+                                {item.badge}
+                              </span>
+                            )}
+                            <Lock className="h-3.5 w-3.5 opacity-40" />
+                          </div>
+                        </div>
+                      )
+                    }
 
-              return (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className={`flex w-full items-center rounded-xl px-4 py-3.5 text-sm font-semibold transition-all duration-300 ${
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-[0_10px_30px_-10px] shadow-primary/40"
-                      : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
-                  }`}
-                >
-                  {link.icon}
-                  {link.name}
-                </Link>
-              )
-            })}
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className={`flex w-full items-center justify-between rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-300 ${
+                          isActive
+                            ? "bg-primary text-primary-foreground shadow-[0_4px_15px_-5px] shadow-primary/40"
+                            : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
+                        }`}
+                      >
+                        <div className="flex items-center">
+                          {item.icon}
+                          {item.name}
+                        </div>
+                        {item.badge && (
+                          <span className="rounded bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground animate-pulse">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </aside>
