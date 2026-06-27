@@ -79,9 +79,8 @@ export default function GuildDashboardLayout({
         },
         {
           name: "Bloqueador de Convites",
-          href: "#",
+          href: `/dashboard/${guildId}/anti-invite`,
           icon: <Ban className="mr-3 h-5 w-5" />,
-          disabled: true,
         },
         {
           name: "Canais de Armadilha",
