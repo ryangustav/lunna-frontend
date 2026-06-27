@@ -28,9 +28,6 @@ export default function LogsPage({
   // Discord lists
   const [channels, setChannels] = useState<Channel[]>([])
 
-  // Central Mod Log
-  const [modLogChannel, setModLogChannel] = useState<string>("")
-
   // Granular Logs states
   const [logMsgDeleteChannel, setLogMsgDeleteChannel] = useState<string>("")
   const [logMsgEditChannel, setLogMsgEditChannel] = useState<string>("")
@@ -55,7 +52,6 @@ export default function LogsPage({
         ])
 
         if (settingsRes) {
-          setModLogChannel(settingsRes.mod_log_channel || "")
           setLogMsgDeleteChannel(settingsRes.log_msg_delete_channel || "")
           setLogMsgEditChannel(settingsRes.log_msg_edit_channel || "")
           setLogVoiceChannel(settingsRes.log_voice_channel || "")
@@ -92,7 +88,6 @@ export default function LogsPage({
 
     try {
       const payload = {
-        mod_log_channel: modLogChannel || null,
         log_msg_delete_channel: logMsgDeleteChannel || null,
         log_msg_edit_channel: logMsgEditChannel || null,
         log_voice_channel: logVoiceChannel || null,
@@ -179,28 +174,6 @@ export default function LogsPage({
 
           <div className="grid grid-cols-1 gap-8">
             
-            {/* Registro de Punições (Mod Log) */}
-            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
-              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-                <ShieldAlert className="h-5 w-5 text-red-400" />
-                Registro de Punições
-              </h3>
-              
-              <div className="space-y-2 max-w-md">
-                <label className="text-xs font-bold text-muted-foreground">Canal de Punições (Banimentos, Expulsões, Silenciamentos, Avisos)</label>
-                <select
-                  value={modLogChannel}
-                  onChange={(e) => setModLogChannel(e.target.value)}
-                  className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
-                >
-                  <option value="" className="bg-card text-muted-foreground">Desativado</option>
-                  {channels.map((ch) => (
-                    <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
             {/* Logs de Mensagens */}
             <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
               <h3 className="text-base font-bold text-foreground flex items-center gap-2">
