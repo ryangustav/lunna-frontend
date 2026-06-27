@@ -1,7 +1,7 @@
 "use client"
 
 import React, { use, useEffect, useState, useRef } from "react"
-import { Save, AlertTriangle, MessageSquare, Image as ImageIcon, Type } from "lucide-react"
+import { Save, AlertTriangle, MessageSquare, Image as ImageIcon, Type, Lock, Crown } from "lucide-react"
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
@@ -46,12 +46,15 @@ export default function WelcomePage({
   const [welcomeBannerTitleX, setWelcomeBannerTitleX] = useState<number>(400)
   const [welcomeBannerTitleY, setWelcomeBannerTitleY] = useState<number>(280)
   const [welcomeBannerTitleText, setWelcomeBannerTitleText] = useState<string>("Welcome")
+  const [welcomeBannerTitleSize, setWelcomeBannerTitleSize] = useState<number>(30)
   const [welcomeBannerNameX, setWelcomeBannerNameX] = useState<number>(400)
   const [welcomeBannerNameY, setWelcomeBannerNameY] = useState<number>(320)
+  const [welcomeBannerNameSize, setWelcomeBannerNameSize] = useState<number>(38)
   const [welcomeBannerSubX, setWelcomeBannerSubX] = useState<number>(400)
   const [welcomeBannerSubY, setWelcomeBannerSubY] = useState<number>(360)
   const [welcomeBannerSubText, setWelcomeBannerSubText] = useState<string>("Have a great moment here!")
-  const [welcomeBannerFont, setWelcomeBannerFont] = useState<string>("sans-serif")
+  const [welcomeBannerSubSize, setWelcomeBannerSubSize] = useState<number>(20)
+  const [welcomeBannerFont, setWelcomeBannerFont] = useState<string>("Uni Sans")
   const [activeTab, setActiveTab] = useState<string>("avatar")
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -76,11 +79,11 @@ export default function WelcomePage({
 
         if (settingsRes) {
           setWelcomeChannel(settingsRes.welcome_channel || "")
-          setWelcomeMsg(settingsRes.welcome_msg || "Bem-vindo {user_mention} ao servidor!")
+          setWelcomeMsg(settingsRes.welcome_msg !== null && settingsRes.welcome_msg !== undefined ? settingsRes.welcome_msg : "Bem-vindo {user_mention} ao servidor!")
           setWelcomeDeleteTime(settingsRes.welcome_delete_time || 0)
 
           setLeaveChannel(settingsRes.leave_channel || "")
-          setLeaveMsg(settingsRes.leave_msg || "Adeus {user_mention}!")
+          setLeaveMsg(settingsRes.leave_msg !== null && settingsRes.leave_msg !== undefined ? settingsRes.leave_msg : "Adeus {user_mention}!")
           setLeaveDeleteTime(settingsRes.leave_delete_time || 0)
 
           // Welcome banner settings
@@ -92,12 +95,15 @@ export default function WelcomePage({
           setWelcomeBannerTitleX(settingsRes.welcome_banner_title_x ?? 400)
           setWelcomeBannerTitleY(settingsRes.welcome_banner_title_y ?? 280)
           setWelcomeBannerTitleText(settingsRes.welcome_banner_title_text || "Welcome")
+          setWelcomeBannerTitleSize(settingsRes.welcome_banner_title_size ?? 30)
           setWelcomeBannerNameX(settingsRes.welcome_banner_name_x ?? 400)
           setWelcomeBannerNameY(settingsRes.welcome_banner_name_y ?? 320)
+          setWelcomeBannerNameSize(settingsRes.welcome_banner_name_size ?? 38)
           setWelcomeBannerSubX(settingsRes.welcome_banner_sub_x ?? 400)
           setWelcomeBannerSubY(settingsRes.welcome_banner_sub_y ?? 360)
           setWelcomeBannerSubText(settingsRes.welcome_banner_sub_text || "Have a great moment here!")
-          setWelcomeBannerFont(settingsRes.welcome_banner_font || "sans-serif")
+          setWelcomeBannerSubSize(settingsRes.welcome_banner_sub_size ?? 20)
+          setWelcomeBannerFont(settingsRes.welcome_banner_font || "Uni Sans")
         }
 
         if (channelsRes.success) setChannels(channelsRes.data)
@@ -126,7 +132,7 @@ export default function WelcomePage({
     try {
       const payload = {
         welcome_channel: welcomeChannel || null,
-        welcome_msg: welcomeMsg,
+        welcome_msg: welcomeMsg, // Can be empty to disable text and keep only image
         welcome_delete_time: Number(welcomeDeleteTime),
         leave_channel: leaveChannel || null,
         leave_msg: leaveMsg,
@@ -141,11 +147,14 @@ export default function WelcomePage({
         welcome_banner_title_x: Number(welcomeBannerTitleX),
         welcome_banner_title_y: Number(welcomeBannerTitleY),
         welcome_banner_title_text: welcomeBannerTitleText,
+        welcome_banner_title_size: Number(welcomeBannerTitleSize),
         welcome_banner_name_x: Number(welcomeBannerNameX),
         welcome_banner_name_y: Number(welcomeBannerNameY),
+        welcome_banner_name_size: Number(welcomeBannerNameSize),
         welcome_banner_sub_x: Number(welcomeBannerSubX),
         welcome_banner_sub_y: Number(welcomeBannerSubY),
         welcome_banner_sub_text: welcomeBannerSubText,
+        welcome_banner_sub_size: Number(welcomeBannerSubSize),
         welcome_banner_font: welcomeBannerFont
       }
 
@@ -153,7 +162,7 @@ export default function WelcomePage({
 
       toast({
         title: "Sucesso!",
-        description: "Configurações de entrada e saída salvas com sucesso.",
+        description: "Configurações salvas e sincronizadas com sucesso.",
       })
     } catch (err: any) {
       console.error("Failed to save settings:", err)
@@ -219,7 +228,7 @@ export default function WelcomePage({
     img.src = "https://cdn.discordapp.com/embed/avatars/0.png"
   }, [])
 
-  // Canvas drawing effect (with rounded corners)
+  // Canvas drawing effect (with rounded corners and custom fonts/sizes)
   useEffect(() => {
     if (!welcomeBannerEnabled) return
     const canvas = canvasRef.current
@@ -355,14 +364,14 @@ export default function WelcomePage({
 
     // 3. Draw Title
     const titleText = replaceMockPlaceholders(welcomeBannerTitleText)
-    drawText(titleText, welcomeBannerTitleX, welcomeBannerTitleY, `bold 30px "${fontName}"`, '#e2e8f0', 700)
+    drawText(titleText, welcomeBannerTitleX, welcomeBannerTitleY, `bold ${welcomeBannerTitleSize}px "${fontName}"`, '#e2e8f0', 700)
 
     // 4. Draw Username
-    drawText("Aventureiro", welcomeBannerNameX, welcomeBannerNameY, `bold 38px "${fontName}"`, '#ffffff', 700)
+    drawText("Aventureiro", welcomeBannerNameX, welcomeBannerNameY, `bold ${welcomeBannerNameSize}px "${fontName}"`, '#ffffff', 700)
 
     // 5. Draw Subtitle
     const subText = replaceMockPlaceholders(welcomeBannerSubText)
-    drawText(subText, welcomeBannerSubX, welcomeBannerSubY, `500 20px "${fontName}"`, '#94a3b8', 700)
+    drawText(subText, welcomeBannerSubX, welcomeBannerSubY, `500 ${welcomeBannerSubSize}px "${fontName}"`, '#94a3b8', 700)
 
   }, [
     welcomeBannerEnabled,
@@ -374,11 +383,14 @@ export default function WelcomePage({
     welcomeBannerTitleX,
     welcomeBannerTitleY,
     welcomeBannerTitleText,
+    welcomeBannerTitleSize,
     welcomeBannerNameX,
     welcomeBannerNameY,
+    welcomeBannerNameSize,
     welcomeBannerSubX,
     welcomeBannerSubY,
     welcomeBannerSubText,
+    welcomeBannerSubSize,
     welcomeBannerFont
   ])
 
@@ -413,6 +425,12 @@ export default function WelcomePage({
       <style
         dangerouslySetInnerHTML={{
           __html: `
+            @font-face {
+              font-family: 'Uni Sans';
+              src: url('/fonts/UniSans-Heavy.ttf') format('truetype');
+              font-weight: bold;
+              font-style: normal;
+            }
             @font-face {
               font-family: 'More Sugar Regular';
               src: url('/fonts/MoreSugar-Regular.ttf') format('truetype');
@@ -467,7 +485,7 @@ export default function WelcomePage({
               Mensagem de Boas-vindas (Entrada)
             </h2>
             <p className="text-sm text-muted-foreground">
-              Configure como a Lunna cumprimentará os novos membros que entrarem no reino.
+              Configure como a Lunna cumprimentará os novos membros que entrarem no reino. (Você pode deixar a mensagem vazia caso queira enviar apenas o banner por imagem!)
             </p>
           </div>
 
@@ -516,7 +534,7 @@ export default function WelcomePage({
               onChange={(e) => setWelcomeMsg(e.target.value)}
               disabled={!welcomeChannel}
               rows={4}
-              placeholder="Digite a mensagem de boas-vindas..."
+              placeholder="Deixe em branco para desativar a mensagem textual e manter apenas o banner de imagem..."
               className="w-full rounded-2xl border border-border bg-secondary/30 px-4 py-3 text-sm font-medium text-foreground outline-none transition focus:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed resize-none"
             />
             
@@ -596,6 +614,38 @@ export default function WelcomePage({
                     className="w-full max-w-full aspect-[2/1] rounded-xl bg-slate-950 border border-slate-900 shadow-lg object-contain"
                   />
                 </div>
+                
+                {/* Dynamic premium layout features locks */}
+                <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-5 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 bg-purple-500/10 px-3 py-1 rounded-bl-xl flex items-center gap-1">
+                    <Crown className="h-3.5 w-3.5 text-purple-400" />
+                    <span className="text-[10px] font-black text-purple-300">PREMIUM</span>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <Lock className="h-8 w-8 text-purple-400 mt-0.5 flex-shrink-0" />
+                    <div className="space-y-3 w-full">
+                      <div>
+                        <h4 className="text-sm font-bold text-foreground">Template de Layout do Banner</h4>
+                        <p className="text-xs text-muted-foreground">Escolha a organização dos textos e formatos para destacar o seu servidor.</p>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <button type="button" className="h-10 text-xs font-semibold rounded-lg bg-secondary/80 border border-border/50 text-foreground cursor-default text-left px-3">
+                          Clássico Centro (Ativo)
+                        </button>
+                        <button type="button" disabled className="h-10 text-xs font-semibold rounded-lg bg-secondary/20 border border-purple-500/15 text-muted-foreground/50 cursor-not-allowed flex items-center justify-between px-3">
+                          <span>Esquerda Moderno</span>
+                          <Lock className="h-3 w-3 text-purple-400" />
+                        </button>
+                        <button type="button" disabled className="h-10 text-xs font-semibold rounded-lg bg-secondary/20 border border-purple-500/15 text-muted-foreground/50 cursor-not-allowed flex items-center justify-between px-3">
+                          <span>Compacto Slim</span>
+                          <Lock className="h-3 w-3 text-purple-400" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <p className="text-xs text-muted-foreground text-center">
                   * A imagem real gerada pelo bot usará a foto de perfil do novo membro.
                 </p>
@@ -629,9 +679,10 @@ export default function WelcomePage({
                     onChange={(e) => setWelcomeBannerFont(e.target.value)}
                     className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
-                    <option value="sans-serif">Padrão Clean (Sans-serif)</option>
+                    <option value="Uni Sans">Uni Sans (Padrão Lunna)</option>
                     <option value="Montserrat">Moderno Bold (Montserrat)</option>
                     <option value="More Sugar Regular">Fofo Gamer (More Sugar)</option>
+                    <option value="sans-serif">Clean Simples (Sans-serif)</option>
                   </select>
                 </div>
 
@@ -702,6 +753,40 @@ export default function WelcomePage({
                           className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
                         />
                       </div>
+
+                      {/* Premium locks for Avatar formatting */}
+                      <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 p-4 space-y-3 relative overflow-hidden">
+                        <div className="flex items-center gap-2">
+                          <Crown className="h-4 w-4 text-purple-400" />
+                          <span className="text-xs font-bold text-purple-300">Customização Premium do Avatar</span>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3 text-left">
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1">
+                              <span>Formato</span>
+                              <Lock className="h-2.5 w-2.5 text-purple-400" />
+                            </label>
+                            <select disabled className="w-full h-9 rounded-lg border border-purple-500/10 bg-secondary/40 px-2 text-xs font-semibold text-muted-foreground/60 cursor-not-allowed">
+                              <option>Círculo (Grátis)</option>
+                              <option>Quadrado [Premium]</option>
+                              <option>Hexágono [Premium]</option>
+                            </select>
+                          </div>
+                          
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1">
+                              <span>Estilo de Borda</span>
+                              <Lock className="h-2.5 w-2.5 text-purple-400" />
+                            </label>
+                            <select disabled className="w-full h-9 rounded-lg border border-purple-500/10 bg-secondary/40 px-2 text-xs font-semibold text-muted-foreground/60 cursor-not-allowed">
+                              <option>Branca Simples (Grátis)</option>
+                              <option>Neon Glow [Premium]</option>
+                              <option>Borda Dupla [Premium]</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -747,6 +832,22 @@ export default function WelcomePage({
                           className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
                         />
                       </div>
+
+                      {/* Font Size Selector */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-foreground">
+                          <span>Tamanho da Fonte (Título)</span>
+                          <span className="text-primary">{welcomeBannerTitleSize}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min={12}
+                          max={60}
+                          value={welcomeBannerTitleSize}
+                          onChange={(e) => setWelcomeBannerTitleSize(Number(e.target.value))}
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                      </div>
                     </div>
                   )}
 
@@ -782,6 +883,22 @@ export default function WelcomePage({
                           max={400}
                           value={welcomeBannerNameY}
                           onChange={(e) => setWelcomeBannerNameY(Number(e.target.value))}
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                      </div>
+
+                      {/* Font Size Selector */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-foreground">
+                          <span>Tamanho da Fonte (Nome)</span>
+                          <span className="text-primary">{welcomeBannerNameSize}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min={12}
+                          max={60}
+                          value={welcomeBannerNameSize}
+                          onChange={(e) => setWelcomeBannerNameSize(Number(e.target.value))}
                           className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
                         />
                       </div>
@@ -827,6 +944,22 @@ export default function WelcomePage({
                           max={400}
                           value={welcomeBannerSubY}
                           onChange={(e) => setWelcomeBannerSubY(Number(e.target.value))}
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                      </div>
+
+                      {/* Font Size Selector */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-foreground">
+                          <span>Tamanho da Fonte (Subtítulo)</span>
+                          <span className="text-primary">{welcomeBannerSubSize}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min={12}
+                          max={60}
+                          value={welcomeBannerSubSize}
+                          onChange={(e) => setWelcomeBannerSubSize(Number(e.target.value))}
                           className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
                         />
                       </div>
