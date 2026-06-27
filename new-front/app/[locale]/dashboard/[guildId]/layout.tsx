@@ -92,9 +92,8 @@ export default function GuildDashboardLayout({
         },
         {
           name: "Registro de Punições",
-          href: "#",
+          href: `/dashboard/${guildId}/punishments`,
           icon: <FileText className="mr-3 h-5 w-5" />,
-          disabled: true,
         },
         {
           name: "Punições de Avisos",

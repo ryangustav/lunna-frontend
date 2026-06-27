@@ -52,14 +52,14 @@ export default function ModerationPage({
 
   // Punishment DM states
   const [punishmentDM, setPunishmentDM] = useState<PunishmentDM>({
-    ban: true,
-    kick: true,
-    mute: true,
-    warn: true,
-    unban: true,
-    unmute: true,
-    unwarn: true,
-    softban: true
+    ban: false,
+    kick: false,
+    mute: false,
+    warn: false,
+    unban: false,
+    unmute: false,
+    unwarn: false,
+    softban: false
   })
 
   // Warn Punishments states
@@ -92,14 +92,14 @@ export default function ModerationPage({
           // Punishment DM
           const dmCfg = settingsRes.punishment_dm || {}
           setPunishmentDM({
-            ban: dmCfg.ban ?? true,
-            kick: dmCfg.kick ?? true,
-            mute: dmCfg.mute ?? true,
-            warn: dmCfg.warn ?? true,
-            unban: dmCfg.unban ?? true,
-            unmute: dmCfg.unmute ?? true,
-            unwarn: dmCfg.unwarn ?? true,
-            softban: dmCfg.softban ?? true
+            ban: dmCfg.ban ?? false,
+            kick: dmCfg.kick ?? false,
+            mute: dmCfg.mute ?? false,
+            warn: dmCfg.warn ?? false,
+            unban: dmCfg.unban ?? false,
+            unmute: dmCfg.unmute ?? false,
+            unwarn: dmCfg.unwarn ?? false,
+            softban: dmCfg.softban ?? false
           })
 
           // Warn Punishments
