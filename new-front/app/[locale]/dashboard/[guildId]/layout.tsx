@@ -64,9 +64,8 @@ export default function GuildDashboardLayout({
         },
         {
           name: "Permissões",
-          href: "#",
+          href: `/dashboard/${guildId}/permissions`,
           icon: <Key className="mr-3 h-5 w-5" />,
-          disabled: true,
         }
       ]
     },
@@ -114,12 +113,6 @@ export default function GuildDashboardLayout({
           name: "Registro de Eventos",
           href: `/dashboard/${guildId}/logs`,
           icon: <Activity className="mr-3 h-5 w-5" />,
-        },
-        {
-          name: "GamerSafer",
-          href: "#",
-          icon: <Shield className="mr-3 h-5 w-5" />,
-          disabled: true,
         }
       ]
     }

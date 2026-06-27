@@ -29,7 +29,8 @@ export default function AutorolePage({
   const [roles, setRoles] = useState<Role[]>([])
 
   // Autorole state
-  const [autoroleRole, setAutoroleRole] = useState<string>("")
+  const [autoroleRoles, setAutoroleRoles] = useState<string[]>([])
+  const [searchQuery, setSearchQuery] = useState("")
 
   // Fetch all required data on load
   useEffect(() => {
@@ -44,7 +45,8 @@ export default function AutorolePage({
         ])
 
         if (settingsRes) {
-          setAutoroleRole(settingsRes.autorole_role || "")
+          const rolesStr = settingsRes.autorole_role || ""
+          setAutoroleRoles(rolesStr.split(",").map((r: string) => r.trim()).filter(Boolean))
         }
 
         if (rolesRes.success) setRoles(rolesRes.data)
@@ -72,14 +74,14 @@ export default function AutorolePage({
 
     try {
       const payload = {
-        autorole_role: autoroleRole || null
+        autorole_role: autoroleRoles.join(",") || null
       }
 
       await api.updateGuildSettings(guildId, payload)
 
       toast({
         title: "Sucesso!",
-        description: "Cargo de autorole salvo e aplicado com sucesso.",
+        description: "Cargos de autorole salvos e aplicados com sucesso.",
       })
     } catch (err: any) {
       console.error("Failed to save settings:", err)
@@ -118,16 +120,20 @@ export default function AutorolePage({
     )
   }
 
+  const filteredRoles = roles.filter(role => 
+    role.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
   return (
     <form onSubmit={handleSave} className="animate-in fade-in slide-in-from-bottom-4 space-y-8 duration-700">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="flex items-center text-3xl font-black tracking-tight text-foreground">
             <UserCheck className="mr-3 h-8 w-8 text-primary" />
-            Cargo de Entrada (Autorole)
+            Cargos de Entrada (Autorole)
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Define o cargo automático que será atribuído aos membros que entrarem no seu servidor.
+            Defina um ou mais cargos automáticos que serão atribuídos aos aventureiros que entrarem no seu servidor.
           </p>
         </div>
 
@@ -150,29 +156,57 @@ export default function AutorolePage({
               Atribuir Cargo Automaticamente
             </h2>
             <p className="text-sm text-muted-foreground">
-              A Lunna concederá esse cargo instantaneamente a qualquer novo usuário que ingressar no servidor.
+              A Lunna concederá os cargos selecionados instantaneamente a qualquer novo usuário que ingressar no servidor.
             </p>
           </div>
 
           <div className="space-y-4 max-w-xl">
-            <label className="text-sm font-bold text-foreground">Cargo Autorole</label>
-            <select
-              value={autoroleRole}
-              onChange={(e) => setAutoroleRole(e.target.value)}
-              className="w-full h-12 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
-            >
-              <option value="" className="bg-card text-muted-foreground">Desativado (Nenhum cargo atribuído)</option>
-              {roles.map((role) => (
-                <option key={role.id} value={role.id} className="bg-card text-foreground">
-                  {role.name}
-                </option>
-              ))}
-            </select>
+            <label className="text-sm font-bold text-foreground">Cargos Autorole (Selecione múltiplos)</label>
+            
+            <input
+              type="text"
+              placeholder="Pesquisar cargos..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-12 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold outline-none transition focus:border-primary/50"
+            />
+
+            <div className="rounded-2xl border border-border/80 bg-secondary/15 p-4 max-h-64 overflow-y-auto space-y-2">
+              {filteredRoles.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-4">Nenhum cargo encontrado.</p>
+              ) : (
+                filteredRoles.map((role) => {
+                  const isChecked = autoroleRoles.includes(role.id)
+                  return (
+                    <div
+                      key={role.id}
+                      onClick={() => {
+                        if (isChecked) {
+                          setAutoroleRoles(autoroleRoles.filter(id => id !== role.id))
+                        } else {
+                          setAutoroleRoles([...autoroleRoles, role.id])
+                        }
+                      }}
+                      className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                        isChecked 
+                          ? "bg-primary/10 border-primary text-primary shadow-sm" 
+                          : "bg-secondary/20 border-border/50 text-foreground hover:bg-secondary/40"
+                      }`}
+                    >
+                      <span className="text-sm font-bold">{role.name}</span>
+                      <div className={`h-5 w-5 rounded border flex items-center justify-center bg-background transition-colors ${isChecked ? "border-primary" : "border-muted-foreground/30"}`}>
+                        {isChecked && <ShieldCheck className="h-4 w-4 text-primary fill-primary/10" />}
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
             
             <div className="flex items-center gap-2 rounded-xl bg-secondary/20 p-4 border border-border/50 mt-2">
               <ShieldCheck className="h-5 w-5 text-purple-400 flex-shrink-0" />
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Certifique-se de posicionar o cargo da <strong>Lunna</strong> acima do cargo selecionado nas configurações de cargos do Discord, caso contrário, o bot não terá permissão hierárquica suficiente para atribuí-lo aos membros.
+                Certifique-se de posicionar o cargo da <strong>Lunna</strong> acima dos cargos selecionados nas configurações de cargos do Discord, caso contrário, o bot não terá permissão hierárquica suficiente para atribuí-los aos membros.
               </p>
             </div>
           </div>
