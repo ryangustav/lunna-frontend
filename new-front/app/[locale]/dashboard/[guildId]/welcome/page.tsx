@@ -551,7 +551,7 @@ export default function WelcomePage({
               <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
                 <span className="text-xs font-bold text-muted-foreground">Variáveis Disponíveis (Clique para inserir):</span>
                 <div className="flex flex-wrap gap-2">
-                  {["{user_mention}", "{username}", "{user_name}", "{user_tag}", "{user_id}", "{server_name}", "{guild_name}", "{total_members}", "{member_count}", "{inviter_mention}", "{inviter_name}", "{inviter_tag}", "{inviter_id}"].map((variable) => (
+                  {["{user_mention}", "{username}", "{user_name}", "{user_tag}", "{user_id}", "{server_name}", "{guild_name}", "{total_members}", "{member_count}", "{member_count_ordinal}", "{inviter_mention}", "{inviter_name}", "{inviter_tag}", "{inviter_id}"].map((variable) => (
                     <button
                       key={variable}
                       type="button"
@@ -1036,7 +1036,7 @@ export default function WelcomePage({
               <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
                 <span className="text-xs font-bold text-muted-foreground">Variáveis Disponíveis (Clique para inserir):</span>
                 <div className="flex flex-wrap gap-2">
-                  {["{user_mention}", "{username}", "{user_name}", "{user_tag}", "{user_id}", "{server_name}", "{guild_name}", "{total_members}", "{member_count}", "{inviter_mention}", "{inviter_name}", "{inviter_tag}", "{inviter_id}"].map((variable) => (
+                  {["{user_mention}", "{username}", "{user_name}", "{user_tag}", "{user_id}", "{server_name}", "{guild_name}", "{total_members}", "{member_count}", "{member_count_ordinal}", "{inviter_mention}", "{inviter_name}", "{inviter_tag}", "{inviter_id}"].map((variable) => (
                     <button
                       key={variable}
                       type="button"
