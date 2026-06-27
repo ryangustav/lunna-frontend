@@ -33,4 +33,11 @@ export const api = {
     method: "POST",
     body: JSON.stringify({ token })
   }),
+  getGuildSettings: (guildId: string) => apiFetch(`/guilds/${guildId}/settings`),
+  updateGuildSettings: (guildId: string, data: any) => apiFetch(`/guilds/${guildId}/settings`, {
+    method: "PATCH",
+    body: JSON.stringify(data)
+  }),
+  getGuildChannels: (guildId: string) => apiFetch(`/guilds/${guildId}/channels`),
+  getGuildRoles: (guildId: string) => apiFetch(`/guilds/${guildId}/roles`),
 }

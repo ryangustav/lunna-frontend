@@ -1,58 +1,1200 @@
-import React from "react"
-import { Globe, Settings, BellRing } from "lucide-react"
+"use client"
 
-export default function SettingsPage() {
+import React, { use, useEffect, useState, useRef } from "react"
+import { Settings, Save, AlertTriangle, ShieldCheck, MessageSquare, Mic, User, ShieldAlert, FolderClosed } from "lucide-react"
+import { api } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button"
+
+interface Channel {
+  id: string
+  name: string
+  type: number
+}
+
+interface Role {
+  id: string
+  name: string
+  color: number
+}
+
+export default function SettingsPage({
+  params,
+}: {
+  params: Promise<{ guildId: string }>
+}) {
+  const { guildId } = use(params)
+  const { toast } = useToast()
+
+  // Loading / Saving states
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Discord lists
+  const [channels, setChannels] = useState<Channel[]>([])
+  const [roles, setRoles] = useState<Role[]>([])
+
+  // Basic Config states
+  const [welcomeChannel, setWelcomeChannel] = useState<string>("")
+  const [welcomeMsg, setWelcomeMsg] = useState<string>("Bem-vindo {user_mention} ao servidor!")
+  const [welcomeDeleteTime, setWelcomeDeleteTime] = useState<number>(0)
+
+  const [leaveChannel, setLeaveChannel] = useState<string>("")
+  const [leaveMsg, setLeaveMsg] = useState<string>("Adeus {user_mention}!")
+  const [leaveDeleteTime, setLeaveDeleteTime] = useState<number>(0)
+
+  const [autoroleRole, setAutoroleRole] = useState<string>("")
+
+  // Granular Logs states
+  const [logMsgDeleteChannel, setLogMsgDeleteChannel] = useState<string>("")
+  const [logMsgEditChannel, setLogMsgEditChannel] = useState<string>("")
+  const [logVoiceChannel, setLogVoiceChannel] = useState<string>("")
+  const [logMemberNicknameChannel, setLogMemberNicknameChannel] = useState<string>("")
+  const [logMemberAvatarChannel, setLogMemberAvatarChannel] = useState<string>("")
+  const [logModBanChannel, setLogModBanChannel] = useState<string>("")
+  const [logModUnbanChannel, setLogModUnbanChannel] = useState<string>("")
+  const [logModKickChannel, setLogModKickChannel] = useState<string>("")
+  const [logServerChannelCreateChannel, setLogServerChannelCreateChannel] = useState<string>("")
+  const [logServerChannelDeleteChannel, setLogServerChannelDeleteChannel] = useState<string>("")
+  const [logServerRoleCreateChannel, setLogServerRoleCreateChannel] = useState<string>("")
+  const [logServerRoleDeleteChannel, setLogServerRoleDeleteChannel] = useState<string>("")
+
+  // Welcome Banner states
+  const [welcomeBannerEnabled, setWelcomeBannerEnabled] = useState<boolean>(false)
+  const [welcomeBannerBackground, setWelcomeBannerBackground] = useState<string>("")
+  const [welcomeBannerAvatarX, setWelcomeBannerAvatarX] = useState<number>(400)
+  const [welcomeBannerAvatarY, setWelcomeBannerAvatarY] = useState<number>(150)
+  const [welcomeBannerAvatarSize, setWelcomeBannerAvatarSize] = useState<number>(120)
+  const [welcomeBannerTitleX, setWelcomeBannerTitleX] = useState<number>(400)
+  const [welcomeBannerTitleY, setWelcomeBannerTitleY] = useState<number>(280)
+  const [welcomeBannerTitleText, setWelcomeBannerTitleText] = useState<string>("Welcome")
+  const [welcomeBannerNameX, setWelcomeBannerNameX] = useState<number>(400)
+  const [welcomeBannerNameY, setWelcomeBannerNameY] = useState<number>(320)
+  const [welcomeBannerSubX, setWelcomeBannerSubX] = useState<number>(400)
+  const [welcomeBannerSubY, setWelcomeBannerSubY] = useState<number>(360)
+  const [welcomeBannerSubText, setWelcomeBannerSubText] = useState<string>("Have a great moment here!")
+  const [activeTab, setActiveTab] = useState<string>("avatar")
+
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [bgImageObj, setBgImageObj] = useState<HTMLImageElement | null>(null)
+  const [avatarImageObj, setAvatarImageObj] = useState<HTMLImageElement | null>(null)
+
+  // Refs for cursor variable insertion
+  const welcomeTextareaRef = useRef<HTMLTextAreaElement>(null)
+  const leaveTextareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Fetch all required data on load
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        // Fetch settings, channels and roles in parallel
+        const [settingsRes, channelsRes, rolesRes] = await Promise.all([
+          api.getGuildSettings(guildId),
+          api.getGuildChannels(guildId),
+          api.getGuildRoles(guildId)
+        ])
+
+        // Set Settings
+        if (settingsRes) {
+          setWelcomeChannel(settingsRes.welcome_channel || "")
+          setWelcomeMsg(settingsRes.welcome_msg || "Bem-vindo {user_mention} ao servidor!")
+          setWelcomeDeleteTime(settingsRes.welcome_delete_time || 0)
+
+          setLeaveChannel(settingsRes.leave_channel || "")
+          setLeaveMsg(settingsRes.leave_msg || "Adeus {user_mention}!")
+          setLeaveDeleteTime(settingsRes.leave_delete_time || 0)
+
+          setAutoroleRole(settingsRes.autorole_role || "")
+
+          // Logs settings
+          setLogMsgDeleteChannel(settingsRes.log_msg_delete_channel || "")
+          setLogMsgEditChannel(settingsRes.log_msg_edit_channel || "")
+          setLogVoiceChannel(settingsRes.log_voice_channel || "")
+          setLogMemberNicknameChannel(settingsRes.log_member_nickname_channel || "")
+          setLogMemberAvatarChannel(settingsRes.log_member_avatar_channel || "")
+          setLogModBanChannel(settingsRes.log_mod_ban_channel || "")
+          setLogModUnbanChannel(settingsRes.log_mod_unban_channel || "")
+          setLogModKickChannel(settingsRes.log_mod_kick_channel || "")
+          setLogServerChannelCreateChannel(settingsRes.log_server_channel_create_channel || "")
+          setLogServerChannelDeleteChannel(settingsRes.log_server_channel_delete_channel || "")
+          setLogServerRoleCreateChannel(settingsRes.log_server_role_create_channel || "")
+          setLogServerRoleDeleteChannel(settingsRes.log_server_role_delete_channel || "")
+
+          // Welcome banner settings
+          setWelcomeBannerEnabled(settingsRes.welcome_banner_enabled ?? false)
+          setWelcomeBannerBackground(settingsRes.welcome_banner_background || "")
+          setWelcomeBannerAvatarX(settingsRes.welcome_banner_avatar_x ?? 400)
+          setWelcomeBannerAvatarY(settingsRes.welcome_banner_avatar_y ?? 150)
+          setWelcomeBannerAvatarSize(settingsRes.welcome_banner_avatar_size ?? 120)
+          setWelcomeBannerTitleX(settingsRes.welcome_banner_title_x ?? 400)
+          setWelcomeBannerTitleY(settingsRes.welcome_banner_title_y ?? 280)
+          setWelcomeBannerTitleText(settingsRes.welcome_banner_title_text || "Welcome")
+          setWelcomeBannerNameX(settingsRes.welcome_banner_name_x ?? 400)
+          setWelcomeBannerNameY(settingsRes.welcome_banner_name_y ?? 320)
+          setWelcomeBannerSubX(settingsRes.welcome_banner_sub_x ?? 400)
+          setWelcomeBannerSubY(settingsRes.welcome_banner_sub_y ?? 360)
+          setWelcomeBannerSubText(settingsRes.welcome_banner_sub_text || "Have a great moment here!")
+        }
+
+        // Set lists
+        if (channelsRes.success) setChannels(channelsRes.data)
+        if (rolesRes.success) setRoles(rolesRes.data)
+
+      } catch (err: any) {
+        console.error("Failed to load settings data:", err)
+        setError(err.message || "Não foi possível carregar as configurações do servidor.")
+        toast({
+          title: "Erro ao carregar dados",
+          description: err.message || "Por favor, verifique se o bot está no servidor.",
+          variant: "destructive"
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [guildId])
+
+  // Save handler
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSaving(true)
+
+    try {
+      const payload = {
+        welcome_channel: welcomeChannel || null,
+        welcome_msg: welcomeMsg,
+        welcome_delete_time: Number(welcomeDeleteTime),
+        leave_channel: leaveChannel || null,
+        leave_msg: leaveMsg,
+        leave_delete_time: Number(leaveDeleteTime),
+        autorole_role: autoroleRole || null,
+
+        // Logs
+        log_msg_delete_channel: logMsgDeleteChannel || null,
+        log_msg_edit_channel: logMsgEditChannel || null,
+        log_voice_channel: logVoiceChannel || null,
+        log_member_nickname_channel: logMemberNicknameChannel || null,
+        log_member_avatar_channel: logMemberAvatarChannel || null,
+        log_mod_ban_channel: logModBanChannel || null,
+        log_mod_unban_channel: logModUnbanChannel || null,
+        log_mod_kick_channel: logModKickChannel || null,
+        log_server_channel_create_channel: logServerChannelCreateChannel || null,
+        log_server_channel_delete_channel: logServerChannelDeleteChannel || null,
+        log_server_role_create_channel: logServerRoleCreateChannel || null,
+        log_server_role_delete_channel: logServerRoleDeleteChannel || null,
+
+        // Welcome banner
+        welcome_banner_enabled: welcomeBannerEnabled,
+        welcome_banner_background: welcomeBannerBackground,
+        welcome_banner_avatar_x: Number(welcomeBannerAvatarX),
+        welcome_banner_avatar_y: Number(welcomeBannerAvatarY),
+        welcome_banner_avatar_size: Number(welcomeBannerAvatarSize),
+        welcome_banner_title_x: Number(welcomeBannerTitleX),
+        welcome_banner_title_y: Number(welcomeBannerTitleY),
+        welcome_banner_title_text: welcomeBannerTitleText,
+        welcome_banner_name_x: Number(welcomeBannerNameX),
+        welcome_banner_name_y: Number(welcomeBannerNameY),
+        welcome_banner_sub_x: Number(welcomeBannerSubX),
+        welcome_banner_sub_y: Number(welcomeBannerSubY),
+        welcome_banner_sub_text: welcomeBannerSubText
+      }
+
+      await api.updateGuildSettings(guildId, payload)
+
+      toast({
+        title: "Sucesso!",
+        description: "Configurações salvas e aplicadas com sucesso.",
+      })
+    } catch (err: any) {
+      console.error("Failed to save settings:", err)
+      toast({
+        title: "Erro ao salvar",
+        description: err.message || "Ocorreu um erro ao salvar as configurações.",
+        variant: "destructive"
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  // Smart insertion function for template variables
+  const insertVariable = (
+    ref: React.RefObject<HTMLTextAreaElement | null>,
+    variable: string,
+    value: string,
+    setter: React.Dispatch<React.SetStateAction<string>>
+  ) => {
+    const textarea = ref.current
+    if (!textarea) return
+
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const text = textarea.value
+    const before = text.substring(0, start)
+    const after = text.substring(end, text.length)
+
+    const newValue = before + variable + after
+    setter(newValue)
+
+    // Reposition cursor right after inserted text
+    setTimeout(() => {
+      textarea.focus()
+      textarea.setSelectionRange(start + variable.length, start + variable.length)
+    }, 0)
+  }
+
+  // Load background image preview
+  useEffect(() => {
+    if (!welcomeBannerBackground) {
+      setBgImageObj(null)
+      return
+    }
+    const img = new Image()
+    img.crossOrigin = "anonymous"
+    img.onload = () => {
+      setBgImageObj(img)
+    }
+    img.onerror = () => {
+      setBgImageObj(null)
+    }
+    img.src = welcomeBannerBackground
+  }, [welcomeBannerBackground])
+
+  // Load avatar image preview
+  useEffect(() => {
+    const img = new Image()
+    img.crossOrigin = "anonymous"
+    img.onload = () => {
+      setAvatarImageObj(img)
+    }
+    img.src = "https://cdn.discordapp.com/embed/avatars/0.png"
+  }, [])
+
+  // Canvas drawing effect
+  useEffect(() => {
+    if (!welcomeBannerEnabled) return
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    // Clear canvas
+    ctx.clearRect(0, 0, 800, 400)
+
+    // 1. Draw Background
+    if (bgImageObj) {
+      try {
+        ctx.drawImage(bgImageObj, 0, 0, 800, 400)
+      } catch (err) {
+        console.error("Failed to draw bg image on preview canvas", err)
+      }
+      // Dark overlay
+      ctx.fillStyle = "rgba(15, 23, 42, 0.45)"
+      ctx.fillRect(0, 0, 800, 400)
+    } else {
+      // Premium gradient
+      const gradient = ctx.createLinearGradient(0, 0, 800, 400)
+      gradient.addColorStop(0, '#0f172a')
+      gradient.addColorStop(0.5, '#1e1b4b')
+      gradient.addColorStop(1, '#311042')
+      ctx.fillStyle = gradient
+      ctx.fillRect(0, 0, 800, 400)
+
+      // Glowing circles
+      ctx.fillStyle = 'rgba(99, 102, 241, 0.15)'
+      ctx.beginPath()
+      ctx.arc(100, 100, 200, 0, Math.PI * 2)
+      ctx.fill()
+
+      ctx.fillStyle = 'rgba(236, 72, 153, 0.1)'
+      ctx.beginPath()
+      ctx.arc(700, 300, 150, 0, Math.PI * 2)
+      ctx.fill()
+    }
+
+    // Glowing outline border
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)'
+    ctx.lineWidth = 8
+    ctx.strokeRect(0, 0, 800, 400)
+
+    // 2. Draw Avatar
+    const avatarSize = welcomeBannerAvatarSize
+    const avatarX = welcomeBannerAvatarX
+    const avatarY = welcomeBannerAvatarY
+
+    // Draw avatar glow and border
+    ctx.save()
+    ctx.shadowColor = 'rgba(99, 102, 241, 0.5)'
+    ctx.shadowBlur = 15
+    ctx.beginPath()
+    ctx.arc(avatarX, avatarY, avatarSize / 2, 0, Math.PI * 2, true)
+    ctx.closePath()
+    ctx.strokeStyle = '#ffffff'
+    ctx.lineWidth = 4
+    ctx.stroke()
+    ctx.restore()
+
+    // Clip and draw avatar image
+    ctx.save()
+    ctx.beginPath()
+    ctx.arc(avatarX, avatarY, (avatarSize / 2) - 2, 0, Math.PI * 2, true)
+    ctx.closePath()
+    ctx.clip()
+
+    if (avatarImageObj) {
+      try {
+        ctx.drawImage(avatarImageObj, avatarX - avatarSize / 2, avatarY - avatarSize / 2, avatarSize, avatarSize)
+      } catch (err) {
+        ctx.fillStyle = '#6366f1'
+        ctx.fill()
+      }
+    } else {
+      ctx.fillStyle = '#6366f1'
+      ctx.fill()
+    }
+    ctx.restore()
+
+    // Helper text renderer
+    const drawText = (text: string, x: number, y: number, font: string, color: string, maxW: number) => {
+      ctx.save()
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.font = font
+      
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)'
+      ctx.shadowBlur = 8
+      ctx.shadowOffsetX = 2
+      ctx.shadowOffsetY = 2
+      
+      ctx.fillStyle = color
+      ctx.fillText(text, x, y, maxW)
+      ctx.restore()
+    }
+
+    // Replace placeholder helper for the preview
+    const replaceMockPlaceholders = (str: string) => {
+      return str
+        .replace(/{username}/g, "Aventureiro")
+        .replace(/{total_members}/g, "123")
+        .replace(/{server_name}/g, "Servidor Demo")
+        .replace(/{user_mention}/g, "@Aventureiro")
+    }
+
+    // 3. Draw Title
+    const titleText = replaceMockPlaceholders(welcomeBannerTitleText)
+    drawText(titleText, welcomeBannerTitleX, welcomeBannerTitleY, 'bold 30px sans-serif', '#e2e8f0', 700)
+
+    // 4. Draw Username
+    drawText("Aventureiro", welcomeBannerNameX, welcomeBannerNameY, 'bold 38px sans-serif', '#ffffff', 700)
+
+    // 5. Draw Subtitle
+    const subText = replaceMockPlaceholders(welcomeBannerSubText)
+    drawText(subText, welcomeBannerSubX, welcomeBannerSubY, '500 20px sans-serif', '#94a3b8', 700)
+
+  }, [
+    welcomeBannerEnabled,
+    bgImageObj,
+    avatarImageObj,
+    welcomeBannerAvatarX,
+    welcomeBannerAvatarY,
+    welcomeBannerAvatarSize,
+    welcomeBannerTitleX,
+    welcomeBannerTitleY,
+    welcomeBannerTitleText,
+    welcomeBannerNameX,
+    welcomeBannerNameY,
+    welcomeBannerSubX,
+    welcomeBannerSubY,
+    welcomeBannerSubText
+  ])
+
+  if (loading) {
+    return (
+      <div className="space-y-8 animate-pulse">
+        <div className="space-y-3">
+          <div className="h-8 w-64 rounded bg-muted/60" />
+          <div className="h-4 w-96 rounded bg-muted/40" />
+        </div>
+        <div className="space-y-6">
+          <div className="h-48 w-full rounded-3xl bg-muted/20 border border-border/50" />
+          <div className="h-48 w-full rounded-3xl bg-muted/20 border border-border/50" />
+          <div className="h-32 w-full rounded-3xl bg-muted/20 border border-border/50" />
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 text-center rounded-3xl border border-destructive/20 bg-destructive/5 space-y-4">
+        <AlertTriangle className="h-12 w-12 text-destructive animate-bounce" />
+        <h3 className="text-xl font-bold text-foreground">Falha de Comunicação</h3>
+        <p className="text-sm text-muted-foreground max-w-md">{error}</p>
+        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-xl">
+          Tentar Novamente
+        </Button>
+      </div>
+    )
+  }
+
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 space-y-8 duration-700">
-      <div>
-        <h1 className="flex items-center text-3xl font-black tracking-tight text-foreground">
-          <Settings className="mr-3 h-8 w-8 text-primary" />
-          Preferências Locais
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          Ajustes gerais do bot focados unicamente nas nuances deste seu servidor.
-        </p>
+    <form onSubmit={handleSave} className="animate-in fade-in slide-in-from-bottom-4 space-y-8 duration-700">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="flex items-center text-3xl font-black tracking-tight text-foreground">
+            <Settings className="mr-3 h-8 w-8 text-primary" />
+            Preferências Locais
+          </h1>
+          <p className="mt-2 text-muted-foreground">
+            Ajustes gerais do bot focados unicamente nas nuances deste seu servidor.
+          </p>
+        </div>
+
+        <Button
+          type="submit"
+          disabled={saving}
+          className="w-full sm:w-auto h-12 rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+        >
+          <Save className="mr-2 h-4 w-4" />
+          {saving ? "Salvando..." : "Salvar Configurações"}
+        </Button>
       </div>
 
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-col md:flex-row items-center justify-between rounded-3xl border border-border bg-card p-6 shadow-sm">
-          <div className="flex flex-col space-y-1">
-            <h3 className="text-lg font-bold text-foreground flex items-center">
-              Idioma Primário <Globe className="ml-2 h-4 w-4 text-purple-400" />
-            </h3>
-            <p className="text-sm text-muted-foreground max-w-lg">
-              Qual idioma a Lunna deve utilizar por padrão ao responder os seus membros.
+      <div className="grid grid-cols-1 gap-8">
+        {/* 1. Boas-vindas (Entrada) */}
+        <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-blue-500/5 blur-2xl group-hover:bg-blue-500/10 transition-colors" />
+          
+          <div className="space-y-1">
+            <h2 className="text-xl font-black text-foreground flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 text-sm font-bold">1</span>
+              Mensagem de Boas-vindas (Entrada)
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Configure como a Lunna cumprimentará os novos membros que entrarem no reino.
             </p>
           </div>
-          <div className="mt-4 md:mt-0 w-full md:w-auto">
-            <input 
-              type="text" 
-              disabled 
-              placeholder="Português do Brasil"
-              className="w-full md:w-56 rounded-xl border border-border bg-secondary/50 px-4 py-2.5 text-sm text-muted-foreground outline-none cursor-not-allowed" 
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-foreground">Canal de Envio</label>
+              <select
+                value={welcomeChannel}
+                onChange={(e) => setWelcomeChannel(e.target.value)}
+                className="w-full h-12 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+              >
+                <option value="" className="bg-card text-muted-foreground">Desativado (Não enviar)</option>
+                {channels.map((ch) => (
+                  <option key={ch.id} value={ch.id} className="bg-card text-foreground">
+                    #{ch.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-foreground">Auto-deletar Mensagem</label>
+              <select
+                value={welcomeDeleteTime}
+                onChange={(e) => setWelcomeDeleteTime(Number(e.target.value))}
+                className="w-full h-12 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+              >
+                <option value={0} className="bg-card text-foreground">Nunca apagar (Manter no histórico)</option>
+                <option value={5} className="bg-card text-foreground">Apagar após 5 segundos</option>
+                <option value={10} className="bg-card text-foreground">Apagar após 10 segundos</option>
+                <option value={30} className="bg-card text-foreground">Apagar após 30 segundos</option>
+                <option value={60} className="bg-card text-foreground">Apagar após 1 minuto</option>
+                <option value={300} className="bg-card text-foreground">Apagar após 5 minutos</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <label className="text-sm font-bold text-foreground">Mensagem de Boas-vindas</label>
+              <span className="text-xs text-muted-foreground font-medium">Suporta Markdown do Discord</span>
+            </div>
+            <textarea
+              ref={welcomeTextareaRef}
+              value={welcomeMsg}
+              onChange={(e) => setWelcomeMsg(e.target.value)}
+              disabled={!welcomeChannel}
+              rows={4}
+              placeholder="Digite a mensagem de boas-vindas..."
+              className="w-full rounded-2xl border border-border bg-secondary/30 px-4 py-3 text-sm font-medium text-foreground outline-none transition focus:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed resize-none"
             />
+            
+            {welcomeChannel && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                <span className="text-xs font-bold text-muted-foreground">Variáveis Disponíveis (Clique para inserir):</span>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => insertVariable(welcomeTextareaRef, "{user_mention}", welcomeMsg, setWelcomeMsg)}
+                    className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer"
+                  >
+                    {"{user_mention}"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => insertVariable(welcomeTextareaRef, "{total_members}", welcomeMsg, setWelcomeMsg)}
+                    className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer"
+                  >
+                    {"{total_members}"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => insertVariable(welcomeTextareaRef, "{inviter_mention}", welcomeMsg, setWelcomeMsg)}
+                    className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer"
+                  >
+                    {"{inviter_mention}"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center justify-between rounded-3xl border border-border bg-card p-6 shadow-sm">
-          <div className="flex flex-col space-y-1">
-            <h3 className="text-lg font-bold text-foreground flex items-center">
-              Canal de Notificações <BellRing className="ml-2 h-4 w-4 text-blue-400" />
-            </h3>
-            <p className="text-sm text-muted-foreground max-w-lg">
-              Canal central que o bot irá mandar os avisos gerais caso precise de suporte humano, como punições pendentes.
+        {/* 2. Banner de Boas-vindas por Imagem */}
+        <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-indigo-500/5 blur-2xl group-hover:bg-indigo-500/10 transition-colors" />
+          
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="space-y-1">
+              <h2 className="text-xl font-black text-foreground flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400 text-sm font-bold">2</span>
+                Banner de Boas-vindas por Imagem
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Ative e personalize um banner de imagem dinâmico gerado em tempo real quando novos membros entrarem.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-bold text-foreground cursor-pointer select-none" htmlFor="banner-toggle">
+                Habilitar Banner
+              </label>
+              <input
+                id="banner-toggle"
+                type="checkbox"
+                checked={welcomeBannerEnabled}
+                onChange={(e) => setWelcomeBannerEnabled(e.target.checked)}
+                className="h-6 w-11 rounded-full appearance-none bg-muted checked:bg-primary transition-all relative cursor-pointer before:content-[''] before:absolute before:h-4 before:w-4 before:rounded-full before:bg-background before:top-1 before:left-1 checked:before:translate-x-5 before:transition-all"
+              />
+            </div>
+          </div>
+
+          {welcomeBannerEnabled && (
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 animate-in fade-in slide-in-from-top-4 duration-500">
+              {/* Canvas Preview Column */}
+              <div className="xl:col-span-7 space-y-4">
+                <label className="text-sm font-bold text-foreground flex items-center justify-between">
+                  <span>Pré-visualização do Banner (800x400)</span>
+                  <span className="text-xs text-muted-foreground">Arraste os controles ao lado para ajustar posições</span>
+                </label>
+                <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-secondary/5 p-2 shadow-inner">
+                  <canvas
+                    ref={canvasRef}
+                    width={800}
+                    height={400}
+                    className="w-full max-w-full aspect-[2/1] rounded-xl bg-slate-950 border border-slate-900 shadow-lg object-contain"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground text-center">
+                  * A imagem real gerada pelo bot usará a foto de perfil do novo membro.
+                </p>
+              </div>
+
+              {/* Controls Column */}
+              <div className="xl:col-span-5 space-y-6">
+                {/* Background settings */}
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-foreground">URL da Imagem de Fundo (Opcional)</label>
+                  <input
+                    type="url"
+                    value={welcomeBannerBackground}
+                    onChange={(e) => setWelcomeBannerBackground(e.target.value)}
+                    placeholder="https://exemplo.com/fundo.png (deixe vazio para gradiente premium)"
+                    className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                  />
+                </div>
+
+                {/* Tab layout for customization categories */}
+                <div className="space-y-4 rounded-2xl border border-border/60 bg-secondary/10 p-4">
+                  {/* Category selector */}
+                  <div className="grid grid-cols-4 gap-1 bg-secondary/30 p-1 rounded-xl">
+                    {["avatar", "titulo", "nome", "sub"].map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setActiveTab(cat)}
+                        className={`py-1.5 text-xs font-bold rounded-lg capitalize transition-all ${
+                          activeTab === cat
+                            ? "bg-card text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {cat === "sub" ? "Subtítulo" : cat === "titulo" ? "Título" : cat}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Tab contents */}
+                  {activeTab === "avatar" && (
+                    <div className="space-y-4 animate-in fade-in duration-300">
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-foreground">
+                          <span>Posição X</span>
+                          <span className="text-primary">{welcomeBannerAvatarX}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min={0}
+                          max={800}
+                          value={welcomeBannerAvatarX}
+                          onChange={(e) => setWelcomeBannerAvatarX(Number(e.target.value))}
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-foreground">
+                          <span>Posição Y</span>
+                          <span className="text-primary">{welcomeBannerAvatarY}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min={0}
+                          max={400}
+                          value={welcomeBannerAvatarY}
+                          onChange={(e) => setWelcomeBannerAvatarY(Number(e.target.value))}
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-foreground">
+                          <span>Tamanho do Avatar</span>
+                          <span className="text-primary">{welcomeBannerAvatarSize}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min={40}
+                          max={240}
+                          value={welcomeBannerAvatarSize}
+                          onChange={(e) => setWelcomeBannerAvatarSize(Number(e.target.value))}
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === "titulo" && (
+                    <div className="space-y-4 animate-in fade-in duration-300">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-foreground">Texto do Título</label>
+                        <input
+                          type="text"
+                          value={welcomeBannerTitleText}
+                          onChange={(e) => setWelcomeBannerTitleText(e.target.value)}
+                          placeholder="Welcome"
+                          className="w-full h-10 rounded-lg border border-border bg-secondary/20 px-3 text-xs font-semibold text-foreground outline-none transition focus:border-primary/50"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-foreground">
+                          <span>Posição X</span>
+                          <span className="text-primary">{welcomeBannerTitleX}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min={0}
+                          max={800}
+                          value={welcomeBannerTitleX}
+                          onChange={(e) => setWelcomeBannerTitleX(Number(e.target.value))}
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-foreground">
+                          <span>Posição Y</span>
+                          <span className="text-primary">{welcomeBannerTitleY}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min={0}
+                          max={400}
+                          value={welcomeBannerTitleY}
+                          onChange={(e) => setWelcomeBannerTitleY(Number(e.target.value))}
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === "nome" && (
+                    <div className="space-y-4 animate-in fade-in duration-300">
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        O nome será preenchido dinamicamente com o nome do usuário no Discord.
+                      </p>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-foreground">
+                          <span>Posição X</span>
+                          <span className="text-primary">{welcomeBannerNameX}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min={0}
+                          max={800}
+                          value={welcomeBannerNameX}
+                          onChange={(e) => setWelcomeBannerNameX(Number(e.target.value))}
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-foreground">
+                          <span>Posição Y</span>
+                          <span className="text-primary">{welcomeBannerNameY}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min={0}
+                          max={400}
+                          value={welcomeBannerNameY}
+                          onChange={(e) => setWelcomeBannerNameY(Number(e.target.value))}
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === "sub" && (
+                    <div className="space-y-4 animate-in fade-in duration-300">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-foreground">Texto do Subtítulo</label>
+                        <input
+                          type="text"
+                          value={welcomeBannerSubText}
+                          onChange={(e) => setWelcomeBannerSubText(e.target.value)}
+                          placeholder="Have a great moment here!"
+                          className="w-full h-10 rounded-lg border border-border bg-secondary/20 px-3 text-xs font-semibold text-foreground outline-none transition focus:border-primary/50"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-foreground">
+                          <span>Posição X</span>
+                          <span className="text-primary">{welcomeBannerSubX}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min={0}
+                          max={800}
+                          value={welcomeBannerSubX}
+                          onChange={(e) => setWelcomeBannerSubX(Number(e.target.value))}
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-foreground">
+                          <span>Posição Y</span>
+                          <span className="text-primary">{welcomeBannerSubY}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min={0}
+                          max={400}
+                          value={welcomeBannerSubY}
+                          onChange={(e) => setWelcomeBannerSubY(Number(e.target.value))}
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 3. Despedida (Saída) */}
+        <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-red-500/5 blur-2xl group-hover:bg-red-500/10 transition-colors" />
+          
+          <div className="space-y-1">
+            <h2 className="text-xl font-black text-foreground flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-500/10 text-red-400 text-sm font-bold">3</span>
+              Mensagem de Despedida (Saída)
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Configure a notificação de quando um aventureiro decide deixar o reino.
             </p>
           </div>
-          <div className="mt-4 md:mt-0 w-full md:w-auto">
-            <select 
-              disabled 
-              className="w-full md:w-56 rounded-xl border border-border bg-secondary/50 px-4 py-2.5 text-sm text-muted-foreground outline-none cursor-not-allowed"
-            >
-              <option>Selecione um canal...</option>
-            </select>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-foreground">Canal de Envio</label>
+              <select
+                value={leaveChannel}
+                onChange={(e) => setLeaveChannel(e.target.value)}
+                className="w-full h-12 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+              >
+                <option value="" className="bg-card text-muted-foreground">Desativado (Não enviar)</option>
+                {channels.map((ch) => (
+                  <option key={ch.id} value={ch.id} className="bg-card text-foreground">
+                    #{ch.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-foreground">Auto-deletar Mensagem</label>
+              <select
+                value={leaveDeleteTime}
+                onChange={(e) => setLeaveDeleteTime(Number(e.target.value))}
+                className="w-full h-12 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+              >
+                <option value={0} className="bg-card text-foreground">Nunca apagar (Manter no histórico)</option>
+                <option value={5} className="bg-card text-foreground">Apagar após 5 segundos</option>
+                <option value={10} className="bg-card text-foreground">Apagar após 10 segundos</option>
+                <option value={30} className="bg-card text-foreground">Apagar após 30 segundos</option>
+                <option value={60} className="bg-card text-foreground">Apagar após 1 minuto</option>
+                <option value={300} className="bg-card text-foreground">Apagar após 5 minutos</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <label className="text-sm font-bold text-foreground">Mensagem de Despedida</label>
+              <span className="text-xs text-muted-foreground font-medium">Suporta Markdown do Discord</span>
+            </div>
+            <textarea
+              ref={leaveTextareaRef}
+              value={leaveMsg}
+              onChange={(e) => setLeaveMsg(e.target.value)}
+              disabled={!leaveChannel}
+              rows={4}
+              placeholder="Digite a mensagem de despedida..."
+              className="w-full rounded-2xl border border-border bg-secondary/30 px-4 py-3 text-sm font-medium text-foreground outline-none transition focus:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed resize-none"
+            />
+            
+            {leaveChannel && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                <span className="text-xs font-bold text-muted-foreground">Variáveis Disponíveis (Clique para inserir):</span>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => insertVariable(leaveTextareaRef, "{user_mention}", leaveMsg, setLeaveMsg)}
+                    className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer"
+                  >
+                    {"{user_mention}"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => insertVariable(leaveTextareaRef, "{total_members}", leaveMsg, setLeaveMsg)}
+                    className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer"
+                  >
+                    {"{total_members}"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => insertVariable(leaveTextareaRef, "{inviter_mention}", leaveMsg, setLeaveMsg)}
+                    className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer"
+                  >
+                    {"{inviter_mention}"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* 3. Auto-role (Cargo Automático) */}
+        <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-purple-500/5 blur-2xl group-hover:bg-purple-500/10 transition-colors" />
+          
+          <div className="space-y-1">
+            <h2 className="text-xl font-black text-foreground flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 text-sm font-bold">4</span>
+              Cargo de Entrada (Auto-role)
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Define um cargo que a Lunna atribuirá automaticamente a qualquer aventureiro que ingressar no reino.
+            </p>
+          </div>
+
+          <div className="space-y-2 max-w-xl">
+            <label className="text-sm font-bold text-foreground">Cargo Autorole</label>
+            <select
+              value={autoroleRole}
+              onChange={(e) => setAutoroleRole(e.target.value)}
+              className="w-full h-12 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+            >
+              <option value="" className="bg-card text-muted-foreground">Desativado (Nenhum cargo atribuído)</option>
+              {roles.map((role) => (
+                <option key={role.id} value={role.id} className="bg-card text-foreground">
+                  {role.name}
+                </option>
+              ))}
+            </select>
+            <div className="flex items-center gap-2 rounded-xl bg-secondary/20 p-4 border border-border/50 mt-2">
+              <ShieldCheck className="h-5 w-5 text-purple-400 flex-shrink-0" />
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Certifique-se de posicionar o cargo da <strong>Lunna</strong> acima do cargo selecionado nas configurações de cargos do Discord, caso contrário, o bot não terá permissão hierárquica suficiente para atribuí-lo aos membros.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* 4. CENTRAL DE AUDITORIA E LOGS GRANULARES */}
+        <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-emerald-500/5 blur-2xl group-hover:bg-emerald-500/10 transition-colors" />
+
+          <div className="space-y-1">
+            <h2 className="text-xl font-black text-foreground flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 text-sm font-bold">5</span>
+              Central de Auditoria & Logs Granulares
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Monitore os acontecimentos no servidor definindo canais específicos para cada tipo de evento.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-8 pt-4">
+            
+            {/* 4.1 Logs de Mensagens */}
+            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
+              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-blue-400" />
+                Logs de Mensagens
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground">Mensagens Excluídas</label>
+                  <select
+                    value={logMsgDeleteChannel}
+                    onChange={(e) => setLogMsgDeleteChannel(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                  >
+                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    {channels.map((ch) => (
+                      <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground">Mensagens Editadas</label>
+                  <select
+                    value={logMsgEditChannel}
+                    onChange={(e) => setLogMsgEditChannel(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                  >
+                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    {channels.map((ch) => (
+                      <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* 4.2 Logs de Canais de Voz */}
+            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
+              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                <Mic className="h-5 w-5 text-indigo-400" />
+                Logs de Canais de Voz
+              </h3>
+              
+              <div className="space-y-2 max-w-md">
+                <label className="text-xs font-bold text-muted-foreground">Entrada, Saída e Movimentação</label>
+                <select
+                  value={logVoiceChannel}
+                  onChange={(e) => setLogVoiceChannel(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                >
+                  <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                  {channels.map((ch) => (
+                    <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* 4.3 Logs de Membros */}
+            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
+              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                <User className="h-5 w-5 text-purple-400" />
+                Logs de Membros
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground">Alteração de Apelido (Nickname)</label>
+                  <select
+                    value={logMemberNicknameChannel}
+                    onChange={(e) => setLogMemberNicknameChannel(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                  >
+                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    {channels.map((ch) => (
+                      <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground">Alteração de Avatar (Foto)</label>
+                  <select
+                    value={logMemberAvatarChannel}
+                    onChange={(e) => setLogMemberAvatarChannel(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                  >
+                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    {channels.map((ch) => (
+                      <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* 4.4 Logs de Moderação */}
+            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
+              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                <ShieldAlert className="h-5 w-5 text-red-400" />
+                Logs de Moderação
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground">Membros Banidos</label>
+                  <select
+                    value={logModBanChannel}
+                    onChange={(e) => setLogModBanChannel(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                  >
+                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    {channels.map((ch) => (
+                      <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground">Membros Desbanidos</label>
+                  <select
+                    value={logModUnbanChannel}
+                    onChange={(e) => setLogModUnbanChannel(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                  >
+                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    {channels.map((ch) => (
+                      <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground">Membros Expulsos (Kicks)</label>
+                  <select
+                    value={logModKickChannel}
+                    onChange={(e) => setLogModKickChannel(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                  >
+                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    {channels.map((ch) => (
+                      <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* 4.5 Logs de Estrutura do Servidor */}
+            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
+              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                <FolderClosed className="h-5 w-5 text-yellow-400" />
+                Logs de Estrutura (Servidor)
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground">Canais Criados</label>
+                  <select
+                    value={logServerChannelCreateChannel}
+                    onChange={(e) => setLogServerChannelCreateChannel(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                  >
+                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    {channels.map((ch) => (
+                      <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground">Canais Excluídos</label>
+                  <select
+                    value={logServerChannelDeleteChannel}
+                    onChange={(e) => setLogServerChannelDeleteChannel(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                  >
+                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    {channels.map((ch) => (
+                      <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground">Cargos Criados</label>
+                  <select
+                    value={logServerRoleCreateChannel}
+                    onChange={(e) => setLogServerRoleCreateChannel(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                  >
+                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    {channels.map((ch) => (
+                      <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-muted-foreground">Cargos Excluídos</label>
+                  <select
+                    value={logServerRoleDeleteChannel}
+                    onChange={(e) => setLogServerRoleDeleteChannel(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                  >
+                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    {channels.map((ch) => (
+                      <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
-    </div>
+    </form>
   )
 }
