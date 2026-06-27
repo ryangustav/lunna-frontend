@@ -45,10 +45,7 @@ export default function ModerationPage({
   // Discord lists
   const [channels, setChannels] = useState<Channel[]>([])
 
-  // Anti-Invite states
-  const [antiInviteEnabled, setAntiInviteEnabled] = useState(false)
-  const [antiInviteAction, setAntiInviteAction] = useState("warn")
-  const [antiInviteWhitelist, setAntiInviteWhitelist] = useState<string[]>([])
+
 
   // Punishment DM states
   const [punishmentDM, setPunishmentDM] = useState<PunishmentDM>({
@@ -83,11 +80,7 @@ export default function ModerationPage({
         ])
 
         if (settingsRes) {
-          // Anti-invite
-          const inviteCfg = settingsRes.anti_invite || {}
-          setAntiInviteEnabled(inviteCfg.enabled ?? false)
-          setAntiInviteAction(inviteCfg.action ?? "warn")
-          setAntiInviteWhitelist(inviteCfg.whitelisted_channels ?? [])
+
 
           // Punishment DM
           const dmCfg = settingsRes.punishment_dm || {}
@@ -131,11 +124,6 @@ export default function ModerationPage({
 
     try {
       const payload = {
-        anti_invite: {
-          enabled: antiInviteEnabled,
-          action: antiInviteAction,
-          whitelisted_channels: antiInviteWhitelist
-        },
         punishment_dm: punishmentDM,
         warn_punishments: warnPunishments
       }
@@ -158,14 +146,7 @@ export default function ModerationPage({
     }
   }
 
-  // Whitelist toggle handler
-  const toggleWhitelistChannel = (chId: string) => {
-    if (antiInviteWhitelist.includes(chId)) {
-      setAntiInviteWhitelist(antiInviteWhitelist.filter(id => id !== chId))
-    } else {
-      setAntiInviteWhitelist([...antiInviteWhitelist, chId])
-    }
-  }
+
 
   // Add warn punishment rule
   const handleAddWarnRule = () => {
@@ -249,7 +230,7 @@ export default function ModerationPage({
             Defesas & Moderação
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Configure o bloqueador de convites, punições automáticas e notificações diretas no privado dos membros.
+            Configure punições automáticas e notificações diretas no privado dos membros.
           </p>
         </div>
 
@@ -265,78 +246,7 @@ export default function ModerationPage({
 
       <div className="grid grid-cols-1 gap-8">
         
-        {/* 1. Bloqueador de Convites (Anti-Invite) */}
-        <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-cyan-500/5 blur-2xl group-hover:bg-cyan-500/10 transition-colors" />
 
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="space-y-1">
-              <h2 className="text-xl font-black text-foreground flex items-center gap-2">
-                <Zap className="h-5 w-5 text-cyan-400" />
-                Bloqueador de Convites (Anti-Invite)
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Apaga links de convites de outros servidores do Discord e pune quem os postar.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <label className="text-sm font-bold text-foreground cursor-pointer select-none" htmlFor="invite-toggle">
-                Habilitar Filtro
-              </label>
-              <input
-                id="invite-toggle"
-                type="checkbox"
-                checked={antiInviteEnabled}
-                onChange={(e) => setAntiInviteEnabled(e.target.checked)}
-                className="h-6 w-11 rounded-full appearance-none bg-muted checked:bg-primary transition-all relative cursor-pointer before:content-[''] before:absolute before:h-4 before:w-4 before:rounded-full before:bg-background before:top-1 before:left-1 checked:before:translate-x-5 before:transition-all"
-              />
-            </div>
-          </div>
-
-          {antiInviteEnabled && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border/50 animate-in fade-in duration-300">
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-foreground">Ação de Punição</label>
-                <select
-                  value={antiInviteAction}
-                  onChange={(e) => setAntiInviteAction(e.target.value)}
-                  className="w-full h-12 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
-                >
-                  <option value="warn" className="bg-card text-foreground">Dar Aviso (Warn)</option>
-                  <option value="mute" className="bg-card text-foreground">Silenciar por 1 Hora (Mute)</option>
-                  <option value="kick" className="bg-card text-foreground">Expulsar do Servidor (Kick)</option>
-                  <option value="ban" className="bg-card text-foreground">Banir Permanente (Ban)</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-foreground">Canais Permitidos (Whitelist)</label>
-                <div className="rounded-xl border border-border bg-secondary/20 p-3 max-h-40 overflow-y-auto space-y-1.5">
-                  {channels.length === 0 ? (
-                    <p className="text-xs text-muted-foreground text-center py-2">Nenhum canal de texto disponível.</p>
-                  ) : (
-                    channels.map((ch) => {
-                      const isChecked = antiInviteWhitelist.includes(ch.id)
-                      return (
-                        <div
-                          key={ch.id}
-                          onClick={() => toggleWhitelistChannel(ch.id)}
-                          className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-secondary/40 cursor-pointer select-none text-xs font-semibold"
-                        >
-                          <div className={`h-4 w-4 rounded border flex items-center justify-center bg-background transition-colors ${isChecked ? "border-primary" : "border-muted-foreground/30"}`}>
-                            {isChecked && <div className="h-2 w-2 rounded-sm bg-primary" />}
-                          </div>
-                          <span className="text-foreground">#{ch.name}</span>
-                        </div>
-                      )
-                    })
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* 2. Mensagens no Privado (DMs de Punição) */}
         <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">

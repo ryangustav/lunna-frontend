@@ -1,7 +1,7 @@
 "use client"
 
 import React, { use, useEffect, useState } from "react"
-import { Save, AlertTriangle, FileText, ShieldAlert } from "lucide-react"
+import { Save, AlertTriangle, FileText, ShieldAlert, Ban, UserMinus, ShieldAlert as WarnIcon, VolumeX, ShieldCheck } from "lucide-react"
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
@@ -28,8 +28,13 @@ export default function PunishmentsLogPage({
   // Discord lists
   const [channels, setChannels] = useState<Channel[]>([])
 
-  // State
+  // States
   const [modLogChannel, setModLogChannel] = useState<string>("")
+  const [logModBanChannel, setLogModBanChannel] = useState<string>("")
+  const [logModUnbanChannel, setLogModUnbanChannel] = useState<string>("")
+  const [logModKickChannel, setLogModKickChannel] = useState<string>("")
+  const [logModMuteChannel, setLogModMuteChannel] = useState<string>("")
+  const [logModWarnChannel, setLogModWarnChannel] = useState<string>("")
 
   // Fetch data
   useEffect(() => {
@@ -45,6 +50,11 @@ export default function PunishmentsLogPage({
 
         if (settingsRes) {
           setModLogChannel(settingsRes.mod_log_channel || "")
+          setLogModBanChannel(settingsRes.log_mod_ban_channel || "")
+          setLogModUnbanChannel(settingsRes.log_mod_unban_channel || "")
+          setLogModKickChannel(settingsRes.log_mod_kick_channel || "")
+          setLogModMuteChannel(settingsRes.log_mod_mute_channel || "")
+          setLogModWarnChannel(settingsRes.log_mod_warn_channel || "")
         }
 
         if (channelsRes.success) setChannels(channelsRes.data)
@@ -72,7 +82,12 @@ export default function PunishmentsLogPage({
 
     try {
       const payload = {
-        mod_log_channel: modLogChannel || null
+        mod_log_channel: modLogChannel || null,
+        log_mod_ban_channel: logModBanChannel || null,
+        log_mod_unban_channel: logModUnbanChannel || null,
+        log_mod_kick_channel: logModKickChannel || null,
+        log_mod_mute_channel: logModMuteChannel || null,
+        log_mod_warn_channel: logModWarnChannel || null
       }
 
       await api.updateGuildSettings(guildId, payload)
@@ -127,7 +142,7 @@ export default function PunishmentsLogPage({
             Registro de Punições
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Configure o canal de texto onde o bot registrará os banimentos, expulsões, silenciamentos (timeouts) e avisos (warns).
+            Configure canais específicos para cada tipo de punição. Se um canal específico não for selecionado, ele usará o Canal Geral de Punições.
           </p>
         </div>
 
@@ -142,17 +157,19 @@ export default function PunishmentsLogPage({
       </div>
 
       <div className="grid grid-cols-1 gap-8">
+        
+        {/* Canal Geral de Punições */}
         <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
           <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-red-500/5 blur-2xl group-hover:bg-red-500/10 transition-colors" />
 
           <div className="space-y-4 max-w-md">
             <h3 className="text-base font-bold text-foreground flex items-center gap-2">
               <ShieldAlert className="h-5 w-5 text-red-400" />
-              Configurar Canal de Logs de Punições
+              Canal Geral de Punições
             </h3>
             
             <div className="space-y-2">
-              <label className="text-xs font-bold text-muted-foreground">Canal de Punições</label>
+              <label className="text-xs font-bold text-muted-foreground">Canal Padrão (Fallback)</label>
               <select
                 value={modLogChannel}
                 onChange={(e) => setModLogChannel(e.target.value)}
@@ -166,6 +183,126 @@ export default function PunishmentsLogPage({
             </div>
           </div>
         </div>
+
+        {/* Canais Específicos por Punição */}
+        <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-primary/5 blur-2xl group-hover:bg-primary/10 transition-colors" />
+
+          <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary" />
+            Canais Específicos por Tipo de Punição
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Banimento */}
+            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
+              <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <Ban className="h-4 w-4 text-red-400" />
+                Logs de Banimento
+              </h4>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-muted-foreground">Canal de Banimentos</label>
+                <select
+                  value={logModBanChannel}
+                  onChange={(e) => setLogModBanChannel(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                >
+                  <option value="" className="bg-card text-muted-foreground">Usar Canal Geral (Padrão)</option>
+                  {channels.map((ch) => (
+                    <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Desbanimento */}
+            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
+              <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-green-400" />
+                Logs de Desbanimento
+              </h4>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-muted-foreground">Canal de Desbanimentos</label>
+                <select
+                  value={logModUnbanChannel}
+                  onChange={(e) => setLogModUnbanChannel(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                >
+                  <option value="" className="bg-card text-muted-foreground">Usar Canal Geral (Padrão)</option>
+                  {channels.map((ch) => (
+                    <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Expulsão (Kick) */}
+            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
+              <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <UserMinus className="h-4 w-4 text-orange-400" />
+                Logs de Expulsão (Kick)
+              </h4>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-muted-foreground">Canal de Expulsões</label>
+                <select
+                  value={logModKickChannel}
+                  onChange={(e) => setLogModKickChannel(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                >
+                  <option value="" className="bg-card text-muted-foreground">Usar Canal Geral (Padrão)</option>
+                  {channels.map((ch) => (
+                    <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Silenciamento (Mute/Timeout) */}
+            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
+              <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <VolumeX className="h-4 w-4 text-purple-400" />
+                Logs de Silenciamento (Timeout)
+              </h4>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-muted-foreground">Canal de Silenciamentos</label>
+                <select
+                  value={logModMuteChannel}
+                  onChange={(e) => setLogModMuteChannel(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                >
+                  <option value="" className="bg-card text-muted-foreground">Usar Canal Geral (Padrão)</option>
+                  {channels.map((ch) => (
+                    <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Aviso (Warn) */}
+            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4 md:col-span-2 max-w-xl mx-auto w-full">
+              <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <WarnIcon className="h-4 w-4 text-yellow-400" />
+                Logs de Aviso (Warn)
+              </h4>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-muted-foreground">Canal de Avisos</label>
+                <select
+                  value={logModWarnChannel}
+                  onChange={(e) => setLogModWarnChannel(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                >
+                  <option value="" className="bg-card text-muted-foreground">Usar Canal Geral (Padrão)</option>
+                  {channels.map((ch) => (
+                    <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </form>
   )
