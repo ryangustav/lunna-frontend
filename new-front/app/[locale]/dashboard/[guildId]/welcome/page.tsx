@@ -356,10 +356,19 @@ export default function WelcomePage({
 
     const replaceMockPlaceholders = (str: string) => {
       return str
-        .replace(/{username}/g, "Aventureiro")
-        .replace(/{total_members}/g, "123")
-        .replace(/{server_name}/g, "Servidor Demo")
         .replace(/{user_mention}/g, "@Aventureiro")
+        .replace(/{username}/g, "Aventureiro")
+        .replace(/{user_name}/g, "Aventureiro")
+        .replace(/{user_tag}/g, "Aventureiro#0000")
+        .replace(/{user_id}/g, "123456789012345678")
+        .replace(/{server_name}/g, "Servidor Demo")
+        .replace(/{guild_name}/g, "Servidor Demo")
+        .replace(/{total_members}/g, "123")
+        .replace(/{member_count}/g, "123")
+        .replace(/{inviter_mention}/g, "@Divulgador")
+        .replace(/{inviter_name}/g, "Divulgador")
+        .replace(/{inviter_tag}/g, "Divulgador#1111")
+        .replace(/{inviter_id}/g, "987654321098765432")
     }
 
     // 3. Draw Title
@@ -542,27 +551,16 @@ export default function WelcomePage({
               <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
                 <span className="text-xs font-bold text-muted-foreground">Variáveis Disponíveis (Clique para inserir):</span>
                 <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => insertVariable(welcomeTextareaRef, "{user_mention}", welcomeMsg, setWelcomeMsg)}
-                    className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer"
-                  >
-                    {"{user_mention}"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => insertVariable(welcomeTextareaRef, "{total_members}", welcomeMsg, setWelcomeMsg)}
-                    className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer"
-                  >
-                    {"{total_members}"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => insertVariable(welcomeTextareaRef, "{inviter_mention}", welcomeMsg, setWelcomeMsg)}
-                    className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer"
-                  >
-                    {"{inviter_mention}"}
-                  </button>
+                  {["{user_mention}", "{username}", "{user_name}", "{user_tag}", "{user_id}", "{server_name}", "{guild_name}", "{total_members}", "{member_count}", "{inviter_mention}", "{inviter_name}", "{inviter_tag}", "{inviter_id}"].map((variable) => (
+                    <button
+                      key={variable}
+                      type="button"
+                      onClick={() => insertVariable(welcomeTextareaRef, variable, welcomeMsg, setWelcomeMsg)}
+                      className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer animate-in fade-in duration-200"
+                    >
+                      {variable}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
@@ -1038,27 +1036,16 @@ export default function WelcomePage({
               <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
                 <span className="text-xs font-bold text-muted-foreground">Variáveis Disponíveis (Clique para inserir):</span>
                 <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => insertVariable(leaveTextareaRef, "{user_mention}", leaveMsg, setLeaveMsg)}
-                    className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer"
-                  >
-                    {"{user_mention}"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => insertVariable(leaveTextareaRef, "{total_members}", leaveMsg, setLeaveMsg)}
-                    className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer"
-                  >
-                    {"{total_members}"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => insertVariable(leaveTextareaRef, "{inviter_mention}", leaveMsg, setLeaveMsg)}
-                    className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer"
-                  >
-                    {"{inviter_mention}"}
-                  </button>
+                  {["{user_mention}", "{username}", "{user_name}", "{user_tag}", "{user_id}", "{server_name}", "{guild_name}", "{total_members}", "{member_count}", "{inviter_mention}", "{inviter_name}", "{inviter_tag}", "{inviter_id}"].map((variable) => (
+                    <button
+                      key={variable}
+                      type="button"
+                      onClick={() => insertVariable(leaveTextareaRef, variable, leaveMsg, setLeaveMsg)}
+                      className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer animate-in fade-in duration-200"
+                    >
+                      {variable}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}

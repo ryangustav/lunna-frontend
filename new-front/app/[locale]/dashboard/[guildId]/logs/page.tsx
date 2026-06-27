@@ -28,15 +28,15 @@ export default function LogsPage({
   // Discord lists
   const [channels, setChannels] = useState<Channel[]>([])
 
+  // Central Mod Log
+  const [modLogChannel, setModLogChannel] = useState<string>("")
+
   // Granular Logs states
   const [logMsgDeleteChannel, setLogMsgDeleteChannel] = useState<string>("")
   const [logMsgEditChannel, setLogMsgEditChannel] = useState<string>("")
   const [logVoiceChannel, setLogVoiceChannel] = useState<string>("")
   const [logMemberNicknameChannel, setLogMemberNicknameChannel] = useState<string>("")
   const [logMemberAvatarChannel, setLogMemberAvatarChannel] = useState<string>("")
-  const [logModBanChannel, setLogModBanChannel] = useState<string>("")
-  const [logModUnbanChannel, setLogModUnbanChannel] = useState<string>("")
-  const [logModKickChannel, setLogModKickChannel] = useState<string>("")
   const [logServerChannelCreateChannel, setLogServerChannelCreateChannel] = useState<string>("")
   const [logServerChannelDeleteChannel, setLogServerChannelDeleteChannel] = useState<string>("")
   const [logServerRoleCreateChannel, setLogServerRoleCreateChannel] = useState<string>("")
@@ -55,14 +55,12 @@ export default function LogsPage({
         ])
 
         if (settingsRes) {
+          setModLogChannel(settingsRes.mod_log_channel || "")
           setLogMsgDeleteChannel(settingsRes.log_msg_delete_channel || "")
           setLogMsgEditChannel(settingsRes.log_msg_edit_channel || "")
           setLogVoiceChannel(settingsRes.log_voice_channel || "")
           setLogMemberNicknameChannel(settingsRes.log_member_nickname_channel || "")
           setLogMemberAvatarChannel(settingsRes.log_member_avatar_channel || "")
-          setLogModBanChannel(settingsRes.log_mod_ban_channel || "")
-          setLogModUnbanChannel(settingsRes.log_mod_unban_channel || "")
-          setLogModKickChannel(settingsRes.log_mod_kick_channel || "")
           setLogServerChannelCreateChannel(settingsRes.log_server_channel_create_channel || "")
           setLogServerChannelDeleteChannel(settingsRes.log_server_channel_delete_channel || "")
           setLogServerRoleCreateChannel(settingsRes.log_server_role_create_channel || "")
@@ -94,14 +92,15 @@ export default function LogsPage({
 
     try {
       const payload = {
+        mod_log_channel: modLogChannel || null,
         log_msg_delete_channel: logMsgDeleteChannel || null,
         log_msg_edit_channel: logMsgEditChannel || null,
         log_voice_channel: logVoiceChannel || null,
         log_member_nickname_channel: logMemberNicknameChannel || null,
         log_member_avatar_channel: logMemberAvatarChannel || null,
-        log_mod_ban_channel: logModBanChannel || null,
-        log_mod_unban_channel: logModUnbanChannel || null,
-        log_mod_kick_channel: logModKickChannel || null,
+        log_mod_ban_channel: null,
+        log_mod_unban_channel: null,
+        log_mod_kick_channel: null,
         log_server_channel_create_channel: logServerChannelCreateChannel || null,
         log_server_channel_delete_channel: logServerChannelDeleteChannel || null,
         log_server_role_create_channel: logServerRoleCreateChannel || null,
@@ -180,6 +179,28 @@ export default function LogsPage({
 
           <div className="grid grid-cols-1 gap-8">
             
+            {/* Registro de Punições (Mod Log) */}
+            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
+              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                <ShieldAlert className="h-5 w-5 text-red-400" />
+                Registro de Punições
+              </h3>
+              
+              <div className="space-y-2 max-w-md">
+                <label className="text-xs font-bold text-muted-foreground">Canal de Punições (Banimentos, Expulsões, Silenciamentos, Avisos)</label>
+                <select
+                  value={modLogChannel}
+                  onChange={(e) => setModLogChannel(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                >
+                  <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                  {channels.map((ch) => (
+                    <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             {/* Logs de Mensagens */}
             <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
               <h3 className="text-base font-bold text-foreground flex items-center gap-2">
@@ -267,58 +288,6 @@ export default function LogsPage({
                   <select
                     value={logMemberAvatarChannel}
                     onChange={(e) => setLogMemberAvatarChannel(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
-                  >
-                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
-                    {channels.map((ch) => (
-                      <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Logs de Moderação */}
-            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
-              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-                <ShieldAlert className="h-5 w-5 text-red-400" />
-                Logs de Moderação
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground">Membros Banidos</label>
-                  <select
-                    value={logModBanChannel}
-                    onChange={(e) => setLogModBanChannel(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
-                  >
-                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
-                    {channels.map((ch) => (
-                      <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground">Membros Desbanidos</label>
-                  <select
-                    value={logModUnbanChannel}
-                    onChange={(e) => setLogModUnbanChannel(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
-                  >
-                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
-                    {channels.map((ch) => (
-                      <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground">Membros Expulsos (Kicks)</label>
-                  <select
-                    value={logModKickChannel}
-                    onChange={(e) => setLogModKickChannel(e.target.value)}
                     className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
                     <option value="" className="bg-card text-muted-foreground">Desativado</option>
