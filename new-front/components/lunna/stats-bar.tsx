@@ -5,8 +5,8 @@ import { api } from "@/lib/api"
 
 export function StatsBar() {
   const [statsData, setStatsData] = useState<{
-    servers?: number
-    users?: number
+    totalServers?: number
+    onlineMembers?: number
     uptime?: number
   }>({})
 
@@ -24,8 +24,8 @@ export function StatsBar() {
     num ? new Intl.NumberFormat("pt-BR", { notation: "compact" }).format(num) + suffix : "..."
 
   const stats = [
-    { value: statsData.servers ? fmt(statsData.servers, "+") : "2.4K+", label: "Servidores" },
-    { value: statsData.users ? fmt(statsData.users, "+") : "180K+", label: "Usuários" },
+    { value: statsData.totalServers ? fmt(statsData.totalServers) : "2.4K+", label: "Servidores" },
+    { value: statsData.onlineMembers ? fmt(statsData.onlineMembers, "+") : "180K+", label: "Usuários" },
     { value: statsData.uptime ? `${statsData.uptime}%` : "99.9%", label: "Uptime" },
     { value: "24/7", label: "Suporte" },
   ]

@@ -9,7 +9,7 @@ export function HeroBadge() {
   useEffect(() => {
     api.getPublicStats()
       .then((res) => {
-        setServers(res?.data?.servers)
+        setServers(res?.data?.totalServers || res?.totalServers)
       })
       .catch((err) => {
         console.error("Falha ao buscar badge stats", err)
@@ -17,7 +17,7 @@ export function HeroBadge() {
   }, [])
 
   const fmtServers = servers 
-    ? new Intl.NumberFormat("pt-BR", { notation: "compact" }).format(servers) + "+"
+    ? new Intl.NumberFormat("pt-BR", { notation: "compact" }).format(servers)
     : "2.4K+"
 
   return (
