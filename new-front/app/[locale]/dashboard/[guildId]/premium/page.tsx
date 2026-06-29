@@ -5,6 +5,7 @@ import { Crown, Check, AlertTriangle, ArrowRight, ShieldAlert, Sparkles, Coins, 
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import { Link } from "@/src/i18n/routing"
 
 export default function ServerPremiumPage({
   params,
@@ -15,7 +16,6 @@ export default function ServerPremiumPage({
   const { toast } = useToast()
 
   const [loading, setLoading] = useState(true)
-  const [updating, setUpdating] = useState(false)
   const [premiumType, setPremiumType] = useState<string>("free")
 
   useEffect(() => {
@@ -34,26 +34,6 @@ export default function ServerPremiumPage({
     }
     fetchSettings()
   }, [guildId])
-
-  const handleSetPremium = async (tier: string) => {
-    setUpdating(true)
-    try {
-      await api.updateGuildSettings(guildId, { premium_type: tier })
-      setPremiumType(tier)
-      toast({
-        title: "Plano atualizado!",
-        description: `O plano do servidor foi alterado para ${tier.toUpperCase()} com sucesso.`,
-      })
-    } catch (err: any) {
-      toast({
-        title: "Erro ao atualizar",
-        description: err.message || "Ocorreu um erro ao atualizar o plano.",
-        variant: "destructive",
-      })
-    } finally {
-      setUpdating(false)
-    }
-  }
 
   const plans = [
     {
@@ -141,17 +121,6 @@ export default function ServerPremiumPage({
         </p>
       </div>
 
-      {/* Simulator Notice */}
-      <div className="rounded-[1.5rem] border border-amber-500/20 bg-amber-500/5 p-6 flex items-start gap-4">
-        <AlertTriangle className="h-6 w-6 text-amber-500 flex-shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <h3 className="text-sm font-bold text-foreground">Ambiente de Simulação Ativo</h3>
-          <p className="text-xs text-muted-foreground">
-            Você pode testar qualquer plano clicando nos botões de atualização abaixo. Isso atualizará o banco de dados em tempo real e alterará as permissões do seu painel imediatamente!
-          </p>
-        </div>
-      </div>
-
       {/* Plans Pricing Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {plans.map((plan) => {
@@ -197,17 +166,23 @@ export default function ServerPremiumPage({
               </ul>
 
               {/* Action Button */}
-              <Button
-                disabled={updating}
-                onClick={() => handleSetPremium(plan.key)}
-                className={`w-full h-12 rounded-xl font-bold transition-all ${
-                  isCurrent
-                    ? "bg-emerald-500 hover:bg-emerald-600 text-white cursor-default"
-                    : "bg-secondary text-foreground hover:bg-violet-600 hover:text-white"
-                }`}
-              >
-                {isCurrent ? "Plano Atual Ativo" : plan.buttonText}
-              </Button>
+              {isCurrent ? (
+                <Button
+                  disabled
+                  className="w-full h-12 rounded-xl font-bold bg-emerald-500 text-white cursor-default"
+                >
+                  Plano Atual Ativo
+                </Button>
+              ) : (
+                <Button
+                  asChild
+                  className="w-full h-12 rounded-xl font-bold bg-secondary text-foreground hover:bg-violet-600 hover:text-white transition-all"
+                >
+                  <Link href="/vip">
+                    {plan.buttonText}
+                  </Link>
+                </Button>
+              )}
             </div>
           )
         })}
