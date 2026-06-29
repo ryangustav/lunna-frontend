@@ -134,30 +134,56 @@ export default function MemberCounterPage({
   }
 
   // Previews mapping
-  const formatNumberTheme = (num: number, padding: number, theme: string) => {
+  const renderFormattedNumber = (num: number, padding: number, theme: string) => {
     let str = String(num).padStart(padding, "0")
+    if (theme === "lunna") {
+      const ids: Record<string, string> = {
+        "0": "1521149894545379328",
+        "1": "1521150130638815344",
+        "2": "1521150106387349646",
+        "3": "1521150080768278779",
+        "4": "1521150037395243220",
+        "5": "1521150006302871642",
+        "6": "1521149982194012201",
+        "7": "1521149956839309382",
+        "8": "1521149932659020019",
+        "9": "1521149913436655700"
+      }
+      return (
+        <span className="flex items-center gap-0.5 inline-flex">
+          {str.split("").map((c, i) => (
+            <img 
+              key={i} 
+              src={`https://cdn.discordapp.com/emojis/${ids[c]}.png`} 
+              alt={c} 
+              className="h-5 w-5 inline-block object-contain" 
+            />
+          ))}
+        </span>
+      )
+    }
     if (theme === "emoji") {
       const emojiMap: Record<string, string> = {
         "0": "0️⃣", "1": "1️⃣", "2": "2️⃣", "3": "3️⃣", "4": "4️⃣",
         "5": "5️⃣", "6": "6️⃣", "7": "7️⃣", "8": "8️⃣", "9": "9️⃣"
       }
-      return str.split("").map(c => emojiMap[c] || c).join("")
+      return <span>{str.split("").map(c => emojiMap[c] || c).join("")}</span>
     }
     if (theme === "circle") {
       const circleMap: Record<string, string> = {
         "0": "⓪", "1": "①", "2": "②", "3": "③", "4": "④",
         "5": "⑤", "6": "⑥", "7": "⑦", "8": "⑧", "9": "⑨"
       }
-      return str.split("").map(c => circleMap[c] || c).join("")
+      return <span>{str.split("").map(c => circleMap[c] || c).join("")}</span>
     }
     if (theme === "gothic") {
       const gothicMap: Record<string, string> = {
         "0": "𝟎", "1": "𝟏", "2": "𝟐", "3": "𝟑", "4": "𝟒",
         "5": "𝟓", "6": "𝟔", "7": "𝟕", "8": "𝟖", "9": "𝟗"
       }
-      return str.split("").map(c => gothicMap[c] || c).join("")
+      return <span>{str.split("").map(c => gothicMap[c] || c).join("")}</span>
     }
-    return str
+    return <span>{str}</span>
   }
 
   if (loading) {
@@ -278,6 +304,7 @@ export default function MemberCounterPage({
                   className="w-full h-11 rounded-xl border border-border bg-secondary/20 px-4 text-xs font-semibold text-foreground outline-none transition focus:border-violet-500"
                 >
                   <option value="default">Padrão (123)</option>
+                  <option value="lunna">Lunna Emojis (Exclusivo) [Premium]</option>
                   <option value="emoji">Emojis/Keycaps (1️⃣2️⃣3️⃣) [Premium]</option>
                   <option value="circle">Círculos (①②③) [Premium]</option>
                   <option value="gothic">Negrito (𝟏𝟐𝟑) [Premium]</option>
@@ -303,26 +330,26 @@ export default function MemberCounterPage({
                 <div className="flex flex-col gap-2 p-4 rounded-2xl bg-secondary/40 border border-border/50">
                   <div className="flex items-center gap-1.5 font-black text-sm text-foreground">
                     <span className="text-xs text-muted-foreground font-medium">5 membros:</span>
-                    <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15">
-                      {formatNumberTheme(5, activeConfig.zero_padding, activeConfig.theme)}
+                    <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15 flex items-center min-h-[28px]">
+                      {renderFormattedNumber(5, activeConfig.zero_padding, activeConfig.theme)}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 font-black text-sm text-foreground">
                     <span className="text-xs text-muted-foreground font-medium">10 membros:</span>
-                    <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15">
-                      {formatNumberTheme(10, activeConfig.zero_padding, activeConfig.theme)}
+                    <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15 flex items-center min-h-[28px]">
+                      {renderFormattedNumber(10, activeConfig.zero_padding, activeConfig.theme)}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 font-black text-sm text-foreground">
                     <span className="text-xs text-muted-foreground font-medium">34 membros:</span>
-                    <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15">
-                      {formatNumberTheme(34, activeConfig.zero_padding, activeConfig.theme)}
+                    <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15 flex items-center min-h-[28px]">
+                      {renderFormattedNumber(34, activeConfig.zero_padding, activeConfig.theme)}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 font-black text-sm text-foreground">
                     <span className="text-xs text-muted-foreground font-medium">250 membros:</span>
-                    <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15">
-                      {formatNumberTheme(250, activeConfig.zero_padding, activeConfig.theme)}
+                    <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15 flex items-center min-h-[28px]">
+                      {renderFormattedNumber(250, activeConfig.zero_padding, activeConfig.theme)}
                     </span>
                   </div>
                 </div>

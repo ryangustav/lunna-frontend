@@ -486,11 +486,11 @@ export default function WelcomePage({
       <div className="grid grid-cols-1 gap-8">
         {/* 1. Boas-vindas (Entrada) */}
         <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-blue-500/5 blur-2xl group-hover:bg-blue-500/10 transition-colors" />
+          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-violet-500/5 blur-2xl group-hover:bg-violet-500/10 transition-colors" />
           
           <div className="space-y-1">
             <h2 className="text-xl font-black text-foreground flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 text-sm font-bold">1</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400 text-sm font-bold">1</span>
               Mensagem de Boas-vindas (Entrada)
             </h2>
             <p className="text-sm text-muted-foreground">
