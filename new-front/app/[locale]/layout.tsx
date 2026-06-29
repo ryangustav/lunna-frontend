@@ -22,6 +22,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Lunna — O coração que seu servidor precisava",
   description: "Bot de Discord com RPG, economia, moderação com IA e dashboard completo para sua comunidade.",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
 }
 
 export function generateStaticParams() {
