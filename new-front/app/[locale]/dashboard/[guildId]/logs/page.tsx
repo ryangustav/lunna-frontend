@@ -177,7 +177,7 @@ export default function LogsPage({
             {/* Logs de Mensagens */}
             <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
               <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-blue-400" />
+                <MessageSquare className="h-5 w-5 text-violet-400" />
                 Logs de Mensagens
               </h3>
               

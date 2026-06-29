@@ -250,11 +250,11 @@ export default function ModerationPage({
 
         {/* 2. Mensagens no Privado (DMs de Punição) */}
         <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-blue-500/5 blur-2xl group-hover:bg-blue-500/10 transition-colors" />
+          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-violet-500/5 blur-2xl group-hover:bg-violet-500/10 transition-colors" />
 
           <div className="space-y-1">
             <h2 className="text-xl font-black text-foreground flex items-center gap-2">
-              <Mail className="h-5 w-5 text-blue-400" />
+              <Mail className="h-5 w-5 text-violet-400" />
               Notificações no Privado (DMs de Punição)
             </h2>
             <p className="text-sm text-muted-foreground">

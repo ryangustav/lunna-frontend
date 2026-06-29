@@ -67,9 +67,9 @@ export default function GuildOverviewPage({
       label: "Membros Ativos",
       value: "...",
       desc: "Últimas 24h",
-      icon: <Users className="h-5 w-5 text-blue-400" />,
-      bg: "bg-blue-500/10",
-      border: "border-blue-500/20",
+      icon: <Users className="h-5 w-5 text-violet-400" />,
+      bg: "bg-violet-500/10",
+      border: "border-violet-500/20",
     },
     {
       label: "Comandos Usados",
