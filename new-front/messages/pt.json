@@ -7,7 +7,9 @@
     "addDiscord": "Me adicione",
     "vip": "VIP",
     "coins": "Moedas",
-    "login": "Login"
+    "login": "Login",
+    "redeem": "Resgatar Código",
+    "daily": "Daily"
   },
   "Hero": {
     "badge": "O bot #1 para comunidades Discord",
@@ -167,5 +169,20 @@
     "currentBalance": "Saldo Atual",
     "nextDaily": "Próximo Daily",
     "agreementText": "Ao resgatar a sua recompensa diária você concorda com as <guidelines>guidelines</guidelines> e com as nossas <privacy>políticas de privacidade</privacy>."
+  },
+  "Redeem": {
+    "badge": "Código Promocional",
+    "titleStart": "Resgatar",
+    "titleEnd": "Código",
+    "subtitle": "Insira um código promocional para resgatar VIP ou Lunnar Coins diretamente na sua conta!",
+    "backHome": "Voltar para Home",
+    "claim": "Resgatar",
+    "claiming": "Resgatando...",
+    "placeholder": "Digite seu código aqui...",
+    "loginToClaim": "Faça login com o Discord para resgatar",
+    "successClaimed": "Código resgatado com sucesso!",
+    "login": "Entrar com Discord",
+    "currentBalance": "Saldo Atual",
+    "errorEmptyCode": "Por favor, digite um código."
   }
 }

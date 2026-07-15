@@ -21,7 +21,8 @@ import {
   Activity,
   Shield,
   Lock,
-  Crown
+  Crown,
+  Brain
 } from "lucide-react"
 
 export default function GuildDashboardLayout({
@@ -72,6 +73,11 @@ export default function GuildDashboardLayout({
           name: "Permissões",
           href: `/dashboard/${guildId}/permissions`,
           icon: <Key className="mr-3 h-5 w-5" />,
+        },
+        {
+          name: "Cérebro da Lunna",
+          href: `/dashboard/${guildId}/brain`,
+          icon: <Brain className="mr-3 h-5 w-5" />,
         }
       ]
     },

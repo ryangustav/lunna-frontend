@@ -2,7 +2,7 @@
 
 import React, { use, useEffect, useState } from "react"
 import { Crown, Check, AlertTriangle, ArrowRight, ShieldAlert, Sparkles, Coins, Flame } from "lucide-react"
-import { api } from "@/lib/api"
+import { api, API_URL } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { Link } from "@/src/i18n/routing"
@@ -17,6 +17,62 @@ export default function ServerPremiumPage({
 
   const [loading, setLoading] = useState(true)
   const [premiumType, setPremiumType] = useState<string>("free")
+  const [purchaseLoading, setPurchaseLoading] = useState<string | null>(null)
+
+  const handlePurchaseGuild = async (tierKey: string) => {
+    try {
+      setPurchaseLoading(tierKey)
+      
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+        
+      if (!token) {
+        throw new Error("Faça login com o Discord primeiro");
+      }
+      
+      const meRes = await api.getCurrentUser();
+      if (!meRes.success || !meRes.data?.id) {
+        throw new Error("Não foi possível carregar as informações do seu usuário.");
+      }
+      const userId = meRes.data.id;
+
+      const response = await fetch(`${API_URL}/vip/purchase-guild`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          userId,
+          guildId,
+          tier: tierKey
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Erro ao processar o pagamento");
+      }
+
+      const data = await response.json();
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else {
+        throw new Error("URL de pagamento não retornada pela API");
+      }
+    } catch (err: any) {
+      console.error("Guild premium purchase error:", err);
+      toast({
+        title: "Erro no pagamento",
+        description: err.message || "Não foi possível iniciar o checkout do Stripe.",
+        variant: "destructive"
+      });
+    } finally {
+      setPurchaseLoading(null);
+    }
+  };
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -175,12 +231,11 @@ export default function ServerPremiumPage({
                 </Button>
               ) : (
                 <Button
-                  asChild
+                  onClick={() => handlePurchaseGuild(plan.key)}
+                  disabled={purchaseLoading !== null}
                   className="w-full h-12 rounded-xl font-bold bg-secondary text-foreground hover:bg-violet-600 hover:text-white transition-all"
                 >
-                  <Link href="/vip">
-                    {plan.buttonText}
-                  </Link>
+                  {purchaseLoading === plan.key ? "Processando..." : plan.buttonText}
                 </Button>
               )}
             </div>

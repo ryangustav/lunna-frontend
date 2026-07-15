@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { ArrowLeft, Sparkles, Gift, CheckCircle, HelpCircle, Lock, Coins, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Sparkles, Gift, CheckCircle, Lock, Coins, ShieldAlert, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,7 +12,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@/src/i18n/routing";
 import { Navbar } from "@/components/lunna/navbar";
 import { api } from "@/lib/api";
-import { HCaptcha } from "@/components/lunna/hcaptcha";
 
 // Custom counter hook for ticking up the coins smoothly
 function useAnimatedCounter(endValue: number, startValue: number = 0, durationMs: number = 2000) {
@@ -43,8 +42,8 @@ function useAnimatedCounter(endValue: number, startValue: number = 0, durationMs
   return count;
 }
 
-export default function DailyPage() {
-  const t = useTranslations("Daily");
+export default function RedeemPage() {
+  const t = useTranslations("Redeem");
   const [isPending, startTransition] = useTransition();
 
   // Session state
@@ -52,18 +51,15 @@ export default function DailyPage() {
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<{
     coins: number;
-    collected: boolean;
-    reward: number;
-    isVip: boolean;
-    vipType: string;
     username?: string;
     avatar?: string;
-    streak?: number;
-    streakMessage?: string;
+    isVip?: boolean;
+    vip_type?: string;
   } | null>(null);
 
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [code, setCode] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   // For the particle effect
@@ -95,28 +91,28 @@ export default function DailyPage() {
 
       try {
         setIsAuthenticated(true);
-        const [statusResult, userResult] = await Promise.all([
-          api.getDailyStatus(),
-          api.getCurrentUser()
+        const [userResult, dailyResult] = await Promise.all([
+          api.getCurrentUser(),
+          api.getDailyStatus()
         ]);
         
-        if (statusResult.success && userResult.success) {
+        if (userResult.success && dailyResult.success) {
           setUserData({
-            ...statusResult.data,
             username: userResult.data.username,
             avatar: userResult.data.avatar,
-            streak: statusResult.data.streak
+            coins: dailyResult.data.coins,
+            isVip: userResult.data.isVip,
+            vip_type: userResult.data.vip_type
           });
-          setVisualCoinsStart(statusResult.data.coins);
-          setVisualCoinsEnd(statusResult.data.coins);
+          setVisualCoinsStart(dailyResult.data.coins);
+          setVisualCoinsEnd(dailyResult.data.coins);
         }
       } catch (err: any) {
-        console.error("Daily claim auth check failed:", err);
-        // If 401 Unauthorized, clear auth status
+        console.error("Redeem auth check failed:", err);
         if (err.message?.includes("Unauthorized") || err.message?.includes("Token")) {
           setIsAuthenticated(false);
         } else {
-          setErrorMsg(err.message || "Failed to load daily status");
+          setErrorMsg(err.message || "Failed to load user info");
         }
       } finally {
         setLoading(false);
@@ -126,44 +122,49 @@ export default function DailyPage() {
     checkAuthAndStatus();
   }, []);
 
-  const handleClaim = () => {
-    if (!captchaToken) {
-      setErrorMsg(t("solveCaptcha"));
+  const handleRedeem = () => {
+    if (!code.trim()) {
+      setErrorMsg(t("errorEmptyCode"));
       return;
     }
 
     setErrorMsg(null);
+    setSuccessMsg(null);
+
     startTransition(async () => {
       try {
-        const result = await api.collectDaily(captchaToken);
+        const result = await api.redeemCode(code.trim());
         if (result.success) {
           setSuccess(true);
+          setSuccessMsg(result.message);
           setShowParticles(true);
           
-          // Trigger the animated coin count up
-          if (userData) {
-            setVisualCoinsStart(userData.coins);
-            setVisualCoinsEnd(result.data.newCoins);
-            setUserData({
-              ...userData,
-              collected: true,
-              coins: result.data.newCoins,
-              reward: result.data.reward, // Actual random reward returned by backend
-              streak: result.data.streak,
-              streakMessage: result.data.streakMessage
-            });
+          // Re-fetch user data to update balance & VIP
+          try {
+            const [userResult, dailyResult] = await Promise.all([
+              api.getCurrentUser(),
+              api.getDailyStatus()
+            ]);
+            if (userResult.success && dailyResult.success && userData) {
+              setVisualCoinsStart(userData.coins);
+              setVisualCoinsEnd(dailyResult.data.coins);
+              setUserData({
+                username: userResult.data.username,
+                avatar: userResult.data.avatar,
+                coins: dailyResult.data.coins,
+                isVip: userResult.data.isVip,
+                vip_type: userResult.data.vip_type
+              });
+            }
+          } catch (fetchErr) {
+            console.error("Failed to refresh user data after redeem", fetchErr);
           }
 
           // Stop particles after 3s
           setTimeout(() => setShowParticles(false), 3000);
         }
       } catch (err: any) {
-        setErrorMsg(err.message || "Error claiming daily reward");
-        // Reset captcha on failure to force re-solve if needed
-        setCaptchaToken(null);
-        if (typeof window !== "undefined" && window.hcaptcha) {
-          window.hcaptcha.reset();
-        }
+        setErrorMsg(err.message || "Erro ao resgatar o código");
       }
     });
   };
@@ -190,7 +191,7 @@ export default function DailyPage() {
 
           <div className="space-y-1">
             <Badge variant="outline" className="border-primary/20 bg-primary/5 px-3 py-1 text-primary">
-              <Gift className="mr-2 h-3.5 w-3.5" />
+              <Ticket className="mr-2 h-3.5 w-3.5" />
               <span className="text-[10px] font-bold uppercase tracking-widest">{t("badge")}</span>
             </Badge>
             <h1 className="text-4xl font-black tracking-tighter uppercase italic sm:text-5xl">
@@ -244,7 +245,7 @@ export default function DailyPage() {
             {/* Glass decoration overlay */}
             <div className="absolute top-4 left-4 z-20">
               <Badge className="bg-[#7c3aed] text-white border-none px-3 py-1 font-bold shadow-lg shadow-purple-500/20">
-                Daily Reward
+                Promo Redeem
               </Badge>
             </div>
           </div>
@@ -257,7 +258,7 @@ export default function DailyPage() {
               <Skeleton className="h-12 w-full rounded-2xl" />
             </div>
           ) : !isAuthenticated ? (
-            /* Logged Out / Unauthorized state */
+            /* Logged Out state */
             <>
               <CardHeader className="text-center pt-8 pb-6 relative z-20">
                 <div className="mx-auto w-16 h-16 rounded-2xl bg-purple-950/20 border border-purple-500/30 flex items-center justify-center mb-4 shadow-lg shadow-purple-500/5">
@@ -267,7 +268,7 @@ export default function DailyPage() {
                   {t("loginToClaim")}
                 </CardTitle>
                 <CardDescription className="text-sm font-medium px-4 text-muted-foreground/80">
-                  Faça login com sua conta do Discord para vincular seu perfil e resgatar recompensas.
+                  Faça login com sua conta do Discord para vincular seu perfil e resgatar códigos promocionais.
                 </CardDescription>
               </CardHeader>
               <CardFooter className="pb-10 pt-4 px-8">
@@ -280,7 +281,7 @@ export default function DailyPage() {
               </CardFooter>
             </>
           ) : (
-            /* Logged In states */
+            /* Logged In state */
             <>
               <CardHeader className="flex flex-col items-center pt-0 pb-4 relative z-20">
                 {/* Overlapping User Avatar */}
@@ -297,9 +298,11 @@ export default function DailyPage() {
                 <div className="text-center space-y-1">
                   <div className="flex items-center justify-center gap-2">
                     <span className="text-xs font-black uppercase tracking-wider text-purple-400/90">{userData?.username}</span>
-                    <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20 font-bold text-[10px] py-0.5 px-2">
-                      🔥 {userData?.streak || 0} Dias
-                    </Badge>
+                    {userData?.isVip && (
+                      <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20 font-bold text-[10px] py-0.5 px-2">
+                        🌟 VIP
+                      </Badge>
+                    )}
                   </div>
                   <CardTitle className="text-md font-bold text-muted-foreground">{t("currentBalance")}</CardTitle>
                   
@@ -313,14 +316,14 @@ export default function DailyPage() {
 
               <CardContent className="px-8 py-4 space-y-6">
                 {errorMsg && (
-                  <div className="flex items-center gap-3 p-4 rounded-2xl border border-destructive/20 bg-destructive/5 text-destructive text-sm font-bold animate-shake">
+                  <div className="flex items-center gap-3 p-4 rounded-2xl border border-destructive/20 bg-destructive/5 text-destructive text-sm font-bold animate-shake animate-duration-300">
                     <ShieldAlert className="h-5 w-5 shrink-0" />
                     <span>{errorMsg}</span>
                   </div>
                 )}
 
-                {success ? (
-                  /* Claim Success State */
+                {success && successMsg ? (
+                  /* Success State */
                   <div className="text-center p-6 bg-purple-950/20 border border-purple-500/30 rounded-2xl space-y-4 animate-scale-up shadow-inner">
                     <div className="mx-auto w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 shadow-lg shadow-purple-500/10">
                       <CheckCircle className="h-8 w-8" />
@@ -328,80 +331,51 @@ export default function DailyPage() {
                     <div className="space-y-1">
                       <p className="font-extrabold text-lg text-purple-300">{t("successClaimed")}</p>
                       <p className="text-sm font-medium text-muted-foreground">
-                        {t("rewardText", { amount: userData?.reward || 1000 })}
-                      </p>
-                      {userData?.streakMessage && (
-                        <p className="text-xs font-bold text-yellow-400 mt-2 p-2 rounded-xl bg-yellow-500/5 border border-yellow-500/20 animate-pulse">
-                          {userData.streakMessage}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ) : userData?.collected ? (
-                  /* Cooldown state (Already Collected) */
-                  <div className="text-center p-6 bg-secondary/20 border border-border rounded-2xl space-y-4">
-                    <div className="mx-auto w-12 h-12 rounded-full bg-secondary/80 flex items-center justify-center text-muted-foreground">
-                      <CheckCircle className="h-6 w-6" />
-                    </div>
-                    <div className="space-y-1">
-                      <p className="font-bold text-lg text-foreground/90">{t("alreadyClaimed")}</p>
-                      <p className="text-sm font-medium text-muted-foreground/80">
-                        {t("cooldownMessage")}
+                        {successMsg}
                       </p>
                     </div>
+                    <Button
+                      onClick={() => {
+                        setSuccess(false);
+                        setSuccessMsg(null);
+                        setCode("");
+                      }}
+                      className="mt-2 text-xs font-bold text-purple-400 hover:text-purple-300 bg-transparent border border-purple-500/20 px-4 py-1.5 rounded-xl hover:bg-purple-500/5"
+                    >
+                      Resgatar outro código
+                    </Button>
                   </div>
                 ) : (
-                  /* Claim Available State */
+                  /* Input State */
                   <div className="space-y-4 animate-fade-in">
-                    <div className="flex items-center justify-center gap-3 p-4 rounded-2xl bg-purple-950/20 border border-purple-500/20 shadow-inner">
-                      <Gift className="h-5 w-5 text-purple-400 animate-bounce" />
-                      <span className="font-extrabold text-sm text-purple-200">
-                        {userData?.isVip ? "Sua recompensa diária VIP está pronta!" : "Sua recompensa diária está pronta!"}
-                      </span>
-                    </div>
-
-                    {/* Captcha Widget */}
-                    <div className="rounded-2xl overflow-hidden border border-purple-500/10 bg-purple-950/5 p-2 shadow-inner">
-                      <HCaptcha
-                        onVerify={(token) => setCaptchaToken(token)}
-                        onExpire={() => setCaptchaToken(null)}
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="code-input" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                        Código Promocional
+                      </label>
+                      <input
+                        id="code-input"
+                        type="text"
+                        placeholder={t("placeholder")}
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        className="w-full h-14 px-5 rounded-2xl border border-purple-500/10 bg-purple-950/10 text-foreground font-semibold placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-inner"
                       />
                     </div>
                   </div>
                 )}
               </CardContent>
 
-              <CardFooter className="pb-8 pt-2 px-8 flex flex-col gap-4 w-full">
-                {userData?.collected || success ? (
-                  <Button disabled className="w-full h-14 rounded-2xl font-bold bg-secondary/50 text-muted-foreground border border-border">
-                    {t("alreadyClaimed")}
+              {!success && (
+                <CardFooter className="pb-8 pt-2 px-8 flex flex-col gap-4 w-full">
+                  <Button
+                    onClick={handleRedeem}
+                    disabled={isPending}
+                    className="w-full h-14 rounded-2xl font-bold shadow-lg shadow-purple-500/20 transition-transform hover:scale-[1.02] bg-[#7c3aed] text-white hover:bg-[#6d28d9] disabled:bg-secondary disabled:text-muted-foreground"
+                  >
+                    {isPending ? t("claiming") : t("claim")}
                   </Button>
-                ) : (
-                  <>
-                    <Button
-                      onClick={handleClaim}
-                      disabled={!captchaToken || isPending}
-                      className="w-full h-14 rounded-2xl font-bold shadow-lg shadow-purple-500/20 transition-transform hover:scale-[1.02] bg-[#7c3aed] text-white hover:bg-[#6d28d9] disabled:bg-secondary disabled:text-muted-foreground"
-                    >
-                      {isPending ? t("claiming") : t("claim")}
-                    </Button>
-                    <p className="text-center text-[11px] font-medium text-muted-foreground/80 leading-relaxed px-4">
-                      {t.rich("agreementText", {
-                        guidelines: (chunks) => (
-                          <Link href="/guidelines" className="text-purple-400 hover:text-purple-300 font-bold underline transition-colors">
-                            {chunks}
-                          </Link>
-                        ),
-                        privacy: (chunks) => (
-                          <Link href="/privacy" className="text-purple-400 hover:text-purple-300 font-bold underline transition-colors">
-                            {chunks}
-                          </Link>
-                        )
-                      })}
-                    </p>
-                  </>
-                )}
-              </CardFooter>
+                </CardFooter>
+              )}
             </>
           )}
         </Card>
@@ -409,7 +383,7 @@ export default function DailyPage() {
         {/* Info footer links */}
         <div className="mt-8 flex gap-4 text-xs font-bold text-purple-400">
           <span className="flex items-center gap-1">
-            <Sparkles className="h-3 w-3" /> VIP rewards have daily bonuses
+            <Sparkles className="h-3 w-3" /> Apoie a Lunna no Discord para códigos especiais
           </span>
         </div>
       </main>
