@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useTranslations } from "next-intl"
 import { Link } from "@/src/i18n/routing"
 import { Button } from "@/components/ui/button"
-import { Menu, Moon, Sun, LayoutDashboard, User as UserIcon, Backpack, LogOut, ChevronDown, Crown, Coins } from "lucide-react"
+import { Menu, Moon, Sun, LayoutDashboard, LogOut, ChevronDown, Crown, Coins, Gift, Ticket } from "lucide-react"
 import { useTheme } from "next-themes"
 import {
   Sheet,
@@ -198,15 +198,15 @@ export function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="cursor-pointer gap-2 rounded-lg p-2.5">
-                    <Link href="/profile">
-                      <UserIcon className="h-4 w-4" />
-                      <span className="font-medium">Perfil</span>
+                    <Link href="/redeem">
+                      <Ticket className="h-4 w-4" />
+                      <span className="font-medium">{t("redeem")}</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="cursor-pointer gap-2 rounded-lg p-2.5">
-                    <Link href="/inventory">
-                      <Backpack className="h-4 w-4" />
-                      <span className="font-medium">Inventário</span>
+                    <Link href="/daily">
+                      <Gift className="h-4 w-4" />
+                      <span className="font-medium">{t("daily")}</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -256,11 +256,11 @@ export function Navbar() {
                     <Link href="/dashboard" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">
                       <LayoutDashboard className="h-5 w-5" /> Dashboard
                     </Link>
-                    <Link href="/profile" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">
-                      <UserIcon className="h-5 w-5" /> Perfil
+                    <Link href="/redeem" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">
+                      <Ticket className="h-5 w-5" /> {t("redeem")}
                     </Link>
-                    <Link href="/inventory" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">
-                      <Backpack className="h-5 w-5" /> Inventário
+                    <Link href="/daily" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">
+                      <Gift className="h-5 w-5" /> {t("daily")}
                     </Link>
                     <button onClick={handleLogout} className="flex items-center gap-3 text-lg font-semibold text-red-500 transition-colors hover:opacity-80">
                       <LogOut className="h-5 w-5" /> Sair

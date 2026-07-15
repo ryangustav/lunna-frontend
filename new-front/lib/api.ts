@@ -33,6 +33,10 @@ export const api = {
     method: "POST",
     body: JSON.stringify({ token })
   }),
+  redeemCode: (code: string) => apiFetch("/code/redeem", {
+    method: "POST",
+    body: JSON.stringify({ code })
+  }),
   getGuildSettings: (guildId: string) => apiFetch(`/guilds/${guildId}/settings`),
   updateGuildSettings: (guildId: string, data: any) => apiFetch(`/guilds/${guildId}/settings`, {
     method: "PATCH",

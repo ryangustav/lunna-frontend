@@ -6,8 +6,7 @@ import { Link } from '@/src/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { 
-  Menu, X, Zap, LayoutDashboard, User as UserIcon, 
-  Backpack, LogOut, Shield 
+  Menu, X, Zap, LayoutDashboard, LogOut, Shield, Gift, Ticket 
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -137,15 +136,15 @@ export function Header() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="hover:bg-primary/20">
-                  <Link href="/profile" className="flex items-center gap-2 w-full cursor-pointer">
-                    <UserIcon className="h-4 w-4" />
-                    <span>Perfil</span>
+                  <Link href="/redeem" className="flex items-center gap-2 w-full cursor-pointer">
+                    <Ticket className="h-4 w-4" />
+                    <span>{t('redeem')}</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="hover:bg-primary/20">
-                  <Link href="/inventory" className="flex items-center gap-2 w-full cursor-pointer">
-                    <Backpack className="h-4 w-4" />
-                    <span>Inventário</span>
+                  <Link href="/daily" className="flex items-center gap-2 w-full cursor-pointer">
+                    <Gift className="h-4 w-4" />
+                    <span>{t('daily')}</span>
                   </Link>
                 </DropdownMenuItem>
                 {isAdmin && (

@@ -4,7 +4,9 @@
     "vip": "VIP",
     "coins": "Coins",
     "dashboard": "Dashboard",
-    "addBot": "Add me"
+    "addBot": "Add me",
+    "redeem": "Redeem Code",
+    "daily": "Daily"
   },
   "Hero": {
     "badge": "The #1 bot for Discord communities",

@@ -7,7 +7,9 @@
     "addDiscord": "Add Bot",
     "vip": "VIP",
     "coins": "Coins",
-    "login": "Login"
+    "login": "Login",
+    "redeem": "Redeem Code",
+    "daily": "Daily"
   },
   "Hero": {
     "badge": "The #1 Bot for Discord communities",
@@ -167,5 +169,20 @@
     "currentBalance": "Current Balance",
     "nextDaily": "Next Daily",
     "agreementText": "By claiming your daily reward you agree to the <guidelines>guidelines</guidelines> and our <privacy>privacy policy</privacy>."
+  },
+  "Redeem": {
+    "badge": "Promo Code",
+    "titleStart": "Redeem",
+    "titleEnd": "Code",
+    "subtitle": "Enter a promotional code to redeem VIP or Lunnar Coins directly to your account!",
+    "backHome": "Back Home",
+    "claim": "Redeem",
+    "claiming": "Redeeming...",
+    "placeholder": "Enter your code here...",
+    "loginToClaim": "Log in with Discord to redeem",
+    "successClaimed": "Code successfully redeemed!",
+    "login": "Login with Discord",
+    "currentBalance": "Current Balance",
+    "errorEmptyCode": "Please enter a code."
   }
 }
