@@ -5,7 +5,7 @@ import { Coins, Gift, ArrowLeft, Sparkles, Rocket } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Link } from "@/src/i18n/routing"
+import { Link, useRouter } from "@/src/i18n/routing"
 import { Navbar } from "@/components/lunna/navbar"
 import { useLocale } from "next-intl"
 import { API_URL } from "@/lib/api"
@@ -66,6 +66,7 @@ const getToken = () => {
 export default function LunnarCoinsPage() {
   const locale = useLocale()
   const t = translations[locale] || translations.en
+  const router = useRouter()
 
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -109,50 +110,7 @@ export default function LunnarCoinsPage() {
       setError('Invalid package selected')
       return
     }
-  
-    try {
-      setLoading(packageId)
-      setError(null)
-  
-      const token = getToken()
-      if (!token) {
-        throw new Error(locale === 'pt' ? "Por favor faça login com o Discord primeiro." : "Please login to your discord account first.")
-      }
-  
-      const payload = {
-        userId: user?.userId,
-        packageId: packageId
-      }
-  
-      const response = await fetch(`${API_URL}/coins/purchase`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      })
-  
-      if (!response.ok) {
-        let errorText = await response.text()
-        if (response.status === 401) errorText = locale === 'pt' ? "Por favor faça login com o Discord" : "Please login to your discord account"
-        throw new Error(errorText)
-      }
-  
-      const data = await response.json()
-      if (data.paymentUrl) {
-        window.location.href = data.paymentUrl
-      } else {
-        throw new Error('Payment URL not provided')
-      }
-      
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to process payment')
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    } finally {
-      setLoading(null)
-    }
+    router.push(`/checkout?type=COINS&id=${packageId}`)
   }
 
   return (
