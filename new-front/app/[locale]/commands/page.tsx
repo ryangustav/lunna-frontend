@@ -27,11 +27,14 @@ export default function CommandsPage() {
     async function loadCommands() {
       try {
         setLoading(true)
-        const response = await fetch(`${API_URL}/commands/public`, { cache: "no-store" })
-        if (!response.ok) throw new Error("Falha ao carregar comandos")
+        const fetchUrl = `${API_URL}/commands/public`.replace(/([^:]\/)\/+/g, "$1")
+        console.log("Fetching commands from:", fetchUrl)
+        const response = await fetch(fetchUrl, { cache: "no-store" })
+        if (!response.ok) throw new Error(`Falha ao carregar comandos: Status ${response.status}`)
         const payload = await response.json()
         if (active) setCommands(Array.isArray(payload?.data) ? payload.data : [])
-      } catch {
+      } catch (err) {
+        console.error("Error loading commands:", err)
         if (active) setError(t("error"))
       } finally {
         if (active) setLoading(false)
