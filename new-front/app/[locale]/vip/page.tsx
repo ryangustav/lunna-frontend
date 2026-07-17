@@ -50,6 +50,10 @@ interface VipTier {
   price: number;
   benefits: string[];
   durationDays: number;
+  isCurrent?: boolean;
+  upgradeOption?: boolean;
+  isLocked?: boolean;
+  originalPrice?: number;
 }
 
 interface User {
@@ -113,7 +117,14 @@ export default function VipPage() {
 
   const fetchTiers = async () => {
     try {
+      const token = getToken()
+      const headers: Record<string, string> = {}
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
       const response = await fetch(`${API_URL}/vip/tiers`, {
+        headers,
         credentials: 'include',
       })
       
@@ -215,10 +226,15 @@ export default function VipPage() {
                 </CardHeader>
 
                 <CardContent className="flex-1">
-                  <div className="mb-8 flex items-baseline gap-1.5">
+                  <div className="mb-8 flex items-baseline gap-1.5 flex-wrap">
                     <span className="text-xs font-bold text-muted-foreground">R$</span>
                     <span className="text-5xl font-black tracking-tighter">{formattedPrice}</span>
                     <span className="text-sm font-medium text-muted-foreground">/ {t.perMonth}</span>
+                    {tier.upgradeOption && (
+                      <span className="text-xs line-through text-muted-foreground ml-2">
+                        R$ {tier.originalPrice?.toFixed(2).replace(".", ",")}
+                      </span>
+                    )}
                   </div>
 
                   <div className="space-y-4">
@@ -240,16 +256,20 @@ export default function VipPage() {
                 <CardFooter className="pt-8">
                   <Button 
                     onClick={() => handlePurchase(tier.id)}
-                    disabled={loading === tier.id}
-                    variant={isFeatured ? "default" : "outline"} 
+                    disabled={loading === tier.id || tier.isCurrent || tier.isLocked}
+                    variant={tier.isCurrent ? "secondary" : isFeatured ? "default" : "outline"} 
                     className="h-12 w-full rounded-xl font-bold transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
                   >
-                    {loading === tier.id ? (
+                    {tier.isCurrent ? (
+                      locale === 'pt' ? 'Plano Atual' : 'Current Plan'
+                    ) : tier.isLocked ? (
+                      locale === 'pt' ? 'Indisponível' : 'Unavailable'
+                    ) : loading === tier.id ? (
                       locale === 'pt' ? 'Processando...' : 'Processing...'
                     ) : (
                       <>
                         <Rocket className="h-4 w-4" />
-                        {t.purchase}
+                        {tier.upgradeOption ? 'Upgrade' : t.purchase}
                       </>
                     )}
                   </Button>

@@ -6,6 +6,7 @@ import { Navbar } from "@/components/lunna/navbar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Terminal, Loader2 } from "lucide-react"
+import { API_URL } from "@/lib/api"
 
 type Command = {
   name: string
@@ -26,10 +27,10 @@ export default function CommandsPage() {
     async function loadCommands() {
       try {
         setLoading(true)
-        const response = await fetch("/api/commands", { cache: "no-store" })
+        const response = await fetch(`${API_URL}/commands/public`, { cache: "no-store" })
         if (!response.ok) throw new Error("Falha ao carregar comandos")
         const payload = await response.json()
-        if (active) setCommands(Array.isArray(payload?.commands) ? payload.commands : [])
+        if (active) setCommands(Array.isArray(payload?.data) ? payload.data : [])
       } catch {
         if (active) setError(t("error"))
       } finally {
