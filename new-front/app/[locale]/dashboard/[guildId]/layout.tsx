@@ -18,6 +18,10 @@ import {
   Activity,
   Crown,
   Brain,
+  Star,
+  Filter,
+  MousePointerClick,
+  Ticket,
 } from "lucide-react"
 
 type NavItem = { name: string; href: string; icon: React.ReactNode; badge?: string }
@@ -46,6 +50,9 @@ export default function GuildDashboardLayout({
       items: [
         { name: "Entrada e saída", href: `${base}/welcome`, icon: <MessageSquare /> },
         { name: "Autorole", href: `${base}/autorole`, icon: <UserCheck /> },
+        { name: "Cargos por botão", href: `${base}/role-panels`, icon: <MousePointerClick />, badge: "Novo" },
+        { name: "Tickets", href: `${base}/tickets`, icon: <Ticket />, badge: "Novo" },
+        { name: "Níveis", href: `${base}/levels`, icon: <Star />, badge: "Novo" },
         { name: "Contador de membros", href: `${base}/member-counter`, icon: <Users /> },
         { name: "Permissões", href: `${base}/permissions`, icon: <Key /> },
         { name: "Cérebro da Lunna", href: `${base}/brain`, icon: <Brain /> },
@@ -56,6 +63,7 @@ export default function GuildDashboardLayout({
       items: [
         { name: "Moderação e anti-raid", href: `${base}/moderation`, icon: <ShieldAlert /> },
         { name: "Bloqueio de convites", href: `${base}/anti-invite`, icon: <Ban /> },
+        { name: "Filtro de palavras", href: `${base}/word-filter`, icon: <Filter />, badge: "Novo" },
         { name: "Canal armadilha", href: `${base}/trap-channel`, icon: <Skull />, badge: "Novo" },
         { name: "Punições", href: `${base}/punishments`, icon: <FileText /> },
         { name: "Logs de eventos", href: `${base}/logs`, icon: <Activity /> },
