@@ -1,233 +1,160 @@
 "use client"
 
 import React, { use, useEffect, useState } from "react"
-import { Activity, ShieldAlert, Sparkles, Users, Languages, Save, AlertTriangle } from "lucide-react"
+import { ChevronRight } from "lucide-react"
+import { Link } from "@/src/i18n/routing"
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
-import { Button } from "@/components/ui/button"
+import { guildPlan } from "@/lib/guild-premium"
+import { PageHeader, Section, PrimaryButton, Pill, LoadingState, ErrorState } from "@/components/dashboard/primitives"
 
-export default function GuildOverviewPage({
-  params,
-}: {
-  params: Promise<{ guildId: string }>
-}) {
+type Settings = Record<string, any>
+
+// Each module's on/off state, derived only from saved settings (no invented numbers)
+function modules(s: Settings, base: string) {
+  const counters = Object.values(s.member_counters || {}).filter((c: any) => c?.enabled).length
+  return [
+    { name: "Mensagem de boas-vindas", on: !!s.welcome_channel, href: `${base}/welcome` },
+    { name: "Banner de boas-vindas", on: !!s.welcome_banner_enabled, href: `${base}/welcome` },
+    { name: "Autorole", on: !!s.autorole_role, href: `${base}/autorole` },
+    { name: "Contador de membros", on: counters > 0, detail: counters ? `${counters} ativo(s)` : undefined, href: `${base}/member-counter` },
+    { name: "Anti-spam", on: !!s.anti_spam?.enabled, href: `${base}/moderation` },
+    { name: "Bloqueio de convites", on: !!s.anti_invite?.enabled, href: `${base}/anti-invite` },
+    { name: "Bloqueio de links", on: !!s.anti_link?.enabled, href: `${base}/anti-invite` },
+    { name: "Canal armadilha", on: !!s.trap_channel?.enabled, href: `${base}/trap-channel` },
+    { name: "Logs de eventos", on: !!(s.mod_log_channel || s.log_msg_delete_channel || s.log_msg_edit_channel), href: `${base}/logs` },
+  ]
+}
+
+export default function GuildOverviewPage({ params }: { params: Promise<{ guildId: string }> }) {
   const { guildId } = use(params)
   const { toast } = useToast()
+  const base = `/dashboard/${guildId}`
 
-  // States
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [settings, setSettings] = useState<Settings>({})
   const [language, setLanguage] = useState("en")
 
-  // Fetch settings on load
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const res = await api.getGuildSettings(guildId)
-        if (res) {
-          setLanguage(res.language || "en")
-        }
-      } catch (err: any) {
-        console.error("Failed to load overview settings:", err)
-        setError(err.message || "Erro ao carregar as configurações de visão geral.")
-      } finally {
-        setLoading(false)
+  const load = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const res = await api.getGuildSettings(guildId)
+      if (res) {
+        setSettings(res)
+        setLanguage(res.language || "en")
       }
+    } catch (err: any) {
+      setError(err.message || "Erro ao carregar as configurações do servidor.")
+    } finally {
+      setLoading(false)
     }
-    loadSettings()
+  }
+
+  useEffect(() => {
+    load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [guildId])
 
-  // Save handler
-  const handleSaveLanguage = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const saveLanguage = async () => {
     setSaving(true)
     try {
       await api.updateGuildSettings(guildId, { language })
-      toast({
-        title: "Configurações salvas!",
-        description: "Idioma padrão do bot atualizado com sucesso.",
-      })
+      toast({ title: "Idioma salvo", description: "A Lunna vai responder neste idioma no servidor." })
     } catch (err: any) {
-      console.error("Failed to save language settings:", err)
-      toast({
-        title: "Erro ao salvar",
-        description: err.message || "Não foi possível salvar o idioma.",
-        variant: "destructive"
-      })
+      toast({ title: "Erro ao salvar", description: err.message || "Não foi possível salvar o idioma.", variant: "destructive" })
     } finally {
       setSaving(false)
     }
   }
 
-  const statCards = [
-    {
-      label: "Membros Ativos",
-      value: "...",
-      desc: "Últimas 24h",
-      icon: <Users className="h-5 w-5 text-violet-400" />,
-      bg: "bg-violet-500/10",
-      border: "border-violet-500/20",
-    },
-    {
-      label: "Comandos Usados",
-      value: "...",
-      desc: "Neste servidor",
-      icon: <Sparkles className="h-5 w-5 text-primary" />,
-      bg: "bg-primary/10",
-      border: "border-primary/20",
-    },
-    {
-      label: "Ações de Moderação",
-      value: "...",
-      desc: "Mês atual",
-      icon: <ShieldAlert className="h-5 w-5 text-red-400" />,
-      bg: "bg-red-500/10",
-      border: "border-red-500/20",
-    },
-    {
-      label: "Ping do Servidor",
-      value: "...",
-      desc: "Latência média",
-      icon: <Activity className="h-5 w-5 text-green-400" />,
-      bg: "bg-green-500/10",
-      border: "border-green-500/20",
-    },
-  ]
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState message={error} onRetry={load} />
 
-  if (loading) {
-    return (
-      <div className="space-y-8 animate-pulse">
-        <div className="space-y-3">
-          <div className="h-8 w-64 rounded bg-muted/60" />
-          <div className="h-4 w-96 rounded bg-muted/40" />
-        </div>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-32 rounded-3xl bg-muted/20 border border-border/50" />
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center p-12 text-center rounded-3xl border border-destructive/20 bg-destructive/5 space-y-4">
-        <AlertTriangle className="h-12 w-12 text-destructive animate-bounce" />
-        <h3 className="text-xl font-bold text-foreground">Falha ao Carregar</h3>
-        <p className="text-sm text-muted-foreground max-w-md">{error}</p>
-        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-xl">
-          Tentar Novamente
-        </Button>
-      </div>
-    )
-  }
+  const plan = guildPlan(settings.premium_type) || guildPlan("free")!
+  const mods = modules(settings, base)
+  const active = mods.filter((m) => m.on).length
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 space-y-8 duration-700">
-      <div>
-        <h1 className="text-3xl font-black tracking-tight text-foreground">
-          Visão Geral do Reino
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          Acompanhe o fluxo mágico e estatísticas principais do seu servidor (ID:{" "}
-          <code className="rounded bg-secondary px-1 text-primary">{guildId}</code>).
-        </p>
-      </div>
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        eyebrow="Visão geral"
+        title="Configurações do servidor"
+        description={`${active} de ${mods.length} módulos ativos. Escolha um módulo para configurar.`}
+      />
 
-      {/* Idioma do Bot Section */}
-      <form onSubmit={handleSaveLanguage} className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
-        <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-primary/5 blur-2xl group-hover:bg-primary/10 transition-colors" />
-
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="space-y-1">
-            <h2 className="text-xl font-black text-foreground flex items-center gap-2">
-              <Languages className="h-5 w-5 text-primary" />
-              Idioma Padrão do Bot (Default Language)
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Selecione o idioma utilizado pela Lunna para responder aos comandos e enviar mensagens automáticas neste servidor.
-            </p>
-          </div>
-
-          <Button
-            type="submit"
-            disabled={saving}
-            className="w-full sm:w-auto h-11 rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+      <Section
+        title="Plano do servidor"
+        description={
+          plan.key === "free"
+            ? "Este servidor está no plano gratuito."
+            : `${plan.name} ativo${settings.premium_expires_at ? ` até ${new Date(settings.premium_expires_at * 1000).toLocaleDateString("pt-BR")}` : ""}.`
+        }
+        action={
+          <Link
+            href={`${base}/premium`}
+            className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-4 py-2 text-[13px] font-semibold text-foreground transition-colors hover:bg-secondary"
           >
-            <Save className="mr-2 h-4 w-4" />
-            {saving ? "Salvando..." : "Salvar Idioma"}
-          </Button>
+            {plan.key === "free" ? "Ver planos" : "Renovar"}
+          </Link>
+        }
+      />
+
+      <Section title="Módulos">
+        <ul className="-mx-2 divide-y divide-border">
+          {mods.map((m) => (
+            <li key={m.name}>
+              <Link
+                href={m.href}
+                className="flex items-center justify-between gap-3 rounded-[10px] px-2 py-3 transition-colors hover:bg-secondary/60"
+              >
+                <span className="text-[14px] text-foreground">{m.name}</span>
+                <span className="flex items-center gap-2">
+                  {m.detail && <span className="text-[12px] text-muted-foreground">{m.detail}</span>}
+                  <Pill tone={m.on ? "success" : "neutral"}>{m.on ? "Ativo" : "Desativado"}</Pill>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section
+        title="Idioma da Lunna"
+        description="Idioma das respostas e mensagens automáticas neste servidor."
+        action={
+          <PrimaryButton onClick={saveLanguage} loading={saving}>
+            Salvar
+          </PrimaryButton>
+        }
+      >
+        <div className="grid max-w-[520px] grid-cols-1 gap-3 sm:grid-cols-2">
+          {[
+            { value: "pt", label: "Português (Brasil)" },
+            { value: "en", label: "English" },
+          ].map((opt) => (
+            <label
+              key={opt.value}
+              className={`flex cursor-pointer items-center gap-3 rounded-[10px] border px-4 py-3 text-[14px] transition-colors ${
+                language === opt.value ? "border-[#7c3aed] bg-[#7c3aed]/5 text-foreground" : "border-border text-muted-foreground hover:border-foreground/30"
+              }`}
+            >
+              <input
+                type="radio"
+                name="bot-language"
+                value={opt.value}
+                checked={language === opt.value}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="h-4 w-4 accent-[#7c3aed]"
+              />
+              {opt.label}
+            </label>
+          ))}
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
-          <label className={`flex items-center gap-3 p-4 rounded-2xl border cursor-pointer transition-all ${language === "en" ? "border-primary bg-primary/5" : "border-border/60 hover:border-border"}`}>
-            <input
-              type="radio"
-              name="bot-language"
-              value="en"
-              checked={language === "en"}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="accent-primary h-4 w-4"
-            />
-            <div className="flex flex-col">
-              <span className="text-sm font-bold text-foreground">English 🇺🇸</span>
-              <span className="text-xs text-muted-foreground">Default language if not specified.</span>
-            </div>
-          </label>
-
-          <label className={`flex items-center gap-3 p-4 rounded-2xl border cursor-pointer transition-all ${language === "pt" ? "border-primary bg-primary/5" : "border-border/60 hover:border-border"}`}>
-            <input
-              type="radio"
-              name="bot-language"
-              value="pt"
-              checked={language === "pt"}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="accent-primary h-4 w-4"
-            />
-            <div className="flex flex-col">
-              <span className="text-sm font-bold text-foreground">Português (Brasil) 🇧🇷</span>
-              <span className="text-xs text-muted-foreground">Idioma em português.</span>
-            </div>
-          </label>
-        </div>
-      </form>
-
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        {statCards.map((stat, i) => (
-          <div
-            key={i}
-            className={`flex flex-col space-y-4 rounded-3xl border ${stat.border} ${stat.bg} p-6 transition-transform hover:scale-[1.02]`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                {stat.label}
-              </span>
-              <div className="rounded-full bg-background/50 p-2 shadow-inner">
-                {stat.icon}
-              </div>
-            </div>
-            <div className="space-y-1">
-              <span className="text-4xl font-black text-foreground">{stat.value}</span>
-              <p className="text-xs font-medium text-muted-foreground">
-                {stat.desc}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex h-64 items-center justify-center rounded-3xl border border-dashed border-border bg-card/30">
-        <div className="text-center space-y-2">
-          <Activity className="mx-auto h-8 w-8 text-muted-foreground animate-pulse" />
-          <p className="text-sm font-medium text-muted-foreground">
-            Gráficos dinâmicos em breve...
-          </p>
-        </div>
-      </div>
+      </Section>
     </div>
   )
 }

@@ -174,18 +174,18 @@ export default function AntiInvitePage({
           <div className="h-8 w-64 rounded bg-muted/60" />
           <div className="h-4 w-96 rounded bg-muted/40" />
         </div>
-        <div className="h-48 w-full rounded-3xl bg-muted/20 border border-border/50" />
+        <div className="h-48 w-full rounded-[14px] bg-muted/20 border border-border/50" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center rounded-3xl border border-destructive/20 bg-destructive/5 space-y-4">
-        <AlertTriangle className="h-12 w-12 text-destructive animate-bounce" />
-        <h3 className="text-xl font-bold text-foreground">Falha de Comunicação</h3>
+      <div className="flex flex-col items-center justify-center p-12 text-center rounded-[14px] border border-destructive/20 bg-destructive/5 space-y-4">
+        <AlertTriangle className="h-12 w-12 text-destructive" />
+        <h3 className="text-[15px] font-bold text-foreground">Falha de Comunicação</h3>
         <p className="text-sm text-muted-foreground max-w-md">{error}</p>
-        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-xl">
+        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full">
           Tentar Novamente
         </Button>
       </div>
@@ -193,22 +193,21 @@ export default function AntiInvitePage({
   }
 
   return (
-    <form onSubmit={handleSave} className="animate-in fade-in slide-in-from-bottom-4 space-y-8 duration-700">
+    <form onSubmit={handleSave} className="animate-in fade-in space-y-8 duration-300">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="flex items-center text-3xl font-black tracking-tight text-foreground">
-            <Ban className="mr-3 h-8 w-8 text-primary" />
+          <h1 className="flex items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground">
             Bloqueador de Convites
           </h1>
-          <p className="mt-2 text-muted-foreground">
-            Monitore o reino impedindo que convites de outras vilas sejam compartilhados em seus canais de chat.
+          <p className="mt-2 max-w-[560px] text-[14px] leading-[1.7] text-muted-foreground">
+            Bloqueia convites de outros servidores do Discord em seus canais de chat.
           </p>
         </div>
 
         <Button
           type="submit"
           disabled={saving}
-          className="w-full sm:w-auto h-12 rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          className="w-full sm:w-auto h-10 rounded-full font-bold transition-all rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
         >
           <Save className="mr-2 h-4 w-4" />
           {saving ? "Salvando..." : "Salvar Configurações"}
@@ -218,13 +217,12 @@ export default function AntiInvitePage({
       <div className="grid grid-cols-1 gap-8">
         
         {/* Painel Principal de Configurações */}
-        <div className="rounded-[2.5rem] border border-border/60 bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-primary/5 blur-2xl group-hover:bg-primary/10 transition-colors" />
+        <div className="rounded-[14px] border border-border/60 bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
 
           {/* Switch 1: Ativar Bloqueador */}
-          <div className="flex items-center justify-between p-4 rounded-2xl bg-secondary/10 border border-border/40">
+          <div className="flex items-center justify-between p-4 rounded-[14px] bg-secondary/10 border border-border/40">
             <div className="space-y-1">
-              <label htmlFor="invite-toggle" className="text-sm font-bold text-foreground cursor-pointer select-none">
+              <label htmlFor="invite-toggle" className="text-sm font-semibold text-foreground cursor-pointer select-none">
                 Ativar Bloqueador de Convites
               </label>
               <p className="text-xs text-muted-foreground">Liga ou desliga o filtro contra links de outros servidores.</p>
@@ -234,7 +232,7 @@ export default function AntiInvitePage({
               type="checkbox"
               checked={antiInviteEnabled}
               onChange={(e) => setAntiInviteEnabled(e.target.checked)}
-              className="h-6 w-11 rounded-full appearance-none bg-muted checked:bg-primary transition-all relative cursor-pointer before:content-[''] before:absolute before:h-4 before:w-4 before:rounded-full before:bg-background before:top-1 before:left-1 checked:before:translate-x-5 before:transition-all"
+              className="h-6 w-11 rounded-full appearance-none bg-muted checked:bg-[#7c3aed] transition-all relative cursor-pointer before:content-[''] before:absolute before:h-4 before:w-4 before:rounded-full before:bg-white before:top-1 before:left-1 checked:before:translate-x-5 before:transition-all"
             />
           </div>
 
@@ -242,9 +240,9 @@ export default function AntiInvitePage({
             <div className="space-y-6 animate-in fade-in duration-300">
               
               {/* Switch 2: Permitir convites do servidor atual */}
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-secondary/10 border border-border/40">
+              <div className="flex items-center justify-between p-4 rounded-[14px] bg-secondary/10 border border-border/40">
                 <div className="space-y-1">
-                  <label htmlFor="allow-guild-toggle" className="text-sm font-bold text-foreground cursor-pointer select-none">
+                  <label htmlFor="allow-guild-toggle" className="text-sm font-semibold text-foreground cursor-pointer select-none">
                     Permitir compartilhar convites do servidor atual
                   </label>
                   <p className="text-xs text-muted-foreground">O bot não apagará convites que direcionam para este mesmo servidor.</p>
@@ -254,14 +252,14 @@ export default function AntiInvitePage({
                   type="checkbox"
                   checked={allowGuildInvites}
                   onChange={(e) => setAllowGuildInvites(e.target.checked)}
-                  className="h-6 w-11 rounded-full appearance-none bg-muted checked:bg-primary transition-all relative cursor-pointer before:content-[''] before:absolute before:h-4 before:w-4 before:rounded-full before:bg-background before:top-1 before:left-1 checked:before:translate-x-5 before:transition-all"
+                  className="h-6 w-11 rounded-full appearance-none bg-muted checked:bg-[#7c3aed] transition-all relative cursor-pointer before:content-[''] before:absolute before:h-4 before:w-4 before:rounded-full before:bg-white before:top-1 before:left-1 checked:before:translate-x-5 before:transition-all"
                 />
               </div>
 
               {/* Switch 3: Deletar mensagem ao detectar */}
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-secondary/10 border border-border/40">
+              <div className="flex items-center justify-between p-4 rounded-[14px] bg-secondary/10 border border-border/40">
                 <div className="space-y-1">
-                  <label htmlFor="delete-msg-toggle" className="text-sm font-bold text-foreground cursor-pointer select-none">
+                  <label htmlFor="delete-msg-toggle" className="text-sm font-semibold text-foreground cursor-pointer select-none">
                     Deletar a mensagem do usuário quando um invite for detectado
                   </label>
                   <p className="text-xs text-muted-foreground">Remove automaticamente a mensagem infratora do chat.</p>
@@ -271,18 +269,18 @@ export default function AntiInvitePage({
                   type="checkbox"
                   checked={deleteMessage}
                   onChange={(e) => setDeleteMessage(e.target.checked)}
-                  className="h-6 w-11 rounded-full appearance-none bg-muted checked:bg-primary transition-all relative cursor-pointer before:content-[''] before:absolute before:h-4 before:w-4 before:rounded-full before:bg-background before:top-1 before:left-1 checked:before:translate-x-5 before:transition-all"
+                  className="h-6 w-11 rounded-full appearance-none bg-muted checked:bg-[#7c3aed] transition-all relative cursor-pointer before:content-[''] before:absolute before:h-4 before:w-4 before:rounded-full before:bg-white before:top-1 before:left-1 checked:before:translate-x-5 before:transition-all"
                 />
               </div>
 
               {/* Whitelist section */}
               <div className="space-y-4 pt-2">
-                <label className="text-sm font-bold text-foreground">Canais aonde são permitidos enviar convites</label>
+                <label className="text-sm font-semibold text-foreground">Canais aonde são permitidos enviar convites</label>
                 <div className="flex gap-2">
                   <select
                     value={selectedChannel}
                     onChange={(e) => setSelectedChannel(e.target.value)}
-                    className="flex-1 h-12 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                    className="flex-1 h-12 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
                     <option value="" className="bg-card text-muted-foreground">Selecione um canal...</option>
                     {channels.map((ch) => (
@@ -292,7 +290,7 @@ export default function AntiInvitePage({
                   <Button
                     type="button"
                     onClick={handleAddChannel}
-                    className="h-12 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold"
+                    className="h-10 px-6 rounded-full font-bold rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
                   >
                     <Plus className="mr-1 h-4 w-4" />
                     Adicionar
@@ -300,7 +298,7 @@ export default function AntiInvitePage({
                 </div>
 
                 {/* Whitelist Container / Empty state */}
-                <div className="rounded-2xl border border-border bg-secondary/15 p-4 min-h-[14rem]">
+                <div className="rounded-[14px] border border-border bg-secondary/15 p-4 min-h-[14rem]">
                   {antiInviteWhitelist.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-6 space-y-3 text-center">
                       <svg className="h-20 w-20 opacity-60 text-muted-foreground" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -315,14 +313,14 @@ export default function AntiInvitePage({
                         <ellipse cx="28" cy="52" rx="4" ry="3" fill="#e74c3c" opacity="0.3" />
                         <ellipse cx="72" cy="52" rx="4" ry="3" fill="#e74c3c" opacity="0.3" />
                       </svg>
-                      <p className="text-sm font-bold text-muted-foreground">Vazio, igualzinho a minha conta bancária</p>
+                      <p className="text-sm font-semibold text-muted-foreground">Vazio, igualzinho a minha conta bancária</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                       {antiInviteWhitelist.map((chId) => {
                         const channel = channels.find(c => c.id === chId)
                         return (
-                          <div key={chId} className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-secondary/30 text-sm font-semibold">
+                          <div key={chId} className="flex items-center justify-between p-3.5 rounded-[10px] border border-border bg-secondary/30 text-sm font-semibold">
                             <span className="text-foreground text-xs truncate">#{channel ? channel.name : chId}</span>
                             <button
                               type="button"
@@ -341,11 +339,11 @@ export default function AntiInvitePage({
 
               {/* Action config (kept in background or optional menu) */}
               <div className="space-y-2 max-w-sm pt-2">
-                <label className="text-sm font-bold text-foreground">Sanção Automática (Além de deletar)</label>
+                <label className="text-sm font-semibold text-foreground">Sanção Automática (Além de deletar)</label>
                 <select
                   value={antiInviteAction}
                   onChange={(e) => setAntiInviteAction(e.target.value)}
-                  className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-3.5 text-xs font-bold text-foreground outline-none transition focus:border-primary/50"
+                  className="w-full h-11 rounded-[10px] border border-border bg-secondary/30 px-3.5 text-xs font-semibold text-foreground outline-none transition focus:border-primary/50"
                 >
                   <option value="none" className="bg-card text-foreground">Nenhuma (Apenas Deletar)</option>
                   <option value="warn" className="bg-card text-foreground">Dar Aviso (Warn)</option>
@@ -357,9 +355,9 @@ export default function AntiInvitePage({
 
               {/* Switch 4: Enviar mensagem ao usuário */}
               <div className="border-t border-border/40 pt-6 space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-secondary/10 border border-border/40">
+                <div className="flex items-center justify-between p-4 rounded-[14px] bg-secondary/10 border border-border/40">
                   <div className="space-y-1">
-                    <label htmlFor="send-warn-toggle" className="text-sm font-bold text-foreground cursor-pointer select-none">
+                    <label htmlFor="send-warn-toggle" className="text-sm font-semibold text-foreground cursor-pointer select-none">
                       Enviar uma mensagem ao usuário quando ele enviar um invite
                     </label>
                     <p className="text-xs text-muted-foreground">Dispara um aviso no chat alertando sobre a restrição.</p>
@@ -369,15 +367,15 @@ export default function AntiInvitePage({
                     type="checkbox"
                     checked={sendWarnMessage}
                     onChange={(e) => setSendWarnMessage(e.target.checked)}
-                    className="h-6 w-11 rounded-full appearance-none bg-muted checked:bg-primary transition-all relative cursor-pointer before:content-[''] before:absolute before:h-4 before:w-4 before:rounded-full before:bg-background before:top-1 before:left-1 checked:before:translate-x-5 before:transition-all"
+                    className="h-6 w-11 rounded-full appearance-none bg-muted checked:bg-[#7c3aed] transition-all relative cursor-pointer before:content-[''] before:absolute before:h-4 before:w-4 before:rounded-full before:bg-white before:top-1 before:left-1 checked:before:translate-x-5 before:transition-all"
                   />
                 </div>
 
                 {sendWarnMessage && (
-                  <div className="space-y-4 pt-2 animate-in slide-in-from-top-4 duration-300">
+                  <div className="space-y-4 pt-2 animate-in duration-300">
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <label className="text-sm font-bold text-foreground flex items-center gap-2">
+                        <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                           <MessageSquare className="h-4 w-4 text-primary" />
                           Mensagem
                         </label>
@@ -393,18 +391,18 @@ export default function AntiInvitePage({
 
                     {/* Discord message preview rendering */}
                     <div className="space-y-2">
-                      <span className="text-xs font-bold text-muted-foreground">Pré-visualização do Alerta</span>
-                      <div className="bg-[#313338] text-[#dbdee1] p-4 rounded-xl border border-black/35 font-sans space-y-1 select-none">
+                      <span className="text-xs font-semibold text-muted-foreground">Pré-visualização do Alerta</span>
+                      <div className="bg-[#313338] text-[#dbdee1] p-4 rounded-[10px] border border-black/35 font-sans space-y-1 select-none">
                         <div className="flex items-start gap-3.5">
                           {/* Cute avatar simulation */}
-                          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center shrink-0 text-white font-extrabold text-sm shadow-md">
+                          <div className="h-10 w-10 rounded-full bg-[#7c3aed] flex items-center justify-center shrink-0 text-white font-semibold text-sm">
                             LN
                           </div>
                           
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
                               <span className="font-semibold text-sm text-[#f2f3f5] hover:underline cursor-pointer">Lunna</span>
-                              <span className="bg-[#5865f2] text-[10px] text-white px-1 py-0.5 rounded font-bold uppercase scale-90">✔ APP</span>
+                              <span className="bg-[#5865f2] text-[10px] text-white px-1 py-0.5 rounded font-semibold uppercase scale-90">✔ APP</span>
                               <span className="text-[10px] text-[#949ba4] font-medium">Hoje às {currentTime}</span>
                             </div>
                             <div className="text-sm leading-relaxed text-[#dbdee1] break-all">

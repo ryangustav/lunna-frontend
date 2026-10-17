@@ -127,18 +127,18 @@ export default function LogsPage({
           <div className="h-8 w-64 rounded bg-muted/60" />
           <div className="h-4 w-96 rounded bg-muted/40" />
         </div>
-        <div className="h-48 w-full rounded-3xl bg-muted/20 border border-border/50" />
+        <div className="h-48 w-full rounded-[14px] bg-muted/20 border border-border/50" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center rounded-3xl border border-destructive/20 bg-destructive/5 space-y-4">
-        <AlertTriangle className="h-12 w-12 text-destructive animate-bounce" />
-        <h3 className="text-xl font-bold text-foreground">Falha de Comunicação</h3>
+      <div className="flex flex-col items-center justify-center p-12 text-center rounded-[14px] border border-destructive/20 bg-destructive/5 space-y-4">
+        <AlertTriangle className="h-12 w-12 text-destructive" />
+        <h3 className="text-[15px] font-bold text-foreground">Falha de Comunicação</h3>
         <p className="text-sm text-muted-foreground max-w-md">{error}</p>
-        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-xl">
+        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full">
           Tentar Novamente
         </Button>
       </div>
@@ -146,14 +146,13 @@ export default function LogsPage({
   }
 
   return (
-    <form onSubmit={handleSave} className="animate-in fade-in slide-in-from-bottom-4 space-y-8 duration-700">
+    <form onSubmit={handleSave} className="animate-in fade-in space-y-8 duration-300">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="flex items-center text-3xl font-black tracking-tight text-foreground">
-            <Activity className="mr-3 h-8 w-8 text-primary" />
+          <h1 className="flex items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground">
             Registro de Eventos (Logs)
           </h1>
-          <p className="mt-2 text-muted-foreground">
+          <p className="mt-2 max-w-[560px] text-[14px] leading-[1.7] text-muted-foreground">
             Configure canais de texto específicos para registrar as ações do servidor de forma intuitiva.
           </p>
         </div>
@@ -161,7 +160,7 @@ export default function LogsPage({
         <Button
           type="submit"
           disabled={saving}
-          className="w-full sm:w-auto h-12 rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          className="w-full sm:w-auto h-10 rounded-full font-bold transition-all rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
         >
           <Save className="mr-2 h-4 w-4" />
           {saving ? "Salvando..." : "Salvar Configurações"}
@@ -169,25 +168,24 @@ export default function LogsPage({
       </div>
 
       <div className="grid grid-cols-1 gap-8">
-        <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-emerald-500/5 blur-2xl group-hover:bg-emerald-500/10 transition-colors" />
+        <div className="rounded-[14px] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
 
           <div className="grid grid-cols-1 gap-8">
             
             {/* Logs de Mensagens */}
-            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
-              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+            <div className="rounded-[14px] border border-border/60 bg-secondary/10 p-5 space-y-4">
+              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                 <MessageSquare className="h-5 w-5 text-violet-400" />
                 Logs de Mensagens
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground">Mensagens Excluídas</label>
+                  <label className="text-xs font-semibold text-muted-foreground">Mensagens Excluídas</label>
                   <select
                     value={logMsgDeleteChannel}
                     onChange={(e) => setLogMsgDeleteChannel(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                    className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
                     <option value="" className="bg-card text-muted-foreground">Desativado</option>
                     {channels.map((ch) => (
@@ -197,11 +195,11 @@ export default function LogsPage({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground">Mensagens Editadas</label>
+                  <label className="text-xs font-semibold text-muted-foreground">Mensagens Editadas</label>
                   <select
                     value={logMsgEditChannel}
                     onChange={(e) => setLogMsgEditChannel(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                    className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
                     <option value="" className="bg-card text-muted-foreground">Desativado</option>
                     {channels.map((ch) => (
@@ -213,18 +211,18 @@ export default function LogsPage({
             </div>
 
             {/* Logs de Canais de Voz */}
-            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
-              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+            <div className="rounded-[14px] border border-border/60 bg-secondary/10 p-5 space-y-4">
+              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                 <Mic className="h-5 w-5 text-indigo-400" />
                 Logs de Canais de Voz
               </h3>
               
               <div className="space-y-2 max-w-md">
-                <label className="text-xs font-bold text-muted-foreground">Entrada, Saída e Movimentação</label>
+                <label className="text-xs font-semibold text-muted-foreground">Entrada, Saída e Movimentação</label>
                 <select
                   value={logVoiceChannel}
                   onChange={(e) => setLogVoiceChannel(e.target.value)}
-                  className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                  className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                 >
                   <option value="" className="bg-card text-muted-foreground">Desativado</option>
                   {channels.map((ch) => (
@@ -235,19 +233,19 @@ export default function LogsPage({
             </div>
 
             {/* Logs de Membros */}
-            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
-              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+            <div className="rounded-[14px] border border-border/60 bg-secondary/10 p-5 space-y-4">
+              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                 <User className="h-5 w-5 text-purple-400" />
                 Logs de Membros
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground">Alteração de Apelido (Nickname)</label>
+                  <label className="text-xs font-semibold text-muted-foreground">Alteração de Apelido (Nickname)</label>
                   <select
                     value={logMemberNicknameChannel}
                     onChange={(e) => setLogMemberNicknameChannel(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                    className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
                     <option value="" className="bg-card text-muted-foreground">Desativado</option>
                     {channels.map((ch) => (
@@ -257,11 +255,11 @@ export default function LogsPage({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground">Alteração de Avatar (Foto)</label>
+                  <label className="text-xs font-semibold text-muted-foreground">Alteração de Avatar (Foto)</label>
                   <select
                     value={logMemberAvatarChannel}
                     onChange={(e) => setLogMemberAvatarChannel(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                    className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
                     <option value="" className="bg-card text-muted-foreground">Desativado</option>
                     {channels.map((ch) => (
@@ -273,19 +271,19 @@ export default function LogsPage({
             </div>
 
             {/* Logs de Estrutura do Servidor */}
-            <div className="rounded-2xl border border-border/60 bg-secondary/10 p-5 space-y-4">
-              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+            <div className="rounded-[14px] border border-border/60 bg-secondary/10 p-5 space-y-4">
+              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                 <FolderClosed className="h-5 w-5 text-yellow-400" />
                 Logs de Estrutura (Servidor)
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground">Canais Criados</label>
+                  <label className="text-xs font-semibold text-muted-foreground">Canais Criados</label>
                   <select
                     value={logServerChannelCreateChannel}
                     onChange={(e) => setLogServerChannelCreateChannel(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                    className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
                     <option value="" className="bg-card text-muted-foreground">Desativado</option>
                     {channels.map((ch) => (
@@ -295,11 +293,11 @@ export default function LogsPage({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground">Canais Excluídos</label>
+                  <label className="text-xs font-semibold text-muted-foreground">Canais Excluídos</label>
                   <select
                     value={logServerChannelDeleteChannel}
                     onChange={(e) => setLogServerChannelDeleteChannel(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                    className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
                     <option value="" className="bg-card text-muted-foreground">Desativado</option>
                     {channels.map((ch) => (
@@ -309,11 +307,11 @@ export default function LogsPage({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground">Cargos Criados</label>
+                  <label className="text-xs font-semibold text-muted-foreground">Cargos Criados</label>
                   <select
                     value={logServerRoleCreateChannel}
                     onChange={(e) => setLogServerRoleCreateChannel(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                    className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
                     <option value="" className="bg-card text-muted-foreground">Desativado</option>
                     {channels.map((ch) => (
@@ -323,11 +321,11 @@ export default function LogsPage({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-muted-foreground">Cargos Excluídos</label>
+                  <label className="text-xs font-semibold text-muted-foreground">Cargos Excluídos</label>
                   <select
                     value={logServerRoleDeleteChannel}
                     onChange={(e) => setLogServerRoleDeleteChannel(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                    className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
                     <option value="" className="bg-card text-muted-foreground">Desativado</option>
                     {channels.map((ch) => (

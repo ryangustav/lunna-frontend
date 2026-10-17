@@ -1,291 +1,112 @@
 "use client"
 
 import React, { use, useEffect, useState } from "react"
-import { Crown, Check, AlertTriangle, ArrowRight, ShieldAlert, Sparkles, Coins, Flame } from "lucide-react"
-import { api, API_URL } from "@/lib/api"
-import { useToast } from "@/hooks/use-toast"
-import { Button } from "@/components/ui/button"
-import { Link } from "@/src/i18n/routing"
+import { Check } from "lucide-react"
+import { useRouter } from "@/src/i18n/routing"
+import { api } from "@/lib/api"
+import { GUILD_PLANS, formatBRL, guildPlan } from "@/lib/guild-premium"
+import { PageHeader, PrimaryButton, SecondaryButton, Pill, LoadingState } from "@/components/dashboard/primitives"
 
-export default function ServerPremiumPage({
-  params,
-}: {
-  params: Promise<{ guildId: string }>
-}) {
+const RANK: Record<string, number> = { free: 0, basico: 1, completo: 2 }
+
+export default function GuildPremiumPage({ params }: { params: Promise<{ guildId: string }> }) {
   const { guildId } = use(params)
-  const { toast } = useToast()
-
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
-  const [premiumType, setPremiumType] = useState<string>("free")
-  const [purchaseLoading, setPurchaseLoading] = useState<string | null>(null)
-
-  const handlePurchaseGuild = async (tierKey: string) => {
-    try {
-      setPurchaseLoading(tierKey)
-      
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('token='))
-        ?.split('=')[1];
-        
-      if (!token) {
-        throw new Error("Faça login com o Discord primeiro");
-      }
-      
-      const meRes = await api.getCurrentUser();
-      if (!meRes.success || !meRes.data?.id) {
-        throw new Error("Não foi possível carregar as informações do seu usuário.");
-      }
-      const userId = meRes.data.id;
-
-      const response = await fetch(`${API_URL}/vip/purchase-guild`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          userId,
-          guildId,
-          tier: tierKey
-        })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Erro ao processar o pagamento");
-      }
-
-      const data = await response.json();
-      if (data.paymentUrl) {
-        window.location.href = data.paymentUrl;
-      } else {
-        throw new Error("URL de pagamento não retornada pela API");
-      }
-    } catch (err: any) {
-      console.error("Guild premium purchase error:", err);
-      toast({
-        title: "Erro no pagamento",
-        description: err.message || "Não foi possível iniciar o checkout do Stripe.",
-        variant: "destructive"
-      });
-    } finally {
-      setPurchaseLoading(null);
-    }
-  };
+  const [current, setCurrent] = useState<string>("free")
+  const [expiresAt, setExpiresAt] = useState<number>(0)
 
   useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        setLoading(true)
-        const res = await api.getGuildSettings(guildId)
-        if (res) {
-          setPremiumType(res.premium_type || "free")
-        }
-      } catch (err: any) {
-        console.error("Failed to load settings:", err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchSettings()
+    api
+      .getGuildSettings(guildId)
+      .then((res) => {
+        setCurrent(res?.premium_type || "free")
+        setExpiresAt(res?.premium_expires_at || 0)
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [guildId])
 
-  const plans = [
-    {
-      key: "free",
-      name: "Grátis",
-      desc: "Benefícios essenciais para começar no seu reino.",
-      price: "R$ 0",
-      period: "para sempre",
-      badge: "Iniciante",
-      color: "from-slate-600 to-slate-500",
-      shadow: "shadow-slate-500/10",
-      buttonText: "Plano Atual",
-      features: [
-        "Até 3 contadores de membros ativos",
-        "Multiplicador de Daily: 1.0x",
-        "Sistemas de Moderação Padrão",
-        "Dashboard Web Básico",
-      ],
-    },
-    {
-      key: "basico",
-      name: "Premium Básico",
-      desc: "Destaque seu servidor com recursos adicionais excelentes.",
-      price: "R$ 9,90",
-      period: "mês",
-      badge: "Popular",
-      color: "from-violet-600 to-indigo-600",
-      shadow: "shadow-violet-500/20",
-      buttonText: "Atualizar para Básico",
-      features: [
-        "Até 10 contadores de membros ativos",
-        "Multiplicador de Daily: 1.5x para membros",
-        "Personalizações do Contador de Membros",
-        "Badge de Servidor Premium",
-        "Logs de Eventos estendidos",
-      ],
-    },
-    {
-      key: "completo",
-      name: "Premium Completo",
-      desc: "O nível máximo de poder e customização absoluta.",
-      price: "R$ 19,90",
-      period: "mês",
-      badge: "Poder Máximo",
-      color: "from-fuchsia-600 to-pink-600",
-      shadow: "shadow-fuchsia-500/20",
-      buttonText: "Atualizar para Completo",
-      features: [
-        "Contadores de membros ILIMITADOS",
-        "Multiplicador de Daily: 2.0x para membros",
-        "Todos os temas e layouts desbloqueados",
-        "Suporte Prioritário VIP",
-        "Customização completa de Banners",
-        "Acesso antecipado a novas funções",
-      ],
-    },
-  ]
+  if (loading) return <LoadingState />
 
-  if (loading) {
-    return (
-      <div className="space-y-8 animate-pulse">
-        <div className="space-y-3">
-          <div className="h-8 w-64 rounded bg-muted/60" />
-          <div className="h-4 w-96 rounded bg-muted/40" />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-96 rounded-3xl bg-muted/20 border border-border/50" />
-          ))}
-        </div>
-      </div>
-    )
-  }
+  const currentPlan = guildPlan(current) || guildPlan("free")!
+  const expiry = expiresAt ? new Date(expiresAt * 1000).toLocaleDateString("pt-BR") : null
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 space-y-12 duration-700">
-      {/* Title Header */}
-      <div className="space-y-4">
-        <h1 className="flex items-center text-3xl font-black tracking-tight text-foreground gap-3">
-          <Crown className="h-8 w-8 text-amber-500 animate-pulse" />
-          Premium para Servidores
-        </h1>
-        <p className="text-muted-foreground max-w-2xl">
-          Eleve a experiência da sua comunidade. Membros dos servidores premium recebem multiplicadores de recompensas diárias exclusivas e suporte a contadores estendidos.
-        </p>
-      </div>
+    <div>
+      <PageHeader
+        eyebrow="Premium"
+        title="Planos para o servidor"
+        description="Pagamento único por 30 dias, sem renovação automática. Ao renovar o mesmo plano, os dias se somam."
+      />
 
-      {/* Plans Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {plans.map((plan) => {
-          const isCurrent = premiumType === plan.key
+      {current !== "free" && (
+        <div className="mb-5 flex flex-wrap items-center gap-2 rounded-[14px] border border-border bg-card px-5 py-4 text-[14px]">
+          <Pill tone="accent">{currentPlan.name}</Pill>
+          <span className="text-muted-foreground">ativo{expiry ? ` até ${expiry}` : ""}.</span>
+        </div>
+      )}
+
+      <div className="grid gap-4 md:grid-cols-3">
+        {GUILD_PLANS.map((plan) => {
+          const isCurrent = plan.key === current
+          const isLower = RANK[plan.key] < RANK[current]
+          const highlighted = plan.key === "completo"
           return (
             <div
               key={plan.key}
-              className={`relative flex flex-col rounded-[2rem] border p-8 transition-all duration-500 hover:scale-[1.03] bg-card ${
-                isCurrent 
-                  ? `border-primary shadow-2xl ${plan.shadow}` 
-                  : "border-border/60 hover:border-border"
-              }`}
+              className={`flex flex-col rounded-[14px] border bg-card p-6 ${highlighted ? "border-[#7c3aed]/60" : "border-border"}`}
             >
-              {/* Badge */}
-              <div className="absolute top-5 right-5">
-                <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-gradient-to-r ${plan.color} text-white`}>
-                  {plan.badge}
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-[15px] font-semibold text-foreground">{plan.name}</h2>
+                {isCurrent && <Pill tone="success">Atual</Pill>}
+              </div>
+              <p className="mt-1 text-[13px] leading-[1.6] text-muted-foreground">{plan.description}</p>
+
+              <div className="mt-5 flex items-baseline gap-1">
+                <span className="text-[26px] font-bold tracking-[-0.5px] text-foreground">
+                  {plan.price ? formatBRL(plan.price) : "Grátis"}
                 </span>
+                {plan.days && <span className="text-[13px] text-muted-foreground">/ {plan.days} dias</span>}
               </div>
 
-              {/* Header */}
-              <div className="space-y-2 mb-6">
-                <h3 className="text-2xl font-black text-foreground">{plan.name}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed min-h-[32px]">{plan.desc}</p>
-              </div>
-
-              {/* Price */}
-              <div className="flex items-baseline gap-1 mb-8">
-                <span className="text-4xl font-black text-foreground">{plan.price}</span>
-                <span className="text-xs text-muted-foreground">/ {plan.period}</span>
-              </div>
-
-              {/* Features List */}
-              <ul className="space-y-4 mb-8 flex-1">
-                {plan.features.map((feat, idx) => (
-                  <li key={idx} className="flex items-start gap-3 text-xs font-semibold text-foreground/80">
-                    <div className="mt-0.5 rounded-full bg-emerald-500/10 p-0.5 text-emerald-400">
-                      <Check className="h-3 w-3" />
-                    </div>
-                    <span>{feat}</span>
+              <ul className="mt-5 flex flex-1 flex-col gap-2.5">
+                {plan.benefits.map((b) => (
+                  <li key={b} className="flex gap-2 text-[13px] leading-[1.5] text-foreground">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#7c3aed]" />
+                    {b}
                   </li>
                 ))}
               </ul>
 
-              {/* Action Button */}
-              {isCurrent ? (
-                <Button
-                  disabled
-                  className="w-full h-12 rounded-xl font-bold bg-emerald-500 text-white cursor-default"
-                >
-                  Plano Atual Ativo
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => handlePurchaseGuild(plan.key)}
-                  disabled={purchaseLoading !== null}
-                  className="w-full h-12 rounded-xl font-bold bg-secondary text-foreground hover:bg-violet-600 hover:text-white transition-all"
-                >
-                  {purchaseLoading === plan.key ? "Processando..." : plan.buttonText}
-                </Button>
-              )}
+              <div className="mt-6">
+                {plan.key === "free" ? (
+                  <SecondaryButton disabled className="w-full">
+                    {isCurrent ? "Plano atual" : "Incluído"}
+                  </SecondaryButton>
+                ) : isLower ? (
+                  <SecondaryButton disabled className="w-full">
+                    Plano superior ativo
+                  </SecondaryButton>
+                ) : (
+                  <PrimaryButton
+                    className="w-full"
+                    onClick={() => router.push(`/checkout?type=GUILD_VIP&id=${plan.key}&guild=${guildId}`)}
+                  >
+                    {isCurrent ? "Renovar por 30 dias" : `Assinar ${plan.name}`}
+                  </PrimaryButton>
+                )}
+              </div>
             </div>
           )
         })}
       </div>
 
-      {/* Comparison Details Table */}
-      <div className="rounded-[2.5rem] border border-border bg-card/40 p-6 md:p-8 shadow-sm">
-        <h3 className="text-lg font-black text-foreground mb-6">Tabela Comparativa de Recursos</h3>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs font-semibold">
-            <thead>
-              <tr className="border-b border-border/80 text-muted-foreground uppercase tracking-wider">
-                <th className="py-4 px-2">Recurso</th>
-                <th className="py-4 px-2">Grátis</th>
-                <th className="py-4 px-2 text-violet-400">Básico</th>
-                <th className="py-4 px-2 text-fuchsia-400">Completo</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/40 text-foreground/90">
-              <tr>
-                <td className="py-4 px-2 font-bold text-foreground">Canais do Contador</td>
-                <td className="py-4 px-2">Até 3 canais</td>
-                <td className="py-4 px-2 text-violet-400">Até 10 canais</td>
-                <td className="py-4 px-2 text-fuchsia-400 font-bold">Ilimitados</td>
-              </tr>
-              <tr>
-                <td className="py-4 px-2 font-bold text-foreground">Multiplicador de Recompensa (Daily)</td>
-                <td className="py-4 px-2">1.0x (Padrão)</td>
-                <td className="py-4 px-2 text-violet-400">1.5x</td>
-                <td className="py-4 px-2 text-fuchsia-400 font-bold">2.0x</td>
-              </tr>
-              <tr>
-                <td className="py-4 px-2 font-bold text-foreground">Temas de Contador</td>
-                <td className="py-4 px-2">Padrão</td>
-                <td className="py-4 px-2 text-violet-400">Padrão + Emojis</td>
-                <td className="py-4 px-2 text-fuchsia-400 font-bold">Todos (Desbloqueados)</td>
-              </tr>
-              <tr>
-                <td className="py-4 px-2 font-bold text-foreground">Suporte da Lunna</td>
-                <td className="py-4 px-2">Comunidade</td>
-                <td className="py-4 px-2 text-violet-400">Prioritário</td>
-                <td className="py-4 px-2 text-fuchsia-400 font-bold">Instantâneo / Devs</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <p className="mt-6 text-[12px] leading-[1.6] text-muted-foreground">
+        O multiplicador de daily vale para quem é membro de um servidor premium. Ao trocar do Básico para o Completo, os dias restantes
+        do Básico são convertidos proporcionalmente ao preço. Compras de bens virtuais seguem a nossa{" "}
+        <a href="/privacy" className="underline underline-offset-2 hover:text-foreground">Política de Privacidade</a>.
+      </p>
     </div>
   )
 }

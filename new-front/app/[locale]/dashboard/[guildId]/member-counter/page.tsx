@@ -193,18 +193,18 @@ export default function MemberCounterPage({
           <div className="h-8 w-64 rounded bg-muted/60" />
           <div className="h-4 w-96 rounded bg-muted/40" />
         </div>
-        <div className="h-64 w-full rounded-3xl bg-muted/20 border border-border/50" />
+        <div className="h-64 w-full rounded-[14px] bg-muted/20 border border-border/50" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center rounded-3xl border border-destructive/20 bg-destructive/5 space-y-4">
-        <AlertTriangle className="h-12 w-12 text-destructive animate-bounce" />
-        <h3 className="text-xl font-bold text-foreground">Falha de Conexão</h3>
+      <div className="flex flex-col items-center justify-center p-12 text-center rounded-[14px] border border-destructive/20 bg-destructive/5 space-y-4">
+        <AlertTriangle className="h-12 w-12 text-destructive" />
+        <h3 className="text-[15px] font-bold text-foreground">Falha de Conexão</h3>
         <p className="text-sm text-muted-foreground max-w-md">{error}</p>
-        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-xl">
+        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full">
           Tentar Novamente
         </Button>
       </div>
@@ -218,10 +218,10 @@ export default function MemberCounterPage({
   if (activeChannel && activeConfig) {
     // RENDER DETAILED CHANNEL EDIT VIEW (IMAGE 3)
     return (
-      <div className="animate-in fade-in slide-in-from-bottom-4 space-y-8 duration-500">
+      <div className="animate-in fade-in space-y-8 duration-300">
         <button
           onClick={() => setActiveChannelId(null)}
-          className="group flex items-center text-xs font-black tracking-wider uppercase text-violet-400 hover:text-violet-300 transition-colors"
+          className="group flex items-center text-xs font-semibold tracking-[2px] uppercase text-violet-400 hover:text-violet-300 transition-colors"
         >
           <ChevronLeft className="mr-1 h-4 w-4 transition-transform group-hover:-translate-x-1" />
           Voltar para a lista de canais
@@ -229,7 +229,7 @@ export default function MemberCounterPage({
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-foreground flex items-center gap-2">
+            <h1 className="flex items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground">
               <span className="text-violet-500">#</span> {activeChannel.name}
             </h1>
             <p className="mt-2 text-xs text-muted-foreground">
@@ -240,25 +240,25 @@ export default function MemberCounterPage({
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="w-full sm:w-auto h-12 rounded-xl font-bold bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/20"
+            className="w-full sm:w-auto h-10 rounded-full font-bold rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
           >
             <Save className="mr-2 h-4 w-4" />
             {saving ? "Salvando..." : "Salvar Configurações"}
           </Button>
         </div>
 
-        <div className="rounded-[2.5rem] border border-border bg-card p-6 md:p-8 space-y-6">
+        <div className="rounded-[14px] border border-border bg-card p-6 md:p-8 space-y-6">
           {/* Toggle Counter */}
           <div className="flex justify-between items-center pb-4 border-b border-border/40">
             <div className="space-y-1 pr-4">
-              <h3 className="text-sm font-bold text-foreground">Ativar contador de membros</h3>
+              <h3 className="text-sm font-semibold text-foreground">Ativar contador de membros</h3>
               <p className="text-xs text-muted-foreground">Após ativar, utilize <code>{"{counter}"}</code> no texto do seu tópico para ativar o contador!</p>
             </div>
             <input
               type="checkbox"
               checked={activeConfig.enabled}
               onChange={(e) => updateCounterConfig(activeChannel.id, { enabled: e.target.checked })}
-              className="h-6 w-11 rounded-full appearance-none bg-muted checked:bg-violet-600 transition-all relative cursor-pointer before:content-[''] before:absolute before:h-4 before:w-4 before:rounded-full before:bg-background before:top-1 before:left-1 checked:before:translate-x-5 before:transition-all"
+              className="h-6 w-11 rounded-full appearance-none bg-muted checked:bg-violet-600 transition-all relative cursor-pointer before:content-[''] before:absolute before:h-4 before:w-4 before:rounded-full before:bg-white before:top-1 before:left-1 checked:before:translate-x-5 before:transition-all"
             />
           </div>
 
@@ -266,22 +266,22 @@ export default function MemberCounterPage({
             <div className="space-y-6 animate-in fade-in duration-300">
               {/* Topic Input */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-foreground">Tópico do Canal (Será utilizado após alguém entrar/sair)</label>
+                <label className="text-xs font-semibold text-foreground">Tópico do Canal (Será utilizado após alguém entrar/sair)</label>
                 <textarea
                   value={activeConfig.topic}
                   onChange={(e) => updateCounterConfig(activeChannel.id, { topic: e.target.value })}
                   rows={2}
-                  placeholder="Ex: Reino da Lunna tem {counter} aventureiros!"
-                  className="w-full rounded-xl border border-border bg-secondary/20 px-4 py-3 text-xs font-medium text-foreground outline-none transition focus:border-violet-500"
+                  placeholder="Ex: Membros: {counter}"
+                  className="w-full rounded-[10px] border border-border bg-secondary/20 px-4 py-3 text-xs font-medium text-foreground outline-none transition focus:border-violet-500"
                 />
               </div>
 
               {/* Theme Selector */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-foreground flex items-center gap-2">
+                <label className="text-xs font-semibold text-foreground flex items-center gap-2">
                   <span>Tema do Contador de Membros</span>
                   {activeConfig.theme !== "default" && premiumType === "free" && (
-                    <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-violet-600/15 text-violet-400">
+                    <span className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-[2px] px-2 py-0.5 rounded bg-violet-600/15 text-violet-400">
                       <Crown className="h-2.5 w-2.5" /> Premium
                     </span>
                   )}
@@ -301,7 +301,7 @@ export default function MemberCounterPage({
                     }
                     updateCounterConfig(activeChannel.id, { theme: val })
                   }}
-                  className="w-full h-11 rounded-xl border border-border bg-secondary/20 px-4 text-xs font-semibold text-foreground outline-none transition focus:border-violet-500"
+                  className="w-full h-11 rounded-[10px] border border-border bg-secondary/20 px-4 text-xs font-semibold text-foreground outline-none transition focus:border-violet-500"
                 >
                   <option value="default">Padrão (123)</option>
                   <option value="lunna">Lunna Emojis (Exclusivo) [Premium]</option>
@@ -313,40 +313,40 @@ export default function MemberCounterPage({
 
               {/* Zero Padding */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-foreground">Preenchimento com Zeros (Zero Padding)</label>
+                <label className="text-xs font-semibold text-foreground">Preenchimento com Zeros (Zero Padding)</label>
                 <input
                   type="number"
                   min={0}
                   max={10}
                   value={activeConfig.zero_padding}
                   onChange={(e) => updateCounterConfig(activeChannel.id, { zero_padding: Number(e.target.value) })}
-                  className="w-full h-11 rounded-xl border border-border bg-secondary/20 px-4 text-xs font-semibold text-foreground outline-none transition focus:border-violet-500"
+                  className="w-full h-11 rounded-[10px] border border-border bg-secondary/20 px-4 text-xs font-semibold text-foreground outline-none transition focus:border-violet-500"
                 />
               </div>
 
               {/* Preview Rendering */}
               <div className="space-y-3 pt-2">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Pré-visualização do Formato</label>
-                <div className="flex flex-col gap-2 p-4 rounded-2xl bg-secondary/40 border border-border/50">
-                  <div className="flex items-center gap-1.5 font-black text-sm text-foreground">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-[2px]">Pré-visualização do Formato</label>
+                <div className="flex flex-col gap-2 p-4 rounded-[14px] bg-secondary/40 border border-border/50">
+                  <div className="flex items-center gap-1.5 font-semibold text-sm text-foreground">
                     <span className="text-xs text-muted-foreground font-medium">5 membros:</span>
                     <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15 flex items-center min-h-[28px]">
                       {renderFormattedNumber(5, activeConfig.zero_padding, activeConfig.theme)}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 font-black text-sm text-foreground">
+                  <div className="flex items-center gap-1.5 font-semibold text-sm text-foreground">
                     <span className="text-xs text-muted-foreground font-medium">10 membros:</span>
                     <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15 flex items-center min-h-[28px]">
                       {renderFormattedNumber(10, activeConfig.zero_padding, activeConfig.theme)}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 font-black text-sm text-foreground">
+                  <div className="flex items-center gap-1.5 font-semibold text-sm text-foreground">
                     <span className="text-xs text-muted-foreground font-medium">34 membros:</span>
                     <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15 flex items-center min-h-[28px]">
                       {renderFormattedNumber(34, activeConfig.zero_padding, activeConfig.theme)}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 font-black text-sm text-foreground">
+                  <div className="flex items-center gap-1.5 font-semibold text-sm text-foreground">
                     <span className="text-xs text-muted-foreground font-medium">250 membros:</span>
                     <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15 flex items-center min-h-[28px]">
                       {renderFormattedNumber(250, activeConfig.zero_padding, activeConfig.theme)}
@@ -363,11 +363,10 @@ export default function MemberCounterPage({
 
   // RENDER CANALS LIST VIEW (IMAGE 2)
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 space-y-8 duration-700">
+    <div className="animate-in fade-in space-y-8 duration-300">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-foreground flex items-center gap-3">
-            <Users className="h-8 w-8 text-violet-500" />
+          <h1 className="flex items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground">
             Contador de Membros
           </h1>
           <p className="mt-2 text-xs text-muted-foreground">
@@ -378,7 +377,7 @@ export default function MemberCounterPage({
         <Button
           onClick={handleSave}
           disabled={saving}
-          className="w-full sm:w-auto h-12 rounded-xl font-bold bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/20"
+          className="w-full sm:w-auto h-10 rounded-full font-bold rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
         >
           <Save className="mr-2 h-4 w-4" />
           {saving ? "Salvando..." : "Salvar Configurações"}
@@ -387,27 +386,27 @@ export default function MemberCounterPage({
 
       {/* Info Stats Banner */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="rounded-[1.5rem] border border-border/80 bg-card p-5 flex items-center justify-between">
+        <div className="rounded-[14px] border border-border/80 bg-card p-5 flex items-center justify-between">
           <div className="space-y-0.5">
-            <span className="text-xs text-muted-foreground font-bold">Plano do Servidor</span>
+            <span className="text-xs text-muted-foreground font-semibold">Plano do Servidor</span>
             <div className="flex items-center gap-1.5">
               <Crown className="h-4 w-4 text-violet-500" />
-              <span className="text-sm font-black uppercase text-foreground">{premiumType}</span>
+              <span className="text-sm font-semibold uppercase text-foreground">{premiumType}</span>
             </div>
           </div>
-          <span className="text-[10px] font-black bg-violet-500/10 text-violet-400 px-3 py-1 rounded-full uppercase tracking-wider">
+          <span className="text-[10px] font-semibold bg-violet-500/10 text-violet-400 px-3 py-1 rounded-full uppercase tracking-[2px]">
             {premiumType === "free" ? "Grátis" : premiumType}
           </span>
         </div>
 
-        <div className="rounded-[1.5rem] border border-border/80 bg-card p-5 flex items-center justify-between">
+        <div className="rounded-[14px] border border-border/80 bg-card p-5 flex items-center justify-between">
           <div className="space-y-0.5">
-            <span className="text-xs text-muted-foreground font-bold">Contadores Ativos</span>
-            <p className="text-sm font-black text-foreground">
+            <span className="text-xs text-muted-foreground font-semibold">Contadores Ativos</span>
+            <p className="text-sm font-semibold text-foreground">
               {activeCount} <span className="text-muted-foreground text-xs font-medium">/ {limit === Infinity ? "Ilimitados" : limit}</span>
             </p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-violet-600/10 flex items-center justify-center font-bold text-violet-400">
+          <div className="w-10 h-10 rounded-[10px] bg-violet-600/10 flex items-center justify-center font-bold text-violet-400">
             {activeCount}
           </div>
         </div>
@@ -415,14 +414,14 @@ export default function MemberCounterPage({
 
       {/* Limit Alert Warning Banner */}
       {premiumType === "free" && limitReached && (
-        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 flex items-center justify-between gap-4">
+        <div className="rounded-[14px] border border-amber-500/20 bg-amber-500/5 p-4 flex items-center justify-between gap-4">
           <div className="space-y-1">
-            <h4 className="text-xs font-black text-foreground">Atingiu o Limite do Plano Grátis</h4>
+            <h4 className="text-xs font-semibold text-foreground">Atingiu o Limite do Plano Grátis</h4>
             <p className="text-[10px] text-muted-foreground">Você está utilizando os 3 contadores permitidos no plano Grátis. Faça upgrade para adicionar mais!</p>
           </div>
           <a
             href={`/dashboard/${guildId}/premium`}
-            className="flex-shrink-0 text-[10px] font-black uppercase bg-violet-600 text-white px-3 py-2 rounded-lg hover:bg-violet-700 transition-colors"
+            className="flex-shrink-0 text-[10px] font-semibold uppercase bg-violet-600 text-white px-3 py-2 rounded-lg hover:bg-violet-700 transition-colors"
           >
             Ver Planos
           </a>
@@ -430,9 +429,9 @@ export default function MemberCounterPage({
       )}
 
       {/* Channels List Table (Image 2 mockup style) */}
-      <div className="rounded-[2.5rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm">
+      <div className="rounded-[14px] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm">
         <div className="space-y-1">
-          <h3 className="text-lg font-black text-foreground">Canais do servidor com tópico</h3>
+          <h3 className="text-[15px] font-semibold text-foreground">Canais do servidor com tópico</h3>
           <p className="text-xs text-muted-foreground">{channels.length} canais elegíveis encontrados.</p>
         </div>
 
@@ -446,12 +445,12 @@ export default function MemberCounterPage({
                 <div key={ch.id} className="py-4 flex items-center justify-between gap-4 group">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground font-black">#</span>
-                      <span className="text-sm font-bold text-foreground group-hover:text-violet-400 transition-colors">
+                      <span className="text-muted-foreground font-semibold">#</span>
+                      <span className="text-sm font-semibold text-foreground group-hover:text-violet-400 transition-colors">
                         {ch.name}
                       </span>
                       {conf.enabled && (
-                        <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">
+                        <span className="text-[9px] font-semibold uppercase tracking-[2px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">
                           Ativo
                         </span>
                       )}
@@ -465,7 +464,7 @@ export default function MemberCounterPage({
 
                   <Button
                     onClick={() => setActiveChannelId(ch.id)}
-                    className="h-10 rounded-xl px-4 text-xs font-bold bg-secondary hover:bg-violet-600 hover:text-white text-foreground transition-all"
+                    className="h-9 rounded-full border border-border bg-card px-4 text-[13px] font-semibold text-foreground hover:bg-secondary"
                   >
                     <Edit2 className="mr-1.5 h-3.5 w-3.5" />
                     Editar
