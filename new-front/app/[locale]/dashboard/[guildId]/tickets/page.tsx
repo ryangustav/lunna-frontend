@@ -5,6 +5,7 @@ import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Switch } from "@/components/ui/switch"
 import { PageHeader, Section, Field, PrimaryButton, SecondaryButton, Pill, LoadingState, ErrorState } from "@/components/dashboard/primitives"
+import { PanelBuilder, defaultLayout, panelLimits, type Block, type ButtonColor, type PanelConfig } from "@/components/dashboard/ticket-panel-builder"
 
 type Category = {
   id: string
@@ -15,6 +16,7 @@ type Category = {
   parent_id: string | null
   ask_reason: boolean
   welcome_message: string
+  button_style: ButtonColor
 }
 
 type Tickets = {
@@ -24,6 +26,10 @@ type Tickets = {
   title: string
   description: string
   color: number
+  accent: boolean
+  style: "buttons" | "menu" | "auto"
+  menu_placeholder: string
+  layout: Block[]
   max_open_per_user: number
   categories: Category[]
 }
@@ -33,17 +39,17 @@ type Status = "published" | "pending" | "error" | "disabled"
 const DEFAULTS: Tickets = {
   enabled: false, panel_channel_id: null, log_channel_id: null, title: "Suporte",
   description: "Precisa de ajuda? Escolha um assunto abaixo e a equipe responde no seu ticket.",
-  color: 0x7c3aed, max_open_per_user: 1, categories: [],
+  color: 0x7c3aed, accent: true, style: "buttons", menu_placeholder: "Escolha o assunto do ticket", layout: [],
+  max_open_per_user: 1, categories: [],
 }
 
 const newCategory = (): Category => ({
   id: Math.random().toString(36).slice(2, 10), name: "", emoji: "🎫", description: "",
-  staff_role_ids: [], parent_id: null, ask_reason: true, welcome_message: "",
+  staff_role_ids: [], parent_id: null, ask_reason: true, welcome_message: "", button_style: "primary",
 })
 
 const inputCls = "h-10 w-full rounded-[10px] border border-border bg-background px-3 text-[14px] text-foreground outline-none focus:border-[#7c3aed]/60"
 const chip = "rounded-full border border-border bg-secondary px-3 py-1 text-[12px] text-foreground hover:border-foreground/30"
-const hex = (n: number) => `#${n.toString(16).padStart(6, "0")}`
 
 export default function TicketsPage({ params }: { params: Promise<{ guildId: string }> }) {
   const { guildId } = use(params)
@@ -61,7 +67,9 @@ export default function TicketsPage({ params }: { params: Promise<{ guildId: str
   const poll = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const apply = (data: any) => {
-    setCfg({ ...DEFAULTS, ...(data?.config || {}) })
+    const next: Tickets = { ...DEFAULTS, ...(data?.config || {}) }
+    if (!next.layout?.length) next.layout = defaultLayout(next.title, next.description)
+    setCfg(next)
     setStatus(data?.status || "disabled")
     setPublishError(data?.publish_error || null)
     setStats(data?.stats || { open: 0, closed: 0, total: 0 })
@@ -107,6 +115,10 @@ export default function TicketsPage({ params }: { params: Promise<{ guildId: str
   const save = async () => {
     if (cfg.enabled && !cfg.panel_channel_id) return toast({ title: "Escolha o canal do painel", variant: "destructive" })
     if (cfg.enabled && !cfg.categories.some((c) => c.name.trim())) return toast({ title: "Crie pelo menos uma categoria", variant: "destructive" })
+    const limits = panelLimits(cfg, cfg.categories.filter((c) => c.name.trim()))
+    if (limits.components > 40 || limits.chars > 4000) {
+      return toast({ title: "O painel passou do limite do Discord", description: "Máximo de 40 componentes e 4000 caracteres. Remova alguns blocos.", variant: "destructive" })
+    }
     setSaving(true)
     try {
       const res = await api.updateTickets(guildId, cfg)
@@ -152,52 +164,25 @@ export default function TicketsPage({ params }: { params: Promise<{ guildId: str
         )}
       </Section>
 
-      <Section title="Painel" description="A mensagem com os botões para abrir tickets.">
-        <div className="grid gap-4 sm:grid-cols-2">
+      <Section title="Painel" description="Monte a mensagem do painel com blocos: arraste para reordenar, clique num bloco para editar. A prévia mostra como fica no Discord.">
+        <div className="mb-5 grid gap-4 sm:grid-cols-2">
           <Field label="Canal do painel">
             <select className={inputCls} value={cfg.panel_channel_id || ""} onChange={(e) => set("panel_channel_id", e.target.value || null)}>
               <option value="">Escolha um canal</option>
               {textChannels.map((c) => <option key={c.id} value={c.id}>#{c.name}</option>)}
             </select>
           </Field>
-          <Field label="Título">
-            <input maxLength={100} className={inputCls} value={cfg.title} onChange={(e) => set("title", e.target.value)} />
-          </Field>
-          <div className="sm:col-span-2">
-            <Field label="Descrição">
-              <textarea rows={3} maxLength={2000} className={`${inputCls} h-auto py-2`} value={cfg.description} onChange={(e) => set("description", e.target.value)} />
-            </Field>
-          </div>
-          <Field label="Cor">
-            <input type="color" className="h-10 w-20 cursor-pointer rounded-[10px] border border-border bg-background" value={hex(cfg.color)}
-              onChange={(e) => set("color", parseInt(e.target.value.slice(1), 16))} />
-          </Field>
         </div>
-
-        {/* Preview */}
-        <div className="mt-5 rounded-[12px] border border-border bg-[#2b2d31] p-4">
-          <div className="border-l-4 pl-4" style={{ borderColor: hex(cfg.color) }}>
-            <p className="text-[16px] font-semibold text-white">🎫 {cfg.title || "Suporte"}</p>
-            <p className="mt-1 whitespace-pre-wrap text-[14px] text-[#dbdee1]">{cfg.description}</p>
-            {named.some((c) => c.description) && (
-              <div className="mt-3 border-t border-white/10 pt-3 text-[13px] text-[#dbdee1]">
-                {named.filter((c) => c.description).map((c) => <p key={c.id}>{c.emoji || "🎫"} <b>{c.name}</b> — {c.description}</p>)}
-              </div>
-            )}
-            <div className="mt-3 flex flex-wrap gap-2">
-              {named.length === 0 && <p className="text-[13px] italic text-[#949ba4]">Nenhuma categoria configurada ainda.</p>}
-              {named.length > 0 && named.length <= 5 && named.map((c) => (
-                <span key={c.id} className="rounded-[4px] bg-[#5865f2] px-4 py-1.5 text-[14px] text-white">{c.emoji} {c.name}</span>
-              ))}
-              {named.length > 5 && <span className="w-full rounded-[4px] bg-[#1e1f22] px-3 py-2 text-[14px] text-[#949ba4]">Escolha o assunto do ticket ▾</span>}
-            </div>
-          </div>
-        </div>
+        <PanelBuilder
+          value={{ color: cfg.color, accent: cfg.accent, style: cfg.style, menu_placeholder: cfg.menu_placeholder, layout: cfg.layout }}
+          cats={named}
+          onChange={(v: PanelConfig) => setCfg((c) => ({ ...c, ...v }))}
+        />
       </Section>
 
       <Section
         title="Categorias"
-        description="Cada categoria vira um botão (com mais de 5, um menu). Defina quem atende e onde os canais são criados."
+        description="Cada categoria vira um botão ou uma opção do menu. Defina quem atende e onde os canais são criados."
         action={cfg.categories.length < 25 && (
           <SecondaryButton onClick={() => { const c = newCategory(); set("categories", [...cfg.categories, c]); setOpen(c.id) }}>Adicionar</SecondaryButton>
         )}
@@ -219,6 +204,14 @@ export default function TicketsPage({ params }: { params: Promise<{ guildId: str
                   </Field>
                   <Field label="Emoji" hint="Um emoji, ou <:nome:id> de um emoji do servidor.">
                     <input maxLength={64} className={inputCls} value={cat.emoji} onChange={(e) => setCat(cat.id, { emoji: e.target.value })} />
+                  </Field>
+                  <Field label="Cor do botão" hint="Usada quando o painel abre por botões.">
+                    <select className={inputCls} value={cat.button_style || "primary"} onChange={(e) => setCat(cat.id, { button_style: e.target.value as ButtonColor })}>
+                      <option value="primary">Azul</option>
+                      <option value="secondary">Cinza</option>
+                      <option value="success">Verde</option>
+                      <option value="danger">Vermelho</option>
+                    </select>
                   </Field>
                   <div className="sm:col-span-2">
                     <Field label="Descrição curta" hint="Aparece no painel. Máx. 100 caracteres.">
