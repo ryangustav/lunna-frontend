@@ -8,6 +8,7 @@ import { routing } from "@/src/i18n/routing"
 import { notFound } from "next/navigation"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Footer } from "@/components/lunna/footer"
+import { NoticeBanner } from "@/components/lunna/notice-banner"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,6 +55,7 @@ export default async function LocaleLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <NextIntlClientProvider messages={messages}>
             <div className="relative flex min-h-screen flex-col">
+              <NoticeBanner />
               {children}
               <Footer />
             </div>
