@@ -86,7 +86,16 @@ export default function TrapChannelPage({
         }
       }
 
-      await api.updateGuildSettings(guildId, payload)
+      const res = await api.updateGuildSettings(guildId, payload)
+
+      if (res?.trap_channel_warning) {
+        toast({
+          title: "Configuração salva, mas o aviso não foi enviado",
+          description: res.trap_channel_warning,
+          variant: "destructive"
+        })
+        return
+      }
 
       toast({
         title: "Salvo com sucesso!",
