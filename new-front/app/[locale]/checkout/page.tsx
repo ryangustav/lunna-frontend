@@ -23,6 +23,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Link } from "@/src/i18n/routing";
 import { Navbar } from "@/components/lunna/navbar";
 import { API_URL } from "@/lib/api";
+import { guildPlan } from "@/lib/guild-premium";
 
 interface ItemDetails {
   name: string;
@@ -45,7 +46,8 @@ function CheckoutContent() {
   const locale = useLocale();
   
   const type = searchParams.get('type') || ''; // 'VIP' | 'COINS'
-  const itemId = searchParams.get('id') || ''; // tierId or packageId
+  const itemId = searchParams.get('id') || ''; // tierId, packageId or server plan (basico/completo)
+  const guildId = searchParams.get('guild') || ''; // only for GUILD_VIP
   
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -160,6 +162,15 @@ function CheckoutContent() {
           } else {
             throw new Error('Coins package not found');
           }
+        } else if (type === 'GUILD_VIP') {
+          const plan = guildPlan(itemId);
+          if (!plan || plan.key === 'free' || !guildId) throw new Error('Plano de servidor inválido.');
+          setItem({
+            name: `${plan.name} para Servidor`,
+            price: plan.price,
+            description: `${plan.days} dias de ${plan.name} para o servidor ${guildId}. Pagamento único, sem renovação automática.`,
+            benefits: plan.benefits
+          });
         } else {
           throw new Error('Invalid checkout type');
         }
@@ -319,6 +330,7 @@ function CheckoutContent() {
           body: JSON.stringify({
             type,
             itemId,
+            guildId: guildId || undefined,
             paymentMethod: 'pix',
             paymentData
           })
@@ -357,6 +369,7 @@ function CheckoutContent() {
           body: JSON.stringify({
             type,
             itemId,
+            guildId: guildId || undefined,
             paymentMethod: 'boleto',
             paymentData
           })
@@ -404,6 +417,7 @@ function CheckoutContent() {
             body: JSON.stringify({
               type,
               itemId,
+              guildId: guildId || undefined,
               paymentMethod: 'card',
               paymentData
             })

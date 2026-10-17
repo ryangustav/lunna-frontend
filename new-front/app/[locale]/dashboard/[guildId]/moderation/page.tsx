@@ -186,18 +186,18 @@ export default function ModerationPage({
           <div className="h-8 w-64 rounded bg-muted/60" />
           <div className="h-4 w-96 rounded bg-muted/40" />
         </div>
-        <div className="h-48 w-full rounded-3xl bg-muted/20 border border-border/50" />
+        <div className="h-48 w-full rounded-[14px] bg-muted/20 border border-border/50" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center rounded-3xl border border-destructive/20 bg-destructive/5 space-y-4">
-        <AlertTriangle className="h-12 w-12 text-destructive animate-bounce" />
-        <h3 className="text-xl font-bold text-foreground">Falha de Comunicação</h3>
+      <div className="flex flex-col items-center justify-center p-12 text-center rounded-[14px] border border-destructive/20 bg-destructive/5 space-y-4">
+        <AlertTriangle className="h-12 w-12 text-destructive" />
+        <h3 className="text-[15px] font-bold text-foreground">Falha de Comunicação</h3>
         <p className="text-sm text-muted-foreground max-w-md">{error}</p>
-        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-xl">
+        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full">
           Tentar Novamente
         </Button>
       </div>
@@ -222,14 +222,13 @@ export default function ModerationPage({
   }
 
   return (
-    <form onSubmit={handleSave} className="animate-in fade-in slide-in-from-bottom-4 space-y-8 duration-700">
+    <form onSubmit={handleSave} className="animate-in fade-in space-y-8 duration-300">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="flex items-center text-3xl font-black tracking-tight text-foreground">
-            <ShieldAlert className="mr-3 h-8 w-8 text-red-500" />
+          <h1 className="flex items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground">
             Defesas & Moderação
           </h1>
-          <p className="mt-2 text-muted-foreground">
+          <p className="mt-2 max-w-[560px] text-[14px] leading-[1.7] text-muted-foreground">
             Configure punições automáticas e notificações diretas no privado dos membros.
           </p>
         </div>
@@ -237,7 +236,7 @@ export default function ModerationPage({
         <Button
           type="submit"
           disabled={saving}
-          className="w-full sm:w-auto h-12 rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          className="w-full sm:w-auto h-10 rounded-full font-bold transition-all rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
         >
           <Save className="mr-2 h-4 w-4" />
           {saving ? "Salvando..." : "Salvar Configurações"}
@@ -249,11 +248,10 @@ export default function ModerationPage({
 
 
         {/* 2. Mensagens no Privado (DMs de Punição) */}
-        <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-violet-500/5 blur-2xl group-hover:bg-violet-500/10 transition-colors" />
+        <div className="rounded-[14px] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
 
           <div className="space-y-1">
-            <h2 className="text-xl font-black text-foreground flex items-center gap-2">
+            <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
               <Mail className="h-5 w-5 text-violet-400" />
               Notificações no Privado (DMs de Punição)
             </h2>
@@ -276,15 +274,11 @@ export default function ModerationPage({
                 <div
                   key={type}
                   onClick={() => setPunishmentDM({ ...punishmentDM, [type]: !isChecked })}
-                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer select-none ${
-                    isChecked 
-                      ? "bg-primary/10 border-primary/45 text-primary shadow-sm" 
-                      : "bg-secondary/15 border-border/40 text-foreground hover:bg-secondary/30"
-                  }`}
+                  className={`flex items-center justify-between p-4 rounded-[14px] border transition-all cursor-pointer select-none ${ isChecked ? "bg-[#7c3aed]/10 border-[#7c3aed]/45 text-primary shadow-sm" : "bg-secondary/15 border-border/40 text-foreground hover:bg-secondary/30" }`}
                 >
-                  <span className="text-xs font-bold capitalize">{label}</span>
-                  <div className={`h-4.5 w-4.5 rounded border flex items-center justify-center bg-background transition-colors ${isChecked ? "border-primary" : "border-muted-foreground/30"}`}>
-                    {isChecked && <div className="h-2.5 w-2.5 rounded-sm bg-primary" />}
+                  <span className="text-xs font-semibold capitalize">{label}</span>
+                  <div className={`h-4.5 w-4.5 rounded border flex items-center justify-center bg-background transition-colors ${isChecked ? "border-[#7c3aed]" : "border-muted-foreground/30"}`}>
+                    {isChecked && <div className="h-2.5 w-2.5 rounded-sm bg-[#7c3aed]" />}
                   </div>
                 </div>
               )
@@ -293,11 +287,10 @@ export default function ModerationPage({
         </div>
 
         {/* 3. Punições de Avisos (Warn Punishments) */}
-        <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-red-500/5 blur-2xl group-hover:bg-red-500/10 transition-colors" />
+        <div className="rounded-[14px] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
 
           <div className="space-y-1">
-            <h2 className="text-xl font-black text-foreground flex items-center gap-2">
+            <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-red-400" />
               Punições de Avisos
             </h2>
@@ -307,9 +300,9 @@ export default function ModerationPage({
           </div>
 
           {/* Rule Creator */}
-          <div className="flex flex-wrap gap-4 items-end bg-secondary/15 p-5 rounded-2xl border border-border/50 max-w-3xl">
+          <div className="flex flex-wrap gap-4 items-end bg-secondary/15 p-5 rounded-[14px] border border-border/50 max-w-3xl">
             <div className="space-y-1">
-              <span className="text-xs font-bold text-muted-foreground">Ao chegar em</span>
+              <span className="text-xs font-semibold text-muted-foreground">Ao chegar em</span>
               <div className="flex items-center gap-1.5">
                 <input
                   type="number"
@@ -317,18 +310,18 @@ export default function ModerationPage({
                   max={20}
                   value={newWarnCount}
                   onChange={(e) => setNewWarnCount(Math.max(1, Number(e.target.value)))}
-                  className="w-16 h-10 rounded-lg border border-border bg-background px-2 text-center text-sm font-bold outline-none"
+                  className="w-16 h-10 rounded-lg border border-border bg-background px-2 text-center text-sm font-semibold outline-none"
                 />
-                <span className="text-xs font-bold text-foreground">avisos</span>
+                <span className="text-xs font-semibold text-foreground">avisos</span>
               </div>
             </div>
 
             <div className="space-y-1">
-              <span className="text-xs font-bold text-muted-foreground">Aplicar Ação</span>
+              <span className="text-xs font-semibold text-muted-foreground">Aplicar Ação</span>
               <select
                 value={newWarnAction}
                 onChange={(e) => setNewWarnAction(e.target.value)}
-                className="h-10 rounded-lg border border-border bg-background px-3 text-xs font-bold outline-none cursor-pointer"
+                className="h-10 rounded-lg border border-border bg-background px-3 text-xs font-semibold outline-none cursor-pointer"
               >
                 <option value="mute">Silenciar (Mute)</option>
                 <option value="kick">Expulsar (Kick)</option>
@@ -338,13 +331,13 @@ export default function ModerationPage({
 
             {newWarnAction === "mute" && (
               <div className="space-y-1">
-                <span className="text-xs font-bold text-muted-foreground">Duração (Minutos)</span>
+                <span className="text-xs font-semibold text-muted-foreground">Duração (Minutos)</span>
                 <input
                   type="number"
                   min={5}
                   value={newWarnDuration}
                   onChange={(e) => setNewWarnDuration(Math.max(5, Number(e.target.value)))}
-                  className="w-24 h-10 rounded-lg border border-border bg-background px-2 text-center text-sm font-bold outline-none"
+                  className="w-24 h-10 rounded-lg border border-border bg-background px-2 text-center text-sm font-semibold outline-none"
                 />
               </div>
             )}
@@ -352,7 +345,7 @@ export default function ModerationPage({
             <button
               type="button"
               onClick={handleAddWarnRule}
-              className="h-10 rounded-lg bg-primary text-primary-foreground font-bold px-4 text-xs hover:bg-primary/95 flex items-center gap-1.5 transition active:scale-95"
+              className="h-10 rounded-lg bg-[#7c3aed] text-white font-semibold px-4 text-xs hover:bg-[#7c3aed]/95 flex items-center gap-1.5 transition"
             >
               <Plus className="h-3.5 w-3.5" />
               Adicionar Regra
@@ -361,10 +354,10 @@ export default function ModerationPage({
 
           {/* Rule List */}
           <div className="space-y-3 max-w-3xl">
-            <h4 className="text-sm font-bold text-foreground">Regras de Ações Automáticas Ativas</h4>
+            <h4 className="text-sm font-semibold text-foreground">Regras de Ações Automáticas Ativas</h4>
             
             {warnPunishments.length === 0 ? (
-              <p className="text-xs text-muted-foreground italic bg-secondary/10 p-4 rounded-xl border border-dashed text-center">
+              <p className="text-xs text-muted-foreground italic bg-secondary/10 p-4 rounded-[10px] border border-dashed text-center">
                 Nenhuma regra automática configurada. Usuários que receberem avisos acumularão avisos indefinidamente.
               </p>
             ) : (
@@ -372,15 +365,15 @@ export default function ModerationPage({
                 {warnPunishments.map((rule) => (
                   <div
                     key={rule.warn_count}
-                    className="flex justify-between items-center bg-secondary/20 p-4 rounded-xl border border-border/60 hover:bg-secondary/35 transition"
+                    className="flex justify-between items-center bg-secondary/20 p-4 rounded-[10px] border border-border/60 hover:bg-secondary/35 transition"
                   >
                     <span className="text-xs font-semibold text-foreground">
-                      Ao atingir <strong className="text-red-400 font-extrabold">{rule.warn_count}</strong> aviso(s), o usuário será punido com: <strong>{translateAction(rule.action, rule.duration).toUpperCase()}</strong>
+                      Ao atingir <strong className="text-red-400 font-semibold">{rule.warn_count}</strong> aviso(s), o usuário será punido com: <strong>{translateAction(rule.action, rule.duration).toUpperCase()}</strong>
                     </span>
                     <button
                       type="button"
                       onClick={() => handleRemoveWarnRule(rule.warn_count)}
-                      className="text-xs text-red-400 hover:text-red-500 font-bold flex items-center gap-1 transition p-1 hover:bg-red-500/5 rounded-lg"
+                      className="text-xs text-red-400 hover:text-red-500 font-semibold flex items-center gap-1 transition p-1 hover:bg-red-500/5 rounded-lg"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                       Remover

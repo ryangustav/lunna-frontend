@@ -356,10 +356,10 @@ export default function WelcomePage({
 
     const replaceMockPlaceholders = (str: string) => {
       return str
-        .replace(/{user_mention}/g, "@Aventureiro")
-        .replace(/{username}/g, "Aventureiro")
-        .replace(/{user_name}/g, "Aventureiro")
-        .replace(/{user_tag}/g, "Aventureiro#0000")
+        .replace(/{user_mention}/g, "@Novo membro")
+        .replace(/{username}/g, "Novo membro")
+        .replace(/{user_name}/g, "Novo membro")
+        .replace(/{user_tag}/g, "novo.membro")
         .replace(/{user_id}/g, "123456789012345678")
         .replace(/{server_name}/g, "Servidor Demo")
         .replace(/{guild_name}/g, "Servidor Demo")
@@ -376,7 +376,7 @@ export default function WelcomePage({
     drawText(titleText, welcomeBannerTitleX, welcomeBannerTitleY, `bold ${welcomeBannerTitleSize}px "${fontName}"`, '#e2e8f0', 700)
 
     // 4. Draw Username
-    drawText("Aventureiro", welcomeBannerNameX, welcomeBannerNameY, `bold ${welcomeBannerNameSize}px "${fontName}"`, '#ffffff', 700)
+    drawText("Novo membro", welcomeBannerNameX, welcomeBannerNameY, `bold ${welcomeBannerNameSize}px "${fontName}"`, '#ffffff', 700)
 
     // 5. Draw Subtitle
     const subText = replaceMockPlaceholders(welcomeBannerSubText)
@@ -410,18 +410,18 @@ export default function WelcomePage({
           <div className="h-8 w-64 rounded bg-muted/60" />
           <div className="h-4 w-96 rounded bg-muted/40" />
         </div>
-        <div className="h-48 w-full rounded-3xl bg-muted/20 border border-border/50" />
+        <div className="h-48 w-full rounded-[14px] bg-muted/20 border border-border/50" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center rounded-3xl border border-destructive/20 bg-destructive/5 space-y-4">
-        <AlertTriangle className="h-12 w-12 text-destructive animate-bounce" />
-        <h3 className="text-xl font-bold text-foreground">Falha de Comunicação</h3>
+      <div className="flex flex-col items-center justify-center p-12 text-center rounded-[14px] border border-destructive/20 bg-destructive/5 space-y-4">
+        <AlertTriangle className="h-12 w-12 text-destructive" />
+        <h3 className="text-[15px] font-bold text-foreground">Falha de Comunicação</h3>
         <p className="text-sm text-muted-foreground max-w-md">{error}</p>
-        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-xl">
+        <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full">
           Tentar Novamente
         </Button>
       </div>
@@ -429,7 +429,7 @@ export default function WelcomePage({
   }
 
   return (
-    <form onSubmit={handleSave} className="animate-in fade-in slide-in-from-bottom-4 space-y-8 duration-700">
+    <form onSubmit={handleSave} className="animate-in fade-in space-y-8 duration-300">
       {/* Inject custom local font-faces */}
       <style
         dangerouslySetInnerHTML={{
@@ -464,19 +464,18 @@ export default function WelcomePage({
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="flex items-center text-3xl font-black tracking-tight text-foreground">
-            <MessageSquare className="mr-3 h-8 w-8 text-primary" />
+          <h1 className="flex items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground">
             Mensagens de Entrada/Saída
           </h1>
-          <p className="mt-2 text-muted-foreground">
-            Gerencie e personalize como os aventureiros são recebidos ou lembrados no seu reino.
+          <p className="mt-2 max-w-[560px] text-[14px] leading-[1.7] text-muted-foreground">
+            Gerencie e personalize como os membros são recebidos e quando saem do servidor.
           </p>
         </div>
 
         <Button
           type="submit"
           disabled={saving}
-          className="w-full sm:w-auto h-12 rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          className="w-full sm:w-auto h-10 rounded-full font-bold transition-all rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
         >
           <Save className="mr-2 h-4 w-4" />
           {saving ? "Salvando..." : "Salvar Configurações"}
@@ -485,26 +484,25 @@ export default function WelcomePage({
 
       <div className="grid grid-cols-1 gap-8">
         {/* 1. Boas-vindas (Entrada) */}
-        <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-violet-500/5 blur-2xl group-hover:bg-violet-500/10 transition-colors" />
+        <div className="rounded-[14px] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
           
           <div className="space-y-1">
-            <h2 className="text-xl font-black text-foreground flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400 text-sm font-bold">1</span>
+            <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-violet-500/10 text-violet-400 text-sm font-semibold">1</span>
               Mensagem de Boas-vindas (Entrada)
             </h2>
             <p className="text-sm text-muted-foreground">
-              Configure como a Lunna cumprimentará os novos membros que entrarem no reino. (Você pode deixar a mensagem vazia caso queira enviar apenas o banner por imagem!)
+              Configure como a Lunna cumprimentará os novos membros que entrarem no servidor. (Você pode deixar a mensagem vazia caso queira enviar apenas o banner por imagem!)
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-bold text-foreground">Canal de Envio</label>
+              <label className="text-sm font-semibold text-foreground">Canal de Envio</label>
               <select
                 value={welcomeChannel}
                 onChange={(e) => setWelcomeChannel(e.target.value)}
-                className="w-full h-12 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                className="w-full h-12 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
               >
                 <option value="" className="bg-card text-muted-foreground">Desativado (Não enviar)</option>
                 {channels.map((ch) => (
@@ -516,11 +514,11 @@ export default function WelcomePage({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-bold text-foreground">Auto-deletar Mensagem</label>
+              <label className="text-sm font-semibold text-foreground">Auto-deletar Mensagem</label>
               <select
                 value={welcomeDeleteTime}
                 onChange={(e) => setWelcomeDeleteTime(Number(e.target.value))}
-                className="w-full h-12 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                className="w-full h-12 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
               >
                 <option value={0} className="bg-card text-foreground">Nunca apagar (Manter no histórico)</option>
                 <option value={5} className="bg-card text-foreground">Apagar após 5 segundos</option>
@@ -534,7 +532,7 @@ export default function WelcomePage({
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="text-sm font-bold text-foreground">Mensagem de Boas-vindas</label>
+              <label className="text-sm font-semibold text-foreground">Mensagem de Boas-vindas</label>
               <span className="text-xs text-muted-foreground font-medium">Suporta Markdown do Discord</span>
             </div>
             <textarea
@@ -544,19 +542,19 @@ export default function WelcomePage({
               disabled={!welcomeChannel}
               rows={4}
               placeholder="Deixe em branco para desativar a mensagem textual e manter apenas o banner de imagem..."
-              className="w-full rounded-2xl border border-border bg-secondary/30 px-4 py-3 text-sm font-medium text-foreground outline-none transition focus:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed resize-none"
+              className="w-full rounded-[14px] border border-border bg-secondary/30 px-4 py-3 text-sm font-medium text-foreground outline-none transition focus:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed resize-none"
             />
             
             {welcomeChannel && (
-              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                <span className="text-xs font-bold text-muted-foreground">Variáveis Disponíveis (Clique para inserir):</span>
+              <div className="space-y-2 animate-in fade-in duration-300">
+                <span className="text-xs font-semibold text-muted-foreground">Variáveis Disponíveis (Clique para inserir):</span>
                 <div className="flex flex-wrap gap-2">
                   {["{user_mention}", "{username}", "{user_name}", "{user_tag}", "{user_id}", "{server_name}", "{guild_name}", "{total_members}", "{member_count}", "{member_count_ordinal}", "{inviter_mention}", "{inviter_name}", "{inviter_tag}", "{inviter_id}"].map((variable) => (
                     <button
                       key={variable}
                       type="button"
                       onClick={() => insertVariable(welcomeTextareaRef, variable, welcomeMsg, setWelcomeMsg)}
-                      className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer animate-in fade-in duration-200"
+                      className="rounded-lg bg-[#7c3aed]/10 border border-[#7c3aed]/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-[#7c3aed]/20 transition-all cursor-pointer animate-in fade-in duration-200"
                     >
                       {variable}
                     </button>
@@ -568,13 +566,12 @@ export default function WelcomePage({
         </div>
 
         {/* 2. Banner de Boas-vindas por Imagem */}
-        <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-indigo-500/5 blur-2xl group-hover:bg-indigo-500/10 transition-colors" />
+        <div className="rounded-[14px] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
           
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="space-y-1">
-              <h2 className="text-xl font-black text-foreground flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400 text-sm font-bold">2</span>
+              <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-indigo-500/10 text-indigo-400 text-sm font-semibold">2</span>
                 Banner de Boas-vindas por Imagem
               </h2>
               <p className="text-sm text-muted-foreground">
@@ -583,7 +580,7 @@ export default function WelcomePage({
             </div>
 
             <div className="flex items-center gap-3">
-              <label className="text-sm font-bold text-foreground cursor-pointer select-none" htmlFor="banner-toggle">
+              <label className="text-sm font-semibold text-foreground cursor-pointer select-none" htmlFor="banner-toggle">
                 Habilitar Banner
               </label>
               <input
@@ -591,58 +588,28 @@ export default function WelcomePage({
                 type="checkbox"
                 checked={welcomeBannerEnabled}
                 onChange={(e) => setWelcomeBannerEnabled(e.target.checked)}
-                className="h-6 w-11 rounded-full appearance-none bg-muted checked:bg-primary transition-all relative cursor-pointer before:content-[''] before:absolute before:h-4 before:w-4 before:rounded-full before:bg-background before:top-1 before:left-1 checked:before:translate-x-5 before:transition-all"
+                className="h-6 w-11 rounded-full appearance-none bg-muted checked:bg-[#7c3aed] transition-all relative cursor-pointer before:content-[''] before:absolute before:h-4 before:w-4 before:rounded-full before:bg-white before:top-1 before:left-1 checked:before:translate-x-5 before:transition-all"
               />
             </div>
           </div>
 
           {welcomeBannerEnabled && (
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 animate-in fade-in duration-300">
               {/* Canvas Preview Column */}
               <div className="xl:col-span-7 space-y-4">
-                <label className="text-sm font-bold text-foreground flex items-center justify-between">
+                <label className="text-sm font-semibold text-foreground flex items-center justify-between">
                   <span>Pré-visualização do Banner (800x400)</span>
                   <span className="text-xs text-muted-foreground">Arraste os controles ao lado para ajustar posições</span>
                 </label>
-                <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-secondary/5 p-2 shadow-inner">
+                <div className="relative overflow-hidden rounded-[14px] border border-border/80 bg-secondary/5 p-2">
                   <canvas
                     ref={canvasRef}
                     width={800}
                     height={400}
-                    className="w-full max-w-full aspect-[2/1] rounded-xl bg-slate-950 border border-slate-900 shadow-lg object-contain"
+                    className="w-full max-w-full aspect-[2/1] rounded-[10px] bg-slate-950 border border-slate-900 object-contain"
                   />
                 </div>
                 
-                {/* Dynamic premium layout features locks */}
-                <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-5 relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 bg-purple-500/10 px-3 py-1 rounded-bl-xl flex items-center gap-1">
-                    <Crown className="h-3.5 w-3.5 text-purple-400" />
-                    <span className="text-[10px] font-black text-purple-300">PREMIUM</span>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <Lock className="h-8 w-8 text-purple-400 mt-0.5 flex-shrink-0" />
-                    <div className="space-y-3 w-full">
-                      <div>
-                        <h4 className="text-sm font-bold text-foreground">Template de Layout do Banner</h4>
-                        <p className="text-xs text-muted-foreground">Escolha a organização dos textos e formatos para destacar o seu servidor.</p>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <button type="button" className="h-10 text-xs font-semibold rounded-lg bg-secondary/80 border border-border/50 text-foreground cursor-default text-left px-3">
-                          Clássico Centro (Ativo)
-                        </button>
-                        <button type="button" disabled className="h-10 text-xs font-semibold rounded-lg bg-secondary/20 border border-purple-500/15 text-muted-foreground/50 cursor-not-allowed flex items-center justify-between px-3">
-                          <span>Esquerda Moderno</span>
-                          <Lock className="h-3 w-3 text-purple-400" />
-                        </button>
-                        <button type="button" disabled className="h-10 text-xs font-semibold rounded-lg bg-secondary/20 border border-purple-500/15 text-muted-foreground/50 cursor-not-allowed flex items-center justify-between px-3">
-                          <span>Compacto Slim</span>
-                          <Lock className="h-3 w-3 text-purple-400" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
                 <p className="text-xs text-muted-foreground text-center">
                   * A imagem real gerada pelo bot usará a foto de perfil do novo membro.
@@ -653,7 +620,7 @@ export default function WelcomePage({
               <div className="xl:col-span-5 space-y-6">
                 {/* Background settings */}
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <ImageIcon className="h-4 w-4 text-indigo-400" />
                     <span>URL da Imagem de Fundo (Opcional)</span>
                   </label>
@@ -662,20 +629,20 @@ export default function WelcomePage({
                     value={welcomeBannerBackground}
                     onChange={(e) => setWelcomeBannerBackground(e.target.value)}
                     placeholder="https://exemplo.com/fundo.png (deixe vazio para gradiente premium)"
-                    className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                    className="w-full h-11 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   />
                 </div>
 
                 {/* Font selector settings */}
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <Type className="h-4 w-4 text-indigo-400" />
                     <span>Fonte do Texto (Text Font)</span>
                   </label>
                   <select
                     value={welcomeBannerFont}
                     onChange={(e) => setWelcomeBannerFont(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                    className="w-full h-11 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
                     <option value="Uni Sans">Uni Sans (Padrão Lunna)</option>
                     <option value="Montserrat">Moderno Bold (Montserrat)</option>
@@ -685,19 +652,15 @@ export default function WelcomePage({
                 </div>
 
                 {/* Tab layout for customization categories */}
-                <div className="space-y-4 rounded-2xl border border-border/60 bg-secondary/10 p-4">
+                <div className="space-y-4 rounded-[14px] border border-border/60 bg-secondary/10 p-4">
                   {/* Category selector */}
-                  <div className="grid grid-cols-4 gap-1 bg-secondary/30 p-1 rounded-xl">
+                  <div className="grid grid-cols-4 gap-1 bg-secondary/30 p-1 rounded-[10px]">
                     {["avatar", "titulo", "nome", "sub"].map((cat) => (
                       <button
                         key={cat}
                         type="button"
                         onClick={() => setActiveTab(cat)}
-                        className={`py-1.5 text-xs font-bold rounded-lg capitalize transition-all ${
-                          activeTab === cat
-                            ? "bg-card text-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
+                        className={`py-1.5 text-xs font-semibold rounded-lg capitalize transition-all ${ activeTab === cat ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground" }`}
                       >
                         {cat === "sub" ? "Subtítulo" : cat === "titulo" ? "Título" : cat}
                       </button>
@@ -708,7 +671,7 @@ export default function WelcomePage({
                   {activeTab === "avatar" && (
                     <div className="space-y-4 animate-in fade-in duration-300">
                       <div className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold text-foreground">
+                        <div className="flex justify-between text-xs font-semibold text-foreground">
                           <span>Posição X</span>
                           <span className="text-primary">{welcomeBannerAvatarX}px</span>
                         </div>
@@ -718,12 +681,12 @@ export default function WelcomePage({
                           max={800}
                           value={welcomeBannerAvatarX}
                           onChange={(e) => setWelcomeBannerAvatarX(Number(e.target.value))}
-                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-[#7c3aed]"
                         />
                       </div>
 
                       <div className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold text-foreground">
+                        <div className="flex justify-between text-xs font-semibold text-foreground">
                           <span>Posição Y</span>
                           <span className="text-primary">{welcomeBannerAvatarY}px</span>
                         </div>
@@ -733,12 +696,12 @@ export default function WelcomePage({
                           max={400}
                           value={welcomeBannerAvatarY}
                           onChange={(e) => setWelcomeBannerAvatarY(Number(e.target.value))}
-                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-[#7c3aed]"
                         />
                       </div>
 
                       <div className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold text-foreground">
+                        <div className="flex justify-between text-xs font-semibold text-foreground">
                           <span>Tamanho do Avatar</span>
                           <span className="text-primary">{welcomeBannerAvatarSize}px</span>
                         </div>
@@ -748,50 +711,17 @@ export default function WelcomePage({
                           max={240}
                           value={welcomeBannerAvatarSize}
                           onChange={(e) => setWelcomeBannerAvatarSize(Number(e.target.value))}
-                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-[#7c3aed]"
                         />
                       </div>
 
-                      {/* Premium locks for Avatar formatting */}
-                      <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 p-4 space-y-3 relative overflow-hidden">
-                        <div className="flex items-center gap-2">
-                          <Crown className="h-4 w-4 text-purple-400" />
-                          <span className="text-xs font-bold text-purple-300">Customização Premium do Avatar</span>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-3 text-left">
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1">
-                              <span>Formato</span>
-                              <Lock className="h-2.5 w-2.5 text-purple-400" />
-                            </label>
-                            <select disabled className="w-full h-9 rounded-lg border border-purple-500/10 bg-secondary/40 px-2 text-xs font-semibold text-muted-foreground/60 cursor-not-allowed">
-                              <option>Círculo (Grátis)</option>
-                              <option>Quadrado [Premium]</option>
-                              <option>Hexágono [Premium]</option>
-                            </select>
-                          </div>
-                          
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-1">
-                              <span>Estilo de Borda</span>
-                              <Lock className="h-2.5 w-2.5 text-purple-400" />
-                            </label>
-                            <select disabled className="w-full h-9 rounded-lg border border-purple-500/10 bg-secondary/40 px-2 text-xs font-semibold text-muted-foreground/60 cursor-not-allowed">
-                              <option>Branca Simples (Grátis)</option>
-                              <option>Neon Glow [Premium]</option>
-                              <option>Borda Dupla [Premium]</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
                     </div>
                   )}
 
                   {activeTab === "titulo" && (
                     <div className="space-y-4 animate-in fade-in duration-300">
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-foreground">Texto do Título</label>
+                        <label className="text-xs font-semibold text-foreground">Texto do Título</label>
                         <input
                           type="text"
                           value={welcomeBannerTitleText}
@@ -802,7 +732,7 @@ export default function WelcomePage({
                       </div>
 
                       <div className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold text-foreground">
+                        <div className="flex justify-between text-xs font-semibold text-foreground">
                           <span>Posição X</span>
                           <span className="text-primary">{welcomeBannerTitleX}px</span>
                         </div>
@@ -812,12 +742,12 @@ export default function WelcomePage({
                           max={800}
                           value={welcomeBannerTitleX}
                           onChange={(e) => setWelcomeBannerTitleX(Number(e.target.value))}
-                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-[#7c3aed]"
                         />
                       </div>
 
                       <div className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold text-foreground">
+                        <div className="flex justify-between text-xs font-semibold text-foreground">
                           <span>Posição Y</span>
                           <span className="text-primary">{welcomeBannerTitleY}px</span>
                         </div>
@@ -827,13 +757,13 @@ export default function WelcomePage({
                           max={400}
                           value={welcomeBannerTitleY}
                           onChange={(e) => setWelcomeBannerTitleY(Number(e.target.value))}
-                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-[#7c3aed]"
                         />
                       </div>
 
                       {/* Font Size Selector */}
                       <div className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold text-foreground">
+                        <div className="flex justify-between text-xs font-semibold text-foreground">
                           <span>Tamanho da Fonte (Título)</span>
                           <span className="text-primary">{welcomeBannerTitleSize}px</span>
                         </div>
@@ -843,7 +773,7 @@ export default function WelcomePage({
                           max={60}
                           value={welcomeBannerTitleSize}
                           onChange={(e) => setWelcomeBannerTitleSize(Number(e.target.value))}
-                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-[#7c3aed]"
                         />
                       </div>
                     </div>
@@ -856,7 +786,7 @@ export default function WelcomePage({
                       </p>
 
                       <div className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold text-foreground">
+                        <div className="flex justify-between text-xs font-semibold text-foreground">
                           <span>Posição X</span>
                           <span className="text-primary">{welcomeBannerNameX}px</span>
                         </div>
@@ -866,12 +796,12 @@ export default function WelcomePage({
                           max={800}
                           value={welcomeBannerNameX}
                           onChange={(e) => setWelcomeBannerNameX(Number(e.target.value))}
-                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-[#7c3aed]"
                         />
                       </div>
 
                       <div className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold text-foreground">
+                        <div className="flex justify-between text-xs font-semibold text-foreground">
                           <span>Posição Y</span>
                           <span className="text-primary">{welcomeBannerNameY}px</span>
                         </div>
@@ -881,13 +811,13 @@ export default function WelcomePage({
                           max={400}
                           value={welcomeBannerNameY}
                           onChange={(e) => setWelcomeBannerNameY(Number(e.target.value))}
-                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-[#7c3aed]"
                         />
                       </div>
 
                       {/* Font Size Selector */}
                       <div className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold text-foreground">
+                        <div className="flex justify-between text-xs font-semibold text-foreground">
                           <span>Tamanho da Fonte (Nome)</span>
                           <span className="text-primary">{welcomeBannerNameSize}px</span>
                         </div>
@@ -897,7 +827,7 @@ export default function WelcomePage({
                           max={60}
                           value={welcomeBannerNameSize}
                           onChange={(e) => setWelcomeBannerNameSize(Number(e.target.value))}
-                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-[#7c3aed]"
                         />
                       </div>
                     </div>
@@ -906,7 +836,7 @@ export default function WelcomePage({
                   {activeTab === "sub" && (
                     <div className="space-y-4 animate-in fade-in duration-300">
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-foreground">Texto do Subtítulo</label>
+                        <label className="text-xs font-semibold text-foreground">Texto do Subtítulo</label>
                         <input
                           type="text"
                           value={welcomeBannerSubText}
@@ -917,7 +847,7 @@ export default function WelcomePage({
                       </div>
 
                       <div className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold text-foreground">
+                        <div className="flex justify-between text-xs font-semibold text-foreground">
                           <span>Posição X</span>
                           <span className="text-primary">{welcomeBannerSubX}px</span>
                         </div>
@@ -927,12 +857,12 @@ export default function WelcomePage({
                           max={800}
                           value={welcomeBannerSubX}
                           onChange={(e) => setWelcomeBannerSubX(Number(e.target.value))}
-                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-[#7c3aed]"
                         />
                       </div>
 
                       <div className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold text-foreground">
+                        <div className="flex justify-between text-xs font-semibold text-foreground">
                           <span>Posição Y</span>
                           <span className="text-primary">{welcomeBannerSubY}px</span>
                         </div>
@@ -942,13 +872,13 @@ export default function WelcomePage({
                           max={400}
                           value={welcomeBannerSubY}
                           onChange={(e) => setWelcomeBannerSubY(Number(e.target.value))}
-                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-[#7c3aed]"
                         />
                       </div>
 
                       {/* Font Size Selector */}
                       <div className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold text-foreground">
+                        <div className="flex justify-between text-xs font-semibold text-foreground">
                           <span>Tamanho da Fonte (Subtítulo)</span>
                           <span className="text-primary">{welcomeBannerSubSize}px</span>
                         </div>
@@ -958,7 +888,7 @@ export default function WelcomePage({
                           max={60}
                           value={welcomeBannerSubSize}
                           onChange={(e) => setWelcomeBannerSubSize(Number(e.target.value))}
-                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                          className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-[#7c3aed]"
                         />
                       </div>
                     </div>
@@ -970,26 +900,25 @@ export default function WelcomePage({
         </div>
 
         {/* 3. Despedida (Saída) */}
-        <div className="rounded-[2rem] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 -z-10 h-32 w-32 rounded-full bg-red-500/5 blur-2xl group-hover:bg-red-500/10 transition-colors" />
+        <div className="rounded-[14px] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
           
           <div className="space-y-1">
-            <h2 className="text-xl font-black text-foreground flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-500/10 text-red-400 text-sm font-bold">3</span>
+            <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-red-500/10 text-red-400 text-sm font-semibold">3</span>
               Mensagem de Despedida (Saída)
             </h2>
             <p className="text-sm text-muted-foreground">
-              Configure a notificação de quando um aventureiro decide deixar o reino.
+              Configure a notificação de quando um membro sai do servidor.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-bold text-foreground">Canal de Envio</label>
+              <label className="text-sm font-semibold text-foreground">Canal de Envio</label>
               <select
                 value={leaveChannel}
                 onChange={(e) => setLeaveChannel(e.target.value)}
-                className="w-full h-12 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                className="w-full h-12 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
               >
                 <option value="" className="bg-card text-muted-foreground">Desativado (Não enviar)</option>
                 {channels.map((ch) => (
@@ -1001,11 +930,11 @@ export default function WelcomePage({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-bold text-foreground">Auto-deletar Mensagem</label>
+              <label className="text-sm font-semibold text-foreground">Auto-deletar Mensagem</label>
               <select
                 value={leaveDeleteTime}
                 onChange={(e) => setLeaveDeleteTime(Number(e.target.value))}
-                className="w-full h-12 rounded-xl border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
+                className="w-full h-12 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
               >
                 <option value={0} className="bg-card text-foreground">Nunca apagar (Manter no histórico)</option>
                 <option value={5} className="bg-card text-foreground">Apagar após 5 segundos</option>
@@ -1019,7 +948,7 @@ export default function WelcomePage({
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="text-sm font-bold text-foreground">Mensagem de Despedida</label>
+              <label className="text-sm font-semibold text-foreground">Mensagem de Despedida</label>
               <span className="text-xs text-muted-foreground font-medium">Suporta Markdown do Discord</span>
             </div>
             <textarea
@@ -1029,19 +958,19 @@ export default function WelcomePage({
               disabled={!leaveChannel}
               rows={4}
               placeholder="Digite a mensagem de despedida..."
-              className="w-full rounded-2xl border border-border bg-secondary/30 px-4 py-3 text-sm font-medium text-foreground outline-none transition focus:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed resize-none"
+              className="w-full rounded-[14px] border border-border bg-secondary/30 px-4 py-3 text-sm font-medium text-foreground outline-none transition focus:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed resize-none"
             />
             
             {leaveChannel && (
-              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                <span className="text-xs font-bold text-muted-foreground">Variáveis Disponíveis (Clique para inserir):</span>
+              <div className="space-y-2 animate-in fade-in duration-300">
+                <span className="text-xs font-semibold text-muted-foreground">Variáveis Disponíveis (Clique para inserir):</span>
                 <div className="flex flex-wrap gap-2">
                   {["{user_mention}", "{username}", "{user_name}", "{user_tag}", "{user_id}", "{server_name}", "{guild_name}", "{total_members}", "{member_count}", "{member_count_ordinal}", "{inviter_mention}", "{inviter_name}", "{inviter_tag}", "{inviter_id}"].map((variable) => (
                     <button
                       key={variable}
                       type="button"
                       onClick={() => insertVariable(leaveTextareaRef, variable, leaveMsg, setLeaveMsg)}
-                      className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all cursor-pointer animate-in fade-in duration-200"
+                      className="rounded-lg bg-[#7c3aed]/10 border border-[#7c3aed]/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-[#7c3aed]/20 transition-all cursor-pointer animate-in fade-in duration-200"
                     >
                       {variable}
                     </button>
