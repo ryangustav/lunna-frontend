@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useTranslations } from "next-intl"
 import { Link } from "@/src/i18n/routing"
 import { Button } from "@/components/ui/button"
-import { Menu, Moon, Sun, LayoutDashboard, LogOut, ChevronDown, Crown, Coins, Gift, Ticket } from "lucide-react"
+import { Menu, Moon, Sun, LayoutDashboard, LogOut, ChevronDown, Crown, Coins, Gift, Ticket, ShieldCheck } from "lucide-react"
 import { useTheme } from "next-themes"
 import {
   Sheet,
@@ -35,6 +35,9 @@ export function Navbar() {
 
   const loginUrl =
     "https://discord.com/oauth2/authorize?client_id=1222333304028659792&response_type=code&redirect_uri=https%3A%2F%2Fapi.lunnabot.fun%2Fv1%2Fauth%2Fdiscord%2Fcallback&scope=guilds+email+identify"
+
+  // the backend decides; this only shows the menu entry
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -83,6 +86,9 @@ export function Navbar() {
             setIsAuthenticated(true)
             setUser(data.data) // Assuming user object is inside data.data
           }
+          const adminRes = await fetch(`${apiBase}/admin/me`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" }).catch(() => null)
+          const adminData = adminRes?.ok ? await adminRes.json().catch(() => null) : null
+          if (active) setIsAdmin(adminData?.data?.isAdmin === true)
         } else {
           if (active) {
             setIsAuthenticated(false)
@@ -203,6 +209,14 @@ export function Navbar() {
                       <span className="font-medium">{t("redeem")}</span>
                     </Link>
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem asChild className="cursor-pointer gap-2 rounded-lg p-2.5">
+                      <Link href="/admin">
+                        <ShieldCheck className="h-4 w-4 text-[#7c3aed]" />
+                        <span>Administração</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem asChild className="cursor-pointer gap-2 rounded-lg p-2.5">
                     <Link href="/daily">
                       <Gift className="h-4 w-4" />
@@ -259,6 +273,11 @@ export function Navbar() {
                     <Link href="/redeem" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">
                       <Ticket className="h-5 w-5" /> {t("redeem")}
                     </Link>
+                    {isAdmin && (
+                      <Link href="/admin" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">
+                        <ShieldCheck className="h-5 w-5" /> Administração
+                      </Link>
+                    )}
                     <Link href="/daily" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">
                       <Gift className="h-5 w-5" /> {t("daily")}
                     </Link>

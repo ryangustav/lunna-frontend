@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@/src/i18n/routing";
 import { Navbar } from "@/components/lunna/navbar";
-import { api } from "@/lib/api";
+import { api, isUnauthorized } from "@/lib/api";
 
 // Custom counter hook for ticking up the coins smoothly
 function useAnimatedCounter(endValue: number, startValue: number = 0, durationMs: number = 2000) {
@@ -109,7 +109,7 @@ export default function RedeemPage() {
         }
       } catch (err: any) {
         console.error("Redeem auth check failed:", err);
-        if (err.message?.includes("Unauthorized") || err.message?.includes("Token")) {
+        if (isUnauthorized(err)) {
           setIsAuthenticated(false);
         } else {
           setErrorMsg(err.message || "Failed to load user info");
@@ -164,6 +164,7 @@ export default function RedeemPage() {
           setTimeout(() => setShowParticles(false), 3000);
         }
       } catch (err: any) {
+        if (isUnauthorized(err)) setIsAuthenticated(false);
         setErrorMsg(err.message || "Erro ao resgatar o código");
       }
     });

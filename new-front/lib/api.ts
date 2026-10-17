@@ -1,5 +1,17 @@
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.lunnabot.fun/v1"
 
+/** Error from the Lunna API, with the HTTP status (401 = not logged in / session expired). */
+export class ApiError extends Error {
+  constructor(message: string, public status: number) {
+    super(message)
+    this.name = "ApiError"
+  }
+}
+
+export const UNAUTHORIZED_MESSAGE = "Você não está conectado. Entre com sua conta do Discord para continuar."
+
+export const isUnauthorized = (err: unknown) => err instanceof ApiError && err.status === 401
+
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const token = typeof window !== "undefined" 
     ? document.cookie.split("; ").find(row => row.startsWith("token="))?.split("=")[1]
@@ -18,8 +30,16 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   })
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}))
-    throw new Error(error.message || "Falha na requisição")
+    const body = await response.json().catch(() => ({}))
+    if (response.status === 401) {
+      // expired/invalid session: drop the token so the site shows the logged-out state
+      if (typeof window !== "undefined") document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+      throw new ApiError(UNAUTHORIZED_MESSAGE, 401)
+    }
+    // 403 bodies are technical English ("Forbidden - No manage guild permission")
+    if (response.status === 403) throw new ApiError(body.message || "Você não tem permissão para fazer isso.", 403)
+    // the backend answers { message } or { error } (validation errors are written for the user)
+    throw new ApiError(body.message || body.error || "Falha na requisição", response.status)
   }
 
   return response.json()
@@ -49,6 +69,26 @@ export const api = {
   createRolePanel: (guildId: string, data: any) => apiFetch(`/guilds/${guildId}/role-panels`, { method: "POST", body: JSON.stringify(data) }),
   updateRolePanel: (guildId: string, id: string, data: any) => apiFetch(`/guilds/${guildId}/role-panels/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   deleteRolePanel: (guildId: string, id: string) => apiFetch(`/guilds/${guildId}/role-panels/${id}`, { method: "DELETE" }),
+  // Public notices (banner + /avisos/<slug>)
+  getPublicNotices: () => apiFetch("/public/notices"),
+  getPublicNotice: (slug: string) => apiFetch(`/public/notices/${encodeURIComponent(slug)}`),
+  // Admin panel (the backend checks ADMIN_USER_IDS on every call)
+  getAdminMe: () => apiFetch("/admin/me"),
+  getAdminOverview: () => apiFetch("/admin/overview"),
+  getAdminCampaigns: () => apiFetch("/admin/campaigns"),
+  getAdminCampaign: (id: string) => apiFetch(`/admin/campaigns/${id}`),
+  createAdminCampaign: (data: any) => apiFetch("/admin/campaigns", { method: "POST", body: JSON.stringify(data) }),
+  adminCampaignAction: (id: string, action: "preview" | "send" | "pause") => apiFetch(`/admin/campaigns/${id}/${action}`, { method: "POST", body: "{}" }),
+  getAdminNotices: () => apiFetch("/admin/notices"),
+  createAdminNotice: (data: any) => apiFetch("/admin/notices", { method: "POST", body: JSON.stringify(data) }),
+  updateAdminNotice: (id: string, data: any) => apiFetch(`/admin/notices/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  endAdminNotice: (id: string) => apiFetch(`/admin/notices/${id}/end`, { method: "POST", body: "{}" }),
+  getBotConfig: () => apiFetch("/admin/bot-config"),
+  updateBotConfig: (data: any) => apiFetch("/admin/bot-config", { method: "PUT", body: JSON.stringify(data) }),
+  getAdminAudit: () => apiFetch("/admin/audit"),
+  getAdminUser: (id: string) => apiFetch(`/admin/users/${encodeURIComponent(id)}`),
+  adminUserAction: (id: string, action: "ban" | "unban" | "flag" | "unflag", reason: string) =>
+    apiFetch(`/admin/users/${encodeURIComponent(id)}/action`, { method: "POST", body: JSON.stringify({ action, reason }) }),
   getTickets: (guildId: string) => apiFetch(`/guilds/${guildId}/tickets`),
   updateTickets: (guildId: string, data: any) => apiFetch(`/guilds/${guildId}/tickets`, { method: "PUT", body: JSON.stringify(data) }),
 }

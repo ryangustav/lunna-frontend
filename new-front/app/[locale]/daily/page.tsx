@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@/src/i18n/routing";
 import { Navbar } from "@/components/lunna/navbar";
-import { api } from "@/lib/api";
+import { api, isUnauthorized } from "@/lib/api";
 import { HCaptcha } from "@/components/lunna/hcaptcha";
 
 // Custom counter hook for ticking up the coins smoothly
@@ -113,7 +113,7 @@ export default function DailyPage() {
       } catch (err: any) {
         console.error("Daily claim auth check failed:", err);
         // If 401 Unauthorized, clear auth status
-        if (err.message?.includes("Unauthorized") || err.message?.includes("Token")) {
+        if (isUnauthorized(err)) {
           setIsAuthenticated(false);
         } else {
           setErrorMsg(err.message || "Failed to load daily status");
@@ -158,6 +158,8 @@ export default function DailyPage() {
           setTimeout(() => setShowParticles(false), 3000);
         }
       } catch (err: any) {
+        // session expired while on the page: back to the "log in" state
+        if (isUnauthorized(err)) setIsAuthenticated(false);
         setErrorMsg(err.message || "Error claiming daily reward");
         // Reset captcha on failure to force re-solve if needed
         setCaptchaToken(null);
