@@ -7,6 +7,7 @@ import { Link } from "@/src/i18n/routing"
 import { Button } from "@/components/ui/button"
 import { Menu, Moon, Sun, LayoutDashboard, LogOut, ChevronDown, Crown, Coins, Gift, Ticket, ShieldCheck } from "lucide-react"
 import { useTheme } from "next-themes"
+import { LanguageSwitcher, LanguageButtons } from "@/components/lunna/language-switcher"
 import {
   Sheet,
   SheetContent,
@@ -179,6 +180,8 @@ export function Navbar() {
             {mounted && theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
 
+          <div className="hidden md:block"><LanguageSwitcher /></div>
+
           <div className="hidden items-center gap-3 md:flex">
             {isAuthenticated && user ? (
               <DropdownMenu>
@@ -246,6 +249,7 @@ export function Navbar() {
             </SheetTrigger>
             <SheetContent side="right" className="bg-background">
               <nav className="mt-8 flex flex-col gap-4">
+                <LanguageButtons />
                 {navLinks.map((link) => (
                   <Link
                     key={link.label}
