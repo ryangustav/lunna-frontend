@@ -15,7 +15,7 @@ const ACTION: Record<string, string> = {
 
 function detailText(e: Entry) {
   const d = e.details || {}
-  if (e.action === "bot_config.update") return `manutenção ${d.maintenance ? "ligada" : "desligada"}${d.disabled_commands?.length ? ` · desligados: ${d.disabled_commands.map((c: string) => `/${c}`).join(", ")}` : ""}`
+  if (e.action === "bot_config.update") return `manutenção ${d.maintenance ? "ligada" : "desligada"}${d.disabled_commands?.length ? ` · desligados: ${d.disabled_commands.map((c: string) => (c.startsWith("cat:") ? `categoria ${c.slice(4)}` : `/${c}`)).join(", ")}` : ""}${d.disabled_features?.length ? ` · recursos pausados: ${d.disabled_features.join(", ")}` : ""}${d.bypass_guild_ids?.length ? ` · ${d.bypass_guild_ids.length} servidor(es) isento(s)` : ""}`
   if (e.action.startsWith("notice.") && d.severity) return `${d.severity}${d.published ? " · publicado" : " · rascunho"}${d.show_bot ? " · bot" : ""}`
   if (e.action.startsWith("user.") && d.reason) return `motivo: ${d.reason}`
   if (e.action === "codes.create") return `${d.quantity} × ${d.type === "vip" ? `VIP ${d.vip}` : `${d.value} moedas`}`
