@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import { Link } from "@/src/i18n/routing"
 import { Navbar } from "@/components/lunna/navbar"
-import { LayoutDashboard, Megaphone, Siren, ToggleRight, ScrollText, ShieldCheck, Lock, UserSearch, TicketCheck } from "lucide-react"
+import { LayoutDashboard, Megaphone, Siren, ToggleRight, ScrollText, ShieldCheck, Lock, UserSearch, TicketCheck, Bot } from "lucide-react"
 import { api, isUnauthorized } from "@/lib/api"
 import { LoadingState } from "@/components/dashboard/primitives"
 
@@ -14,6 +14,7 @@ const ITEMS = [
   { name: "Campanhas", href: "/admin/campanhas", icon: <Megaphone /> },
   { name: "Códigos", href: "/admin/codigos", icon: <TicketCheck /> },
   { name: "Avisos", href: "/admin/avisos", icon: <Siren /> },
+  { name: "Perfil do bot", href: "/admin/perfil", icon: <Bot /> },
   { name: "Interruptores", href: "/admin/interruptores", icon: <ToggleRight /> },
   { name: "Registro de ações", href: "/admin/registro", icon: <ScrollText /> },
 ]
