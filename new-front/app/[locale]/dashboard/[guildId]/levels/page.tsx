@@ -96,7 +96,7 @@ export default function LevelsPage({ params }: { params: Promise<{ guildId: stri
       <PageHeader
         eyebrow="Comunidade"
         title="Níveis"
-        description="Membros ganham XP conversando e sobem de nível. Use /rank para ver o cartão e /levels para o ranking."
+        description="Membros ganham XP conversando e sobem de nível. Use /rank xp para ver o top 10 e o cartão de um membro, e /rank nivel para a lista completa."
         action={<PrimaryButton onClick={save} loading={saving}>Salvar</PrimaryButton>}
       />
 
