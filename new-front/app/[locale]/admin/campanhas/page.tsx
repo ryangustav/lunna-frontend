@@ -8,7 +8,7 @@ import { PageHeader, Section, Field, PrimaryButton, SecondaryButton, Pill, Loadi
 type Campaign = {
   id: string; code: string; name: string; status: "draft" | "sending" | "paused" | "done"; pause_reason: string | null
   user_vip: { tier: string; days: number }; guild_premium: { tier: string | null; days: number }
-  redeem_until: string; audience: { inactive_days: number; owners: boolean }; daily_cap: number
+  redeem_until: string; audience: { inactive_days: number; owners: boolean }; daily_cap: number; enqueued?: boolean
   preview_requested_at: string | null; preview: { counts: Record<string, number>; at: string } | null
   sample_requested_by: string | null; sample_result: { ok: boolean; error?: string; at: string } | null
   deliveries: Record<string, number>; redeemed: { users: number; guilds: number }
@@ -22,7 +22,9 @@ const STATUS: Record<string, { label: string; tone: "neutral" | "accent" | "succ
 }
 const inputCls = "h-10 w-full rounded-[10px] border border-border bg-background px-3 text-[14px] text-foreground outline-none focus:border-[#7c3aed]/60"
 const n = (v?: number) => (v || 0).toLocaleString("pt-BR")
-const previewFresh = (c: Campaign) => !!c.preview?.at && (!c.preview_requested_at || new Date(c.preview.at) >= new Date(c.preview_requested_at))
+// a missing or unreadable date counts as "not computed yet" only while no counts exist
+const validDate = (v?: string | null) => !!v && !Number.isNaN(new Date(v).getTime())
+const previewFresh = (c: Campaign) => !!c.preview?.counts && (!c.preview_requested_at || !validDate(c.preview.at) || new Date(c.preview.at) >= new Date(c.preview_requested_at))
 
 const EMPTY = { code: "", name: "", vip_tier: "Lunar", vip_days: 30, guild_tier: "basico", guild_days: 30, redeem_days: 14, inactive_days: 14, daily_cap: 400 }
 
@@ -108,7 +110,9 @@ export default function AdminCampaignsPage() {
       {list.length === 0 && <p className="text-[14px] text-muted-foreground">Nenhuma campanha ainda.</p>}
       {list.map((c) => {
         const d = c.deliveries || {}
-        const st = STATUS[c.status] || STATUS.draft
+        // ended without its queue ever being built: nothing was sent, it can be sent again
+        const neverSent = c.status === "done" && !c.enqueued
+        const st = neverSent ? { label: "Não enviada", tone: "accent" as const } : STATUS[c.status] || STATUS.draft
         const pending = c.preview_requested_at && !previewFresh(c)
         const expired = new Date(c.redeem_until) < new Date()
         return (
@@ -138,9 +142,9 @@ export default function AdminCampaignsPage() {
               {!pending && !c.preview && <span className="text-muted-foreground">Sem prévia ainda.</span>}
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              {c.status !== "done" && <SecondaryButton disabled={!!busy} onClick={() => act(c, "preview")}>Calcular prévia</SecondaryButton>}
+              {(c.status !== "done" || neverSent) && <SecondaryButton disabled={!!busy} onClick={() => act(c, "preview")}>Calcular prévia</SecondaryButton>}
               <SecondaryButton disabled={!!busy || !!c.sample_requested_by} onClick={() => act(c, "sample")}>{c.sample_requested_by ? "Enviando exemplo…" : "DM de exemplo para mim"}</SecondaryButton>
-              {(c.status === "draft" || c.status === "paused") && !expired && (
+              {(c.status === "draft" || c.status === "paused" || neverSent) && !expired && (
                 <PrimaryButton loading={busy === `${c.id}:send`} onClick={() => act(c, "send")}>{c.status === "paused" ? "Retomar envio" : "Enviar"}</PrimaryButton>
               )}
               {c.status === "sending" && <SecondaryButton disabled={!!busy} onClick={() => act(c, "pause")}>Pausar</SecondaryButton>}
