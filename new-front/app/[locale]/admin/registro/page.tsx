@@ -9,7 +9,7 @@ type Entry = { id: string; admin_id: string; action: string; target: string | nu
 const ACTION: Record<string, string> = {
   "campaign.create": "Criou a campanha", "campaign.send": "Iniciou o envio da campanha", "campaign.pause": "Pausou a campanha",
   "notice.create": "Criou o aviso", "notice.update": "Editou o aviso", "notice.end": "Encerrou o aviso",
-  "bot_config.update": "Alterou os interruptores",
+  "bot_config.update": "Alterou os interruptores", "codes.create": "Gerou códigos de resgate",
   "user.view": "Consultou o usuário", "user.ban": "Baniu", "user.unban": "Desbaniu", "user.flag": "Sinalizou", "user.unflag": "Tirou a sinalização de",
 }
 
@@ -18,6 +18,7 @@ function detailText(e: Entry) {
   if (e.action === "bot_config.update") return `manutenção ${d.maintenance ? "ligada" : "desligada"}${d.disabled_commands?.length ? ` · desligados: ${d.disabled_commands.map((c: string) => `/${c}`).join(", ")}` : ""}`
   if (e.action.startsWith("notice.") && d.severity) return `${d.severity}${d.published ? " · publicado" : " · rascunho"}${d.show_bot ? " · bot" : ""}`
   if (e.action.startsWith("user.") && d.reason) return `motivo: ${d.reason}`
+  if (e.action === "codes.create") return `${d.quantity} × ${d.type === "vip" ? `VIP ${d.vip}` : `${d.value} moedas`}`
   if (e.action === "campaign.create" && d.vip) return `${d.vip.tier} ${d.vip.days}d${d.guild?.tier ? ` · servidor ${d.guild.tier} ${d.guild.days}d` : ""}`
   return ""
 }

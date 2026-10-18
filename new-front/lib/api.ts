@@ -78,7 +78,10 @@ export const api = {
   getAdminCampaigns: () => apiFetch("/admin/campaigns"),
   getAdminCampaign: (id: string) => apiFetch(`/admin/campaigns/${id}`),
   createAdminCampaign: (data: any) => apiFetch("/admin/campaigns", { method: "POST", body: JSON.stringify(data) }),
-  adminCampaignAction: (id: string, action: "preview" | "send" | "pause") => apiFetch(`/admin/campaigns/${id}/${action}`, { method: "POST", body: "{}" }),
+  getAdminCodes: () => apiFetch("/admin/codes"),
+  createAdminCodes: (data: { type: "coins" | "vip"; value?: number; period?: string; quantity: number }) =>
+    apiFetch("/admin/codes", { method: "POST", body: JSON.stringify(data) }),
+  adminCampaignAction: (id: string, action: "preview" | "sample" | "send" | "pause") => apiFetch(`/admin/campaigns/${id}/${action}`, { method: "POST", body: "{}" }),
   getAdminNotices: () => apiFetch("/admin/notices"),
   createAdminNotice: (data: any) => apiFetch("/admin/notices", { method: "POST", body: JSON.stringify(data) }),
   updateAdminNotice: (id: string, data: any) => apiFetch(`/admin/notices/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
@@ -89,6 +92,9 @@ export const api = {
   getAdminUser: (id: string) => apiFetch(`/admin/users/${encodeURIComponent(id)}`),
   adminUserAction: (id: string, action: "ban" | "unban" | "flag" | "unflag", reason: string) =>
     apiFetch(`/admin/users/${encodeURIComponent(id)}/action`, { method: "POST", body: JSON.stringify({ action, reason }) }),
+  getAgent: (guildId: string) => apiFetch(`/guilds/${guildId}/ai-agent`),
+  updateAutomation: (guildId: string, id: string, enabled: boolean) => apiFetch(`/guilds/${guildId}/automations/${id}`, { method: "PATCH", body: JSON.stringify({ enabled }) }),
+  deleteAutomation: (guildId: string, id: string) => apiFetch(`/guilds/${guildId}/automations/${id}`, { method: "DELETE" }),
   getTickets: (guildId: string) => apiFetch(`/guilds/${guildId}/tickets`),
   updateTickets: (guildId: string, data: any) => apiFetch(`/guilds/${guildId}/tickets`, { method: "PUT", body: JSON.stringify(data) }),
 }

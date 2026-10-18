@@ -22,6 +22,7 @@ import {
   Filter,
   MousePointerClick,
   Ticket,
+  Bot,
 } from "lucide-react"
 
 type NavItem = { name: string; href: string; icon: React.ReactNode; badge?: string }
@@ -43,6 +44,7 @@ export default function GuildDashboardLayout({
       items: [
         { name: "Visão geral", href: base, icon: <LayoutDashboard /> },
         { name: "Premium", href: `${base}/premium`, icon: <Crown /> },
+        { name: "Lunna IA", href: `${base}/ia`, icon: <Bot />, badge: "Novo" },
       ],
     },
     {

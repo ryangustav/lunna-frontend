@@ -10,6 +10,7 @@ type Campaign = {
   user_vip: { tier: string; days: number }; guild_premium: { tier: string | null; days: number }
   redeem_until: string; audience: { inactive_days: number; owners: boolean }; daily_cap: number
   preview_requested_at: string | null; preview: { counts: Record<string, number>; at: string } | null
+  sample_requested_by: string | null; sample_result: { ok: boolean; error?: string; at: string } | null
   deliveries: Record<string, number>; redeemed: { users: number; guilds: number }
 }
 
@@ -43,7 +44,7 @@ export default function AdminCampaignsPage() {
   // While a preview is pending or a campaign is sending, refresh every few seconds
   useEffect(() => {
     if (poll.current) clearTimeout(poll.current)
-    if (list?.some((c) => c.status === "sending" || (c.preview_requested_at && !previewFresh(c)))) poll.current = setTimeout(load, 5000)
+    if (list?.some((c) => c.status === "sending" || c.sample_requested_by || (c.preview_requested_at && !previewFresh(c)))) poll.current = setTimeout(load, 5000)
   }, [list])
 
   const create = async () => {
@@ -55,7 +56,7 @@ export default function AdminCampaignsPage() {
     } catch (e: any) { toast({ title: "Não foi possível criar", description: e.message, variant: "destructive" }) } finally { setCreating(false) }
   }
 
-  const act = async (c: Campaign, action: "preview" | "send" | "pause") => {
+  const act = async (c: Campaign, action: "preview" | "sample" | "send" | "pause") => {
     if (action === "send") {
       const total = c.preview ? (c.preview.counts.players || 0) + (c.preview.counts.owners || 0) : null
       const msg = total !== null
@@ -115,6 +116,11 @@ export default function AdminCampaignsPage() {
             description={`${VIP_NAME[c.user_vip?.tier] || c.user_vip?.tier} por ${c.user_vip?.days} dias${c.guild_premium?.tier ? ` · ${GUILD_NAME[c.guild_premium.tier]} por ${c.guild_premium.days} dias para servidores` : ""} · resgate até ${new Date(c.redeem_until).toLocaleDateString("pt-BR")}${expired ? " (expirado)" : ""}`}
             action={<Pill tone={st.tone}>{st.label}</Pill>}>
             {c.pause_reason && c.status === "paused" && <p className="mb-3 text-[13px] text-amber-500">{c.pause_reason}</p>}
+            {c.sample_result && !c.sample_requested_by && (
+              <p className={`mb-3 text-[13px] ${c.sample_result.ok ? "text-emerald-500" : "text-amber-500"}`}>
+                {c.sample_result.ok ? "DM de exemplo enviada para você." : "Não consegui mandar a DM de exemplo (suas DMs estão fechadas para a Lunna?)."}
+              </p>
+            )}
             <div className="grid gap-3 sm:grid-cols-4">
               <div><p className="text-[12px] text-muted-foreground">Enviadas</p><p className="text-[18px] font-bold text-foreground">{n(d.sent)}</p></div>
               <div><p className="text-[12px] text-muted-foreground">Falharam (DM fechada)</p><p className="text-[18px] font-bold text-foreground">{n(d.failed)}</p></div>
@@ -133,6 +139,7 @@ export default function AdminCampaignsPage() {
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               {c.status !== "done" && <SecondaryButton disabled={!!busy} onClick={() => act(c, "preview")}>Calcular prévia</SecondaryButton>}
+              <SecondaryButton disabled={!!busy || !!c.sample_requested_by} onClick={() => act(c, "sample")}>{c.sample_requested_by ? "Enviando exemplo…" : "DM de exemplo para mim"}</SecondaryButton>
               {(c.status === "draft" || c.status === "paused") && !expired && (
                 <PrimaryButton loading={busy === `${c.id}:send`} onClick={() => act(c, "send")}>{c.status === "paused" ? "Retomar envio" : "Enviar"}</PrimaryButton>
               )}
