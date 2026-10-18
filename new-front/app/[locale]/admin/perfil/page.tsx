@@ -57,6 +57,8 @@ export default function AdminBotProfilePage() {
   const [bio, setBio] = useState("")
   const [presence, setPresence] = useState<Presence>(DEFAULT_PRESENCE)
   const [dirty, setDirty] = useState(false)
+  // the bio is only sent when edited: never overwrite the real About Me with an empty field
+  const bioTouched = useRef(false)
   const [saving, setSaving] = useState(false)
   const [picked, setPicked] = useState<Record<Kind, string | null>>({ avatar: null, banner: null })
   const [uploading, setUploading] = useState<Kind | null>(null)
@@ -71,9 +73,9 @@ export default function AdminBotProfilePage() {
       const p: Profile = r.data
       setProfile(p)
       // the form starts from what was saved (or what Discord shows) and isn't overwritten while editing
+      if (!bioTouched.current) setBio(p.bio ?? p.current?.bio ?? "")
       if (!loadedOnce.current) {
         loadedOnce.current = true
-        setBio(p.bio ?? p.current?.bio ?? "")
         setPresence(p.presence ? { ...DEFAULT_PRESENCE, ...p.presence } : DEFAULT_PRESENCE)
       }
     } catch (e: any) { setError(e.message) }
@@ -106,8 +108,8 @@ export default function AdminBotProfilePage() {
     if (problems.some(Boolean)) { toast({ title: "Confira os status", description: problems.find(Boolean)!, variant: "destructive" }); return }
     setSaving(true)
     try {
-      const r = await api.updateBotProfile({ bio, presence })
-      setProfile(r.data); setDirty(false)
+      const r = await api.updateBotProfile({ bio: bioTouched.current ? bio : null, presence })
+      setProfile(r.data); setDirty(false); bioTouched.current = false
       toast({ title: "Salvo", description: "A Lunna aplica em até 20 segundos." })
     } catch (e: any) { toast({ title: "Não foi possível salvar", description: e.message, variant: "destructive" }) } finally { setSaving(false) }
   }
@@ -192,7 +194,7 @@ export default function AdminBotProfilePage() {
 
           <Section title="Sobre mim" description="O texto do perfil da Lunna (é a descrição do aplicativo no Discord). Aceita markdown do Discord.">
             <Field label={`Bio · ${bio.length}/${BIO_MAX}`} hint={errors.bio && !pending ? <span className="text-amber-500">{errors.bio}</span> : undefined}>
-              <textarea className={`${inputCls} h-32 resize-y py-2`} maxLength={BIO_MAX} value={bio} onChange={(e) => { setBio(e.target.value); setDirty(true) }}
+              <textarea className={`${inputCls} h-32 resize-y py-2`} maxLength={BIO_MAX} value={bio} onChange={(e) => { setBio(e.target.value); bioTouched.current = true; setDirty(true) }}
                 placeholder="🌙 Lunna — economia, RPG, níveis e moderação. Painel: lunnabot.fun" />
             </Field>
           </Section>
