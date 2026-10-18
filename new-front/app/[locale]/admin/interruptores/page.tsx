@@ -14,14 +14,54 @@ type Config = {
   bypass_guild_ids: string[]; updated_at?: string | null; updated_by?: string | null
 }
 
-const FEATURE_INFO: Record<string, { label: string; hint: string; speaks: boolean; placeholder?: string }> = {
-  ai_chat: { label: "Chat com a IA (Cérebro da Lunna)", hint: "Respostas quando alguém menciona a Lunna.", speaks: true, placeholder: "O chat com a Lunna está pausado no momento. Volto a conversar em breve!" },
-  ai_agent: { label: "Lunna IA (agente de administração)", hint: "Admins pedindo para criar canais, cargos, automações…", speaks: true, placeholder: "A Lunna IA está pausada no momento. Tente de novo mais tarde." },
-  leveling: { label: "Ganho de XP (níveis)", hint: "Mensagens e voz deixam de dar XP. Ninguém é avisado.", speaks: false },
-  automations: { label: "Automações", hint: "Reação → cargo, cargo de entrada e mensagens agendadas param.", speaks: false },
-  chat_events: { label: "Eventos no chat", hint: "Baús e chefões que aparecem sozinhos nos canais.", speaks: false },
-  auto_dms: { label: "Mensagens automáticas por DM", hint: "Pausa o envio de todas as campanhas.", speaks: false },
-}
+type FeatureInfo = { label: string; hint: string; speaks: boolean; placeholder?: string; maintenance?: boolean }
+// Mirrors Lunna_Bot/src/services/AdminControlService.js FEATURES (maintenance = also paused by maintenance mode)
+const FEATURE_GROUPS: { title: string; hint: string; items: Record<string, FeatureInfo> }[] = [
+  {
+    title: "Interação", hint: "Também param durante a manutenção.",
+    items: {
+      ai_chat: { label: "Chat com a IA (Cérebro da Lunna)", hint: "Respostas quando alguém menciona a Lunna.", speaks: true, maintenance: true, placeholder: "O chat com a Lunna está pausado no momento. Volto a conversar em breve!" },
+      ai_agent: { label: "Lunna IA (agente de administração)", hint: "Admins pedindo para criar canais, cargos, automações…", speaks: true, maintenance: true, placeholder: "A Lunna IA está pausada no momento. Tente de novo mais tarde." },
+      tickets: { label: "Abrir tickets", hint: "Bloqueia novos tickets; os abertos continuam podendo ser fechados.", speaks: true, maintenance: true, placeholder: "Os tickets estão temporariamente indisponíveis. Tente de novo em instantes." },
+      role_panels: { label: "Cargos por botão", hint: "Os painéis param de dar e tirar cargos.", speaks: true, maintenance: true, placeholder: "Os cargos por botão estão temporariamente indisponíveis." },
+      giveaways: { label: "Participar de sorteios", hint: "Os botões de entrar e sair param; quem já participa continua.", speaks: true, maintenance: true, placeholder: "Os sorteios estão temporariamente indisponíveis. Sua participação não foi perdida." },
+      chat_events: { label: "Eventos no chat", hint: "Baús e chefões que aparecem sozinhos nos canais.", speaks: false, maintenance: true },
+    },
+  },
+  {
+    title: "Comunidade", hint: "Continuam funcionando durante a manutenção.",
+    items: {
+      welcome: { label: "Boas-vindas e saída", hint: "Mensagens e banner de entrada e de saída.", speaks: false },
+      autorole: { label: "Autorole", hint: "Cargo automático para quem entra.", speaks: false },
+      member_counters: { label: "Contadores de membros", hint: "Canais com o número de membros param de atualizar.", speaks: false },
+      leveling: { label: "Ganho de XP (níveis)", hint: "Mensagens e voz deixam de dar XP. Ninguém é avisado.", speaks: false },
+      automations: { label: "Automações", hint: "Reação → cargo, cargo de entrada e mensagens agendadas.", speaks: false },
+      auto_dms: { label: "Mensagens automáticas por DM", hint: "Pausa o envio de todas as campanhas.", speaks: false },
+    },
+  },
+  {
+    title: "Logs de eventos", hint: "Continuam durante a manutenção. Desligar aqui para os logs em todos os servidores.",
+    items: {
+      log_message_delete: { label: "Mensagens apagadas", hint: "Inclui as limpezas em massa.", speaks: false },
+      log_message_edit: { label: "Mensagens editadas", hint: "", speaks: false },
+      log_voice: { label: "Entradas e saídas de voz", hint: "", speaks: false },
+      log_member: { label: "Membros (apelido e avatar)", hint: "", speaks: false },
+      log_moderation: { label: "Moderação", hint: "Banimentos, expulsões, silenciamentos e avisos.", speaks: false },
+      log_server: { label: "Servidor (canais e cargos)", hint: "Criação e exclusão de canais e cargos.", speaks: false },
+    },
+  },
+  {
+    title: "Proteção", hint: "Nunca param por causa da manutenção — só por este interruptor. Desligue apenas se uma delas estiver com problema.",
+    items: {
+      anti_spam: { label: "Anti-spam", hint: "", speaks: false },
+      anti_invite: { label: "Bloqueio de convites", hint: "A regra do AutoMod é removida dos servidores e recriada ao religar (até 10 min).", speaks: false },
+      anti_link: { label: "Bloqueio de links", hint: "A regra do AutoMod é removida dos servidores e recriada ao religar (até 10 min).", speaks: false },
+      word_filter: { label: "Filtro de palavras", hint: "A regra do AutoMod é removida dos servidores e recriada ao religar (até 10 min).", speaks: false },
+      trap_channel: { label: "Canal armadilha", hint: "Quem escrever no canal armadilha deixa de ser punido.", speaks: false },
+    },
+  },
+]
+const FEATURE_INFO: Record<string, FeatureInfo> = Object.assign({}, ...FEATURE_GROUPS.map((g) => g.items))
 const CATEGORY_LABEL: Record<string, string> = {
   bot: "Bot", economy: "Economia", fun: "Diversão", giveaway: "Sorteios", infos: "Informações",
   jogos_economy: "Jogos de aposta", levels: "Níveis", moderator: "Moderação", rpg: "RPG", outros: "Outros",
@@ -120,27 +160,35 @@ export default function AdminSwitchesPage() {
         </div>
       </Section>
 
-      <Section title="Recursos" description="Funcionalidades que não são um comando só. Desligado = pausado para todos.">
-        <div className="flex flex-col gap-2">
-          {Object.entries(FEATURE_INFO).map(([key, info]) => {
-            const off = cfg.disabled_features.includes(key)
-            return (
-              <div key={key} className={`rounded-[10px] border px-4 py-3 ${off ? "border-amber-500/40 bg-amber-500/5" : "border-border"}`}>
-                <div className="flex items-center gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[14px] font-medium text-foreground">{info.label}</p>
-                    <p className="text-[12px] text-muted-foreground">{info.hint}</p>
-                  </div>
-                  <span className="text-[12px] text-muted-foreground">{off ? "Pausado" : "Funcionando"}</span>
-                  <Switch checked={!off} onCheckedChange={(on) => update((c) => ({ ...c, disabled_features: on ? c.disabled_features.filter((x) => x !== key) : [...new Set([...c.disabled_features, key])] }))} />
-                </div>
-                {off && info.speaks && (
-                  <input className={`${smallInput} mt-3`} maxLength={300} value={cfg.feature_messages[key] || ""} placeholder={`Mensagem para quem tentar usar (vazio = "${info.placeholder}")`}
-                    onChange={(e) => setMessage("feature_messages", key, e.target.value)} />
-                )}
+      <Section title="Recursos" description="O que os servidores ativam no dashboard e o que não é um comando só. Desligado = pausado em todos os servidores (menos os isentos).">
+        <div className="flex flex-col gap-6">
+          {FEATURE_GROUPS.map((group) => (
+            <div key={group.title} className="flex flex-col gap-2">
+              <div>
+                <p className="text-[13px] font-bold uppercase tracking-wider text-foreground">{group.title}</p>
+                <p className="text-[12px] text-muted-foreground">{group.hint}</p>
               </div>
-            )
-          })}
+              {Object.entries(group.items).map(([key, info]) => {
+                const off = cfg.disabled_features.includes(key)
+                return (
+                  <div key={key} className={`rounded-[10px] border px-4 py-3 ${off ? "border-amber-500/40 bg-amber-500/5" : "border-border"}`}>
+                    <div className="flex items-center gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[14px] font-medium text-foreground">{info.label}</p>
+                        {info.hint && <p className="text-[12px] text-muted-foreground">{info.hint}</p>}
+                      </div>
+                      <span className="text-[12px] text-muted-foreground">{off ? "Pausado" : "Funcionando"}</span>
+                      <Switch checked={!off} onCheckedChange={(on) => update((c) => ({ ...c, disabled_features: on ? c.disabled_features.filter((x) => x !== key) : [...new Set([...c.disabled_features, key])] }))} />
+                    </div>
+                    {off && info.speaks && (
+                      <input className={`${smallInput} mt-3`} maxLength={300} value={cfg.feature_messages[key] || ""} placeholder={`Mensagem para quem tentar usar (vazio = "${info.placeholder}")`}
+                        onChange={(e) => setMessage("feature_messages", key, e.target.value)} />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          ))}
         </div>
       </Section>
 
