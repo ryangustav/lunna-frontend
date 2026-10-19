@@ -10,6 +10,7 @@ const ACTION: Record<string, string> = {
   "campaign.create": "Criou a campanha", "campaign.send": "Iniciou o envio da campanha", "campaign.pause": "Pausou a campanha",
   "notice.create": "Criou o aviso", "notice.update": "Editou o aviso", "notice.end": "Encerrou o aviso",
   "bot_config.update": "Alterou os interruptores", "codes.create": "Gerou códigos de resgate",
+  "guild.view": "Consultou o servidor", "guild.leave": "Tirou a Lunna do servidor", "guild.block": "Bloqueou o servidor", "guild.unblock": "Desbloqueou o servidor",
   "user.view": "Consultou o usuário", "user.ban": "Baniu", "user.unban": "Desbaniu", "user.flag": "Sinalizou", "user.unflag": "Tirou a sinalização de",
 }
 
@@ -18,6 +19,7 @@ function detailText(e: Entry) {
   if (e.action === "bot_config.update") return `manutenção ${d.maintenance ? "ligada" : "desligada"}${d.disabled_commands?.length ? ` · desligados: ${d.disabled_commands.map((c: string) => (c.startsWith("cat:") ? `categoria ${c.slice(4)}` : `/${c}`)).join(", ")}` : ""}${d.disabled_features?.length ? ` · recursos pausados: ${d.disabled_features.join(", ")}` : ""}${d.bypass_guild_ids?.length ? ` · ${d.bypass_guild_ids.length} servidor(es) isento(s)` : ""}`
   if (e.action.startsWith("notice.") && d.severity) return `${d.severity}${d.published ? " · publicado" : " · rascunho"}${d.show_bot ? " · bot" : ""}`
   if (e.action.startsWith("user.") && d.reason) return `motivo: ${d.reason}`
+  if ((e.action === "guild.leave" || e.action === "guild.block") && d.reason) return `${d.name ? `${d.name} · ` : ""}motivo: ${d.reason}`
   if (e.action === "codes.create") return `${d.quantity} × ${d.type === "vip" ? `VIP ${d.vip}` : `${d.value} moedas`}`
   if (e.action === "campaign.create" && d.vip) return `${d.vip.tier} ${d.vip.days}d${d.guild?.tier ? ` · servidor ${d.guild.tier} ${d.guild.days}d` : ""}`
   return ""

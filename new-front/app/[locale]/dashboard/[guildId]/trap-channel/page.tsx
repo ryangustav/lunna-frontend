@@ -5,6 +5,8 @@ import { Save, AlertTriangle, Skull, Shield, Check, Info, ShieldAlert, Sparkles 
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import { useT } from "@/lib/use-t"
+import { publishErrorText } from "@/lib/publish-error"
 
 interface Channel {
   id: string
@@ -25,6 +27,7 @@ export default function TrapChannelPage({
 }: {
   params: Promise<{ guildId: string }>
 }) {
+  const t = useT()
   const { guildId } = use(params)
   const { toast } = useToast()
 
@@ -37,6 +40,9 @@ export default function TrapChannelPage({
   const [channelId, setChannelId] = useState<string>("")
   const [action, setAction] = useState<"warn" | "mute" | "kick" | "ban">("warn")
   const [punishmentsCount, setPunishmentsCount] = useState<number>(0)
+  // the message is posted in the server's language: the saved one, else (unknown here) the site's
+  const [serverLang, setServerLang] = useState<string | null>(null)
+  const m = (pt: string, en: string) => ((serverLang || t("pt", "en")) === "en" ? en : pt)
 
   useEffect(() => {
     const loadData = async () => {
@@ -49,6 +55,7 @@ export default function TrapChannelPage({
           api.getGuildChannels(guildId)
         ])
 
+        if (settingsRes?.language === "pt" || settingsRes?.language === "en") setServerLang(settingsRes.language)
         if (settingsRes && settingsRes.trap_channel) {
           const trap: TrapChannelConfig = settingsRes.trap_channel
           setEnabled(trap.enabled ?? false)
@@ -63,7 +70,7 @@ export default function TrapChannelPage({
 
       } catch (err: any) {
         console.error("Failed to load trap channel data:", err)
-        setError(err.message || "Não foi possível carregar as configurações do canal armadilha.")
+        setError(err.message || t("Não foi possível carregar as configurações do canal armadilha.", "Couldn't load the trap channel settings."))
       } finally {
         setLoading(false)
       }
@@ -90,22 +97,22 @@ export default function TrapChannelPage({
 
       if (res?.trap_channel_warning) {
         toast({
-          title: "Configuração salva, mas o aviso não foi enviado",
-          description: res.trap_channel_warning,
+          title: t("Configuração salva, mas o aviso não foi enviado", "Settings saved, but the notice wasn't posted"),
+          description: publishErrorText(res.trap_channel_warning, t),
           variant: "destructive"
         })
         return
       }
 
       toast({
-        title: "Salvo com sucesso!",
-        description: "As configurações do Canal Armadilha foram atualizadas.",
+        title: t("Salvo com sucesso!", "Saved!"),
+        description: t("As configurações do Canal Armadilha foram atualizadas.", "Trap channel settings updated."),
       })
     } catch (err: any) {
       console.error("Failed to save trap channel settings:", err)
       toast({
-        title: "Erro ao salvar",
-        description: err.message || "Ocorreu um erro ao salvar as configurações.",
+        title: t("Erro ao salvar", "Couldn't save"),
+        description: err.message || t("Ocorreu um erro ao salvar as configurações.", "Something went wrong while saving the settings."),
         variant: "destructive"
       })
     } finally {
@@ -114,10 +121,10 @@ export default function TrapChannelPage({
   }
 
   const actionLabels: Record<string, string> = {
-    warn: "aviso (warn)",
-    mute: "silenciamento por 1 hora (mute)",
-    kick: "expulsão (kick)",
-    ban: "banimento permanente (ban)"
+    warn: m("aviso (warn)", "a warning (warn)"),
+    mute: m("silenciamento por 1 hora (mute)", "a 1 hour timeout (mute)"),
+    kick: m("expulsão (kick)", "a kick"),
+    ban: m("banimento permanente (ban)", "a permanent ban")
   }
 
   if (loading) {
@@ -136,10 +143,10 @@ export default function TrapChannelPage({
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center rounded-[14px] border border-destructive/20 bg-destructive/5 space-y-4">
         <AlertTriangle className="h-12 w-12 text-destructive" />
-        <h3 className="text-[15px] font-bold text-foreground">Falha de Conexão</h3>
+        <h3 className="text-[15px] font-bold text-foreground">{t("Falha de Conexão", "Connection failed")}</h3>
         <p className="text-sm text-muted-foreground max-w-md">{error}</p>
         <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full">
-          Tentar Novamente
+          {t("Tentar Novamente", "Try again")}
         </Button>
       </div>
     )
@@ -153,13 +160,13 @@ export default function TrapChannelPage({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border/40 pb-6">
         <div>
           <h1 className="flex items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground">
-            Canais de Armadilha
+            {t("Canais de Armadilha", "Trap channel")}
             <span className="text-xs bg-red-500/20 text-red-400 font-semibold px-2.5 py-0.5 rounded-full border border-red-500/30">
-              NOVO!
+              {t("NOVO!", "NEW!")}
             </span>
           </h1>
           <p className="mt-2 text-muted-foreground text-sm max-w-xl font-medium">
-            Defina um canal que servirá de armadilha contra bots de spam. Qualquer conta que enviar mensagem nele receberá uma punição automática pré-definida!
+            {t("Defina um canal que servirá de armadilha contra bots de spam. Qualquer conta que enviar mensagem nele receberá uma punição automática pré-definida!", "Set a channel as a trap for spam bots. Any account that sends a message in it gets the punishment you choose, automatically!")}
           </p>
         </div>
 
@@ -169,7 +176,7 @@ export default function TrapChannelPage({
           className="w-full sm:w-auto h-10 rounded-full font-bold transition-all rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
         >
           <Save className="mr-2 h-4 w-4" />
-          {saving ? "Salvando..." : "Salvar Configurações"}
+          {saving ? t("Salvando...", "Saving...") : t("Salvar Configurações", "Save settings")}
         </Button>
       </div>
 
@@ -181,10 +188,10 @@ export default function TrapChannelPage({
             <div className="space-y-1">
               <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-red-500/10 text-red-400 text-sm font-semibold">1</span>
-                Ativar Canal Armadilha
+                {t("Ativar Canal Armadilha", "Turn on the trap channel")}
               </h2>
               <p className="text-sm text-muted-foreground font-medium">
-                Se ativado, o bot monitorará o canal selecionado e punirá automaticamente quem enviar mensagens.
+                {t("Se ativado, o bot monitorará o canal selecionado e punirá automaticamente quem enviar mensagens.", "When on, the bot watches the selected channel and punishes anyone who sends a message there.")}
               </p>
             </div>
 
@@ -201,13 +208,13 @@ export default function TrapChannelPage({
 
           {enabled && (
             <div className="space-y-4 pt-4 border-t border-border/40 animate-in fade-in duration-300">
-              <label className="text-xs font-semibold uppercase tracking-[2px] text-muted-foreground">Selecione o Canal Armadilha</label>
+              <label className="text-xs font-semibold uppercase tracking-[2px] text-muted-foreground">{t("Selecione o Canal Armadilha", "Select the trap channel")}</label>
               <select
                 value={channelId}
                 onChange={(e) => setChannelId(e.target.value)}
                 className="w-full h-12 rounded-[10px] border border-border bg-secondary/20 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-red-500/50"
               >
-                <option value="" className="bg-card text-muted-foreground">Selecione um canal de texto...</option>
+                <option value="" className="bg-card text-muted-foreground">{t("Selecione um canal de texto...", "Select a text channel...")}</option>
                 {channels.map((ch) => (
                   <option key={ch.id} value={ch.id} className="bg-card text-foreground">
                     #{ch.name}
@@ -224,19 +231,19 @@ export default function TrapChannelPage({
             <div className="space-y-1">
               <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-red-500/10 text-red-400 text-sm font-semibold">2</span>
-                Tipo de Punição
+                {t("Tipo de Punição", "Punishment")}
               </h2>
               <p className="text-sm text-muted-foreground font-medium">
-                Escolha qual sanção a Lunna aplicará à conta que postar mensagem no canal armadilha.
+                {t("Escolha qual sanção a Lunna aplicará à conta que postar mensagem no canal armadilha.", "Pick what Lunna does to an account that posts in the trap channel.")}
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { id: "warn", title: "Aviso (Warn)", desc: "Aplica um aviso no servidor" },
-                { id: "mute", title: "Silenciar (Mute 1h)", desc: "Aplica um timeout de 1 hora" },
-                { id: "kick", title: "Expulsar (Kick)", desc: "Expulsa o membro do servidor" },
-                { id: "ban", title: "Banir (Ban)", desc: "Bane o membro permanentemente" },
+                { id: "warn", title: t("Aviso (Warn)", "Warn"), desc: t("Aplica um aviso no servidor", "Gives a warning in the server") },
+                { id: "mute", title: t("Silenciar (Mute 1h)", "Timeout (1h mute)"), desc: t("Aplica um timeout de 1 hora", "Applies a 1 hour timeout") },
+                { id: "kick", title: t("Expulsar (Kick)", "Kick"), desc: t("Expulsa o membro do servidor", "Kicks the member from the server") },
+                { id: "ban", title: t("Banir (Ban)", "Ban"), desc: t("Bane o membro permanentemente", "Bans the member permanently") },
               ].map((item) => (
                 <div
                   key={item.id}
@@ -262,10 +269,10 @@ export default function TrapChannelPage({
             <div className="space-y-1">
               <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-red-500/10 text-red-400 text-sm font-semibold">3</span>
-                Prévia da Mensagem no Discord
+                {t("Prévia da Mensagem no Discord", "Message preview on Discord")}
               </h2>
               <p className="text-sm text-muted-foreground font-medium">
-                Assim que salvar as configurações, a Lunna enviará a seguinte mensagem oficial no canal selecionado:
+                {t("Assim que salvar as configurações, a Lunna enviará a seguinte mensagem oficial no canal selecionado:", "Once you save, Lunna posts this message in the selected channel, in the server's language:")}
               </p>
             </div>
 
@@ -278,9 +285,9 @@ export default function TrapChannelPage({
                   className="w-12 h-12 rounded-lg object-cover shrink-0" 
                 />
                 <div className="space-y-1">
-                  <h3 className="font-semibold text-red-500 text-base"># NÃO ENVIE MENSAGEM NESTE CANAL!!!</h3>
+                  <h3 className="font-semibold text-red-500 text-base">{m("# NÃO ENVIE MENSAGEM NESTE CANAL!!!", "# DON'T SEND MESSAGES IN THIS CHANNEL!!!")}</h3>
                   <p className="text-xs text-zinc-300 leading-relaxed font-medium">
-                    Este canal é usado para detectar bots de spam. Qualquer mensagem enviada aqui resultará em <strong className="text-red-400">{actionLabels[action]}</strong>
+                    {m("Este canal é usado para detectar bots de spam. Qualquer mensagem enviada aqui resultará em", "This channel is used to catch spam bots. Any message sent here results in")} <strong className="text-red-400">{actionLabels[action]}</strong>
                   </p>
                 </div>
               </div>
@@ -291,7 +298,7 @@ export default function TrapChannelPage({
                   className="px-4 py-2 bg-[#35363c] hover:bg-[#404249] text-xs font-semibold rounded-md flex items-center gap-2 text-zinc-200 transition"
                 >
                   <img src="http://cdn.discordapp.com/emojis/1520449039416426626.webp?size=2048" alt="emoji" className="w-4 h-4" />
-                  <span>Punições: {punishmentsCount}</span>
+                  <span>{m("Punições", "Punishments")}: {punishmentsCount}</span>
                 </button>
               </div>
             </div>

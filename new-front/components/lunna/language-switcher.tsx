@@ -1,11 +1,12 @@
 "use client"
 
 import { useLocale } from "next-intl"
-import { useTransition } from "react"
+import { useEffect, useTransition } from "react"
 import { Globe, Check } from "lucide-react"
 import { usePathname, useRouter } from "@/src/i18n/routing"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { api } from "@/lib/api"
 
 // Names stay in their own language so anyone can find theirs
 const LANGUAGES = [
@@ -14,14 +15,25 @@ const LANGUAGES = [
 ] as const
 type Code = (typeof LANGUAGES)[number]["code"]
 
+const SYNC_KEY = "lunna-lang-synced"
+const loggedIn = () => typeof document !== "undefined" && /(^|;\s*)token=/.test(document.cookie)
+const markSynced = () => { try { sessionStorage.setItem(SYNC_KEY, "1") } catch { /* private mode */ } }
+
 function useSwitchLocale() {
   const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
   const [pending, startTransition] = useTransition()
   // keeps the page and its query string; next-intl also updates the NEXT_LOCALE cookie
-  const change = (code: Code) => {
+  const change = async (code: Code) => {
     if (code === locale) return
+    // logged in: the account language changes too (the bot answers in it). Saved BEFORE leaving the
+    // page — otherwise the next page could still read the old language and switch back. Never more
+    // than 2.5 s: a slow backend doesn't block the switch.
+    if (loggedIn()) {
+      await Promise.race([api.setMyLanguage(code).catch(() => {}), new Promise((r) => setTimeout(r, 2500))])
+      markSynced()
+    }
     const query = typeof window !== "undefined" ? window.location.search : ""
     startTransition(() => router.replace(`${pathname}${query}`, { locale: code }))
   }
@@ -64,4 +76,28 @@ export function LanguageButtons() {
       ))}
     </div>
   )
+}
+
+/**
+ * The site follows the account's language: logged in, the language chosen on the site or with
+ * /linguagem in the bot wins over the browser's. Checked once per session (and skipped right after
+ * the person switched on the site).
+ */
+export function AccountLanguageSync() {
+  const locale = useLocale()
+  const router = useRouter()
+  const pathname = usePathname()
+  useEffect(() => {
+    if (!loggedIn()) return
+    try { if (sessionStorage.getItem(SYNC_KEY)) return } catch { /* private mode: check every time */ }
+    let alive = true
+    api.getMyLanguage().then((r: any) => {
+      markSynced()
+      const lang = r?.data?.language
+      if (!alive || !lang || lang === locale || !LANGUAGES.some((l) => l.code === lang)) return
+      router.replace(`${pathname}${window.location.search}`, { locale: lang })
+    }).catch(() => {})
+    return () => { alive = false }
+  }, [])
+  return null
 }

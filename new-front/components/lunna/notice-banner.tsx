@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Link } from "@/src/i18n/routing"
 import { AlertTriangle, Info, ShieldAlert, X } from "lucide-react"
 import { api } from "@/lib/api"
+import { useT } from "@/lib/use-t"
 
 type PublicNotice = { slug: string; title: string; summary: string; severity: "info" | "warning" | "critical" }
 
@@ -20,6 +21,7 @@ const readDismissed = (): string[] => {
 
 /** Site-wide banner for notices published in the admin panel. Urgent ones cannot be dismissed. */
 export function NoticeBanner() {
+  const t = useT()
   const [notices, setNotices] = useState<PublicNotice[]>([])
   const [dismissed, setDismissed] = useState<string[]>([])
 
@@ -54,7 +56,7 @@ export function NoticeBanner() {
               <Link href={`/avisos/${n.slug}`} className="font-medium text-[#a78bfa] underline-offset-2 hover:underline">Ler o aviso</Link>
             </p>
             {n.severity !== "critical" && (
-              <button onClick={() => dismiss(n.slug)} aria-label="Fechar aviso" className="shrink-0 text-muted-foreground hover:text-foreground">
+              <button onClick={() => dismiss(n.slug)} aria-label={t("Fechar aviso", "Close notice")} className="shrink-0 text-muted-foreground hover:text-foreground">
                 <X className="h-4 w-4" />
               </button>
             )}

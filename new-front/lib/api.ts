@@ -1,3 +1,5 @@
+import { serverText, pageLang } from "@/lib/server-text"
+
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.lunnabot.fun/v1"
 
 /** Error from the Lunna API, with the HTTP status (401 = not logged in / session expired). */
@@ -34,12 +36,13 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
     if (response.status === 401) {
       // expired/invalid session: drop the token so the site shows the logged-out state
       if (typeof window !== "undefined") document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
-      throw new ApiError(UNAUTHORIZED_MESSAGE, 401)
+      throw new ApiError(serverText(UNAUTHORIZED_MESSAGE, pageLang()), 401)
     }
     // 403 bodies are technical English ("Forbidden - No manage guild permission")
-    if (response.status === 403) throw new ApiError(body.message || "Você não tem permissão para fazer isso.", 403)
+    if (response.status === 403) throw new ApiError(serverText(body.message || "Você não tem permissão para fazer isso.", pageLang()), 403)
     // the backend answers { message } or { error } (validation errors are written for the user)
-    throw new ApiError(body.message || body.error || "Falha na requisição", response.status)
+    // messages are written in Portuguese: shown in English on the English site
+    throw new ApiError(serverText(body.message || body.error || "Falha na requisição", pageLang()), response.status)
   }
 
   return response.json()
@@ -93,6 +96,13 @@ export const api = {
   uploadBotProfileImage: (kind: "avatar" | "banner", data: string) => apiFetch("/admin/bot-profile/image", { method: "POST", body: JSON.stringify({ kind, data }) }),
   removeBotProfileImage: (kind: "avatar" | "banner") => apiFetch("/admin/bot-profile/image", { method: "POST", body: JSON.stringify({ kind, remove: true }) }),
   getAdminAudit: () => apiFetch("/admin/audit"),
+  getAdminGuilds: (q: string, page: number, refresh = false) =>
+    apiFetch(`/admin/guilds?q=${encodeURIComponent(q)}&page=${page}${refresh ? "&refresh=1" : ""}`),
+  getAdminGuild: (id: string) => apiFetch(`/admin/guilds/${encodeURIComponent(id)}`),
+  getAdminBlockedGuilds: () => apiFetch("/admin/guilds/blocked"),
+  adminLeaveGuild: (id: string, reason: string, block: boolean, name?: string) =>
+    apiFetch(`/admin/guilds/${encodeURIComponent(id)}/leave`, { method: "POST", body: JSON.stringify({ reason, block, name }) }),
+  adminUnblockGuild: (id: string) => apiFetch(`/admin/guilds/${encodeURIComponent(id)}/unblock`, { method: "POST", body: "{}" }),
   getAdminUser: (id: string) => apiFetch(`/admin/users/${encodeURIComponent(id)}`),
   adminUserAction: (id: string, action: "ban" | "unban" | "flag" | "unflag", reason: string) =>
     apiFetch(`/admin/users/${encodeURIComponent(id)}/action`, { method: "POST", body: JSON.stringify({ action, reason }) }),
@@ -101,4 +111,13 @@ export const api = {
   deleteAutomation: (guildId: string, id: string) => apiFetch(`/guilds/${guildId}/automations/${id}`, { method: "DELETE" }),
   getTickets: (guildId: string) => apiFetch(`/guilds/${guildId}/tickets`),
   updateTickets: (guildId: string, data: any) => apiFetch(`/guilds/${guildId}/tickets`, { method: "PUT", body: JSON.stringify(data) }),
+  // site language → the bot answers commands in it too (lunarcoins.language)
+  getMyLanguage: () => apiFetch("/me/language"),
+  setMyLanguage: (language: "pt" | "en") => apiFetch("/me/language", { method: "PUT", body: JSON.stringify({ language }) }),
+  getSocialAlerts: (guildId: string) => apiFetch(`/guilds/${guildId}/social-alerts`),
+  createSocialAlert: (guildId: string, data: any) => apiFetch(`/guilds/${guildId}/social-alerts`, { method: "POST", body: JSON.stringify(data) }),
+  updateSocialAlert: (guildId: string, id: string, data: any) => apiFetch(`/guilds/${guildId}/social-alerts/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  deleteSocialAlert: (guildId: string, id: string) => apiFetch(`/guilds/${guildId}/social-alerts/${id}`, { method: "DELETE" }),
+  testSocialAlert: (guildId: string, id: string) => apiFetch(`/guilds/${guildId}/social-alerts/${id}/test`, { method: "POST", body: "{}" }),
+  retrySocialAlert: (guildId: string, id: string) => apiFetch(`/guilds/${guildId}/social-alerts/${id}/retry`, { method: "POST", body: "{}" }),
 }

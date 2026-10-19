@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { useTranslations } from "next-intl"
+import { useT } from "@/lib/use-t"
 
 export function DashboardSection() {
   const t = useTranslations("Dashboard")
@@ -21,12 +22,13 @@ export function DashboardSection() {
     { value: "98%", label: t("activity") },
   ]
 
+  const L = useT()
   const progressBars = [
-    { day: "Seg", pct: 82, color: "var(--primary)" },
-    { day: "Ter", pct: 67, color: "var(--primary)" },
-    { day: "Qua", pct: 91, color: "var(--primary)" },
-    { day: "Qui", pct: 75, color: "var(--primary)" },
-    { day: "Sex", pct: 58, color: "var(--muted-foreground)" },
+    { day: L("Seg", "Mon"), pct: 82, color: "var(--primary)" },
+    { day: L("Ter", "Tue"), pct: 67, color: "var(--primary)" },
+    { day: L("Qua", "Wed"), pct: 91, color: "var(--primary)" },
+    { day: L("Qui", "Thu"), pct: 75, color: "var(--primary)" },
+    { day: L("Sex", "Fri"), pct: 58, color: "var(--muted-foreground)" },
   ]
 
   return (

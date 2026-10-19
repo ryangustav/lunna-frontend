@@ -1,39 +1,41 @@
 "use client"
+import { useT, type T } from "@/lib/use-t"
 
-const features = [
+const features = (t: T) => [
   {
     icon: "⚔️",
     iconBg: "#ede9fe",
     title: "RPG",
-    description: "Sistema de missões, masmorras, batalhas e progressão de personagem para sua comunidade.",
+    description: t("Sistema de missões, masmorras, batalhas e progressão de personagem para sua comunidade.", "Quests, dungeons, battles and character progression for your community."),
   },
   {
     icon: "💰",
     iconBg: "#fef9c3",
-    title: "Economia",
-    description: "Moedas, loja, inventário e recompensas diárias que mantêm seus membros engajados.",
+    title: t("Economia", "Economy"),
+    description: t("Moedas, loja, inventário e recompensas diárias que mantêm seus membros engajados.", "Coins, a shop, an inventory and daily rewards that keep your members engaged."),
   },
   {
     icon: "🛡️",
     iconBg: "#ecfdf5",
-    title: "Moderação",
-    description: "Automod inteligente, logs de auditoria, banimentos e silenciamentos automatizados.",
+    title: t("Moderação", "Moderation"),
+    description: t("Automod inteligente, logs de auditoria, banimentos e silenciamentos automatizados.", "Smart automod, audit logs, and automatic bans and timeouts."),
   },
   {
     icon: "🧠",
     iconBg: "#eff6ff",
-    title: "IA",
-    description: "Respostas automáticas, análise de comportamento e sugestões personalizadas com IA.",
+    title: t("IA", "AI"),
+    description: t("Respostas automáticas, análise de comportamento e sugestões personalizadas com IA.", "AI-powered automatic answers, behavior analysis and personalized suggestions."),
   },
   {
     icon: "🎨",
     iconBg: "#fdf2f8",
     title: "Dashboard",
-    description: "Painel web completo para configurar tudo sem precisar usar comandos.",
+    description: t("Painel web completo para configurar tudo sem precisar usar comandos.", "A full web dashboard to set everything up without commands."),
   },
 ]
 
 export function FeaturesSection() {
+  const t = useT()
   return (
     <section
       id="features"
@@ -45,15 +47,15 @@ export function FeaturesSection() {
         <span
           className="text-[11px] font-bold uppercase tracking-[2px] text-primary"
         >
-          Recursos
+          {t("Recursos", "Features")}
         </span>
         <h2
           className="text-balance text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground"
         >
-          Tudo que sua comunidade precisa
+          {t("Tudo que sua comunidade precisa", "Everything your community needs")}
         </h2>
         <p className="text-[15px] leading-[1.7] text-muted-foreground" style={{ maxWidth: "480px" }}>
-          Ferramentas poderosas reunidas em um único bot, pensadas para criar experiências memoráveis no Discord.
+          {t("Ferramentas poderosas reunidas em um único bot, pensadas para criar experiências memoráveis no Discord.", "Powerful tools in a single bot, made to create memorable experiences on Discord.")}
         </p>
       </div>
 
@@ -62,7 +64,7 @@ export function FeaturesSection() {
         className="grid gap-4"
         style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}
       >
-        {features.map((feature) => (
+        {features(t).map((feature) => (
           <div
             key={feature.title}
             className="group rounded-[14px] bg-card p-[22px_18px] transition-all duration-200 hover:-translate-y-0.5"

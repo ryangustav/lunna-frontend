@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Link } from "@/src/i18n/routing"
 import { Navbar } from "@/components/lunna/navbar"
 import { api } from "@/lib/api"
+import { useT } from "@/lib/use-t"
 
 interface Guild {
   id: string
@@ -19,6 +20,7 @@ const INVITE_URL = "https://discord.com/oauth2/authorize?client_id=1222333304028
 
 export default function DashboardPage() {
   const t = useTranslations("Dashboard")
+  const L = useT()
   const [guilds, setGuilds] = useState<Guild[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -63,7 +65,7 @@ export default function DashboardPage() {
             <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Buscar servidor"
+              placeholder={L("Buscar servidor", "Search server")}
               style={{ paddingLeft: "2.5rem" }}
               className="h-10 w-full rounded-full border border-border bg-card pr-4 text-[13px] outline-none transition-colors focus:border-[#7c3aed]/60"
               value={search}
@@ -119,7 +121,7 @@ export default function DashboardPage() {
               })}
 
               {!filtered.length && !error && (
-                <p className="px-5 py-8 text-center text-[13px] text-muted-foreground">Nenhum servidor encontrado.</p>
+                <p className="px-5 py-8 text-center text-[13px] text-muted-foreground">{L("Nenhum servidor encontrado.", "No servers found.")}</p>
               )}
             </>
           )}
@@ -132,7 +134,7 @@ export default function DashboardPage() {
           className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#7c3aed] px-5 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
         >
           <Plus className="h-4 w-4" />
-          Adicionar a outro servidor
+          {L("Adicionar a outro servidor", "Add to another server")}
         </a>
       </main>
     </div>

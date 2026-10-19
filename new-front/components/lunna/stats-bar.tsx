@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { api } from "@/lib/api"
+import { useT } from "@/lib/use-t"
 
 export function StatsBar() {
+  const t = useT()
   const [statsData, setStatsData] = useState<{
     totalServers?: number
     onlineMembers?: number
@@ -21,13 +23,13 @@ export function StatsBar() {
   }, [])
 
   const fmt = (num?: number, suffix = "") => 
-    num ? new Intl.NumberFormat("pt-BR", { notation: "compact" }).format(num) + suffix : "..."
+    num ? new Intl.NumberFormat(t("pt-BR", "en-US"), { notation: "compact" }).format(num) + suffix : "..."
 
   const stats = [
-    { value: statsData.totalServers ? fmt(statsData.totalServers) : "2.4K+", label: "Servidores" },
-    { value: statsData.onlineMembers ? fmt(statsData.onlineMembers, "+") : "180K+", label: "Usuários" },
+    { value: statsData.totalServers ? fmt(statsData.totalServers) : "2.4K+", label: t("Servidores", "Servers") },
+    { value: statsData.onlineMembers ? fmt(statsData.onlineMembers, "+") : "180K+", label: t("Usuários", "Users") },
     { value: statsData.uptime ? `${statsData.uptime}%` : "99.9%", label: "Uptime" },
-    { value: "24/7", label: "Suporte" },
+    { value: "24/7", label: t("Suporte", "Support") },
   ]
 
   return (

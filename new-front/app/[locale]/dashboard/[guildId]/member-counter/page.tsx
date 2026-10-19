@@ -5,6 +5,7 @@ import { Users, Save, AlertTriangle, ChevronLeft, Check, Lock, Edit2, Crown } fr
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import { useT } from "@/lib/use-t"
 
 interface Channel {
   id: string
@@ -24,6 +25,7 @@ export default function MemberCounterPage({
 }: {
   params: Promise<{ guildId: string }>
 }) {
+  const t = useT()
   const { guildId } = use(params)
   const { toast } = useToast()
 
@@ -62,7 +64,7 @@ export default function MemberCounterPage({
         }
       } catch (err: any) {
         console.error("Failed to load settings data:", err)
-        setError(err.message || "Não foi possível carregar as configurações do servidor.")
+        setError(err.message || t("Não foi possível carregar as configurações do servidor.", "Couldn't load the server settings."))
       } finally {
         setLoading(false)
       }
@@ -84,7 +86,7 @@ export default function MemberCounterPage({
   const getOrCreateCounterConfig = (chId: string): CounterConfig => {
     return memberCounters[chId] || {
       enabled: false,
-      topic: "Tópico do canal: {counter} membros!",
+      topic: t("Tópico do canal: {counter} membros!", "Channel topic: {counter} members!"),
       theme: "default",
       zero_padding: 5
     }
@@ -97,8 +99,8 @@ export default function MemberCounterPage({
     // Check if enabling exceeds limits
     if (updates.enabled === true && !current.enabled && limitReached) {
       toast({
-        title: "Limite Excedido",
-        description: `Seu servidor (Plano: ${premiumType.toUpperCase()}) atingiu o limite de ${limit} contadores ativos. Faça upgrade!`,
+        title: t("Limite Excedido", "Limit reached"),
+        description: t(`Seu servidor (Plano: ${premiumType.toUpperCase()}) atingiu o limite de ${limit} contadores ativos. Faça upgrade!`, `Your server (plan: ${premiumType.toUpperCase()}) reached the limit of ${limit} active counters. Upgrade for more!`),
         variant: "destructive"
       })
       return
@@ -118,14 +120,14 @@ export default function MemberCounterPage({
         member_counters: memberCounters
       })
       toast({
-        title: "Configurações salvas!",
-        description: "Contadores de membros atualizados com sucesso.",
+        title: t("Configurações salvas!", "Settings saved!"),
+        description: t("Contadores de membros atualizados com sucesso.", "Member counters updated."),
       })
     } catch (err: any) {
       console.error("Failed to save settings:", err)
       toast({
-        title: "Erro ao salvar",
-        description: err.message || "Ocorreu um erro ao salvar as configurações.",
+        title: t("Erro ao salvar", "Couldn't save"),
+        description: err.message || t("Ocorreu um erro ao salvar as configurações.", "Something went wrong while saving the settings."),
         variant: "destructive"
       })
     } finally {
@@ -202,10 +204,10 @@ export default function MemberCounterPage({
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center rounded-[14px] border border-destructive/20 bg-destructive/5 space-y-4">
         <AlertTriangle className="h-12 w-12 text-destructive" />
-        <h3 className="text-[15px] font-bold text-foreground">Falha de Conexão</h3>
+        <h3 className="text-[15px] font-bold text-foreground">{t("Falha de Conexão", "Connection failed")}</h3>
         <p className="text-sm text-muted-foreground max-w-md">{error}</p>
         <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full">
-          Tentar Novamente
+          {t("Tentar Novamente", "Try again")}
         </Button>
       </div>
     )
@@ -224,7 +226,7 @@ export default function MemberCounterPage({
           className="group flex items-center text-xs font-semibold tracking-[2px] uppercase text-violet-400 hover:text-violet-300 transition-colors"
         >
           <ChevronLeft className="mr-1 h-4 w-4 transition-transform group-hover:-translate-x-1" />
-          Voltar para a lista de canais
+          {t("Voltar para a lista de canais", "Back to the channel list")}
         </button>
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -233,7 +235,7 @@ export default function MemberCounterPage({
               <span className="text-violet-500">#</span> {activeChannel.name}
             </h1>
             <p className="mt-2 text-xs text-muted-foreground">
-              Personalize o contador de membros específico para este canal.
+              {t("Personalize o contador de membros específico para este canal.", "Customize the member counter for this channel.")}
             </p>
           </div>
 
@@ -243,7 +245,7 @@ export default function MemberCounterPage({
             className="w-full sm:w-auto h-10 rounded-full font-bold rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
           >
             <Save className="mr-2 h-4 w-4" />
-            {saving ? "Salvando..." : "Salvar Configurações"}
+            {saving ? t("Salvando...", "Saving...") : t("Salvar Configurações", "Save settings")}
           </Button>
         </div>
 
@@ -251,8 +253,8 @@ export default function MemberCounterPage({
           {/* Toggle Counter */}
           <div className="flex justify-between items-center pb-4 border-b border-border/40">
             <div className="space-y-1 pr-4">
-              <h3 className="text-sm font-semibold text-foreground">Ativar contador de membros</h3>
-              <p className="text-xs text-muted-foreground">Após ativar, utilize <code>{"{counter}"}</code> no texto do seu tópico para ativar o contador!</p>
+              <h3 className="text-sm font-semibold text-foreground">{t("Ativar contador de membros", "Turn on the member counter")}</h3>
+              <p className="text-xs text-muted-foreground">{t("Após ativar, utilize", "Once on, put")} <code>{"{counter}"}</code> {t("no texto do seu tópico para ativar o contador!", "in your topic text to show the counter!")}</p>
             </div>
             <input
               type="checkbox"
@@ -266,12 +268,12 @@ export default function MemberCounterPage({
             <div className="space-y-6 animate-in fade-in duration-300">
               {/* Topic Input */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-foreground">Tópico do Canal (Será utilizado após alguém entrar/sair)</label>
+                <label className="text-xs font-semibold text-foreground">{t("Tópico do Canal (Será utilizado após alguém entrar/sair)", "Channel topic (updated when someone joins or leaves)")}</label>
                 <textarea
                   value={activeConfig.topic}
                   onChange={(e) => updateCounterConfig(activeChannel.id, { topic: e.target.value })}
                   rows={2}
-                  placeholder="Ex: Membros: {counter}"
+                  placeholder={t("Ex: Membros: {counter}", "E.g.: Members: {counter}")}
                   className="w-full rounded-[10px] border border-border bg-secondary/20 px-4 py-3 text-xs font-medium text-foreground outline-none transition focus:border-violet-500"
                 />
               </div>
@@ -279,7 +281,7 @@ export default function MemberCounterPage({
               {/* Theme Selector */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-foreground flex items-center gap-2">
-                  <span>Tema do Contador de Membros</span>
+                  <span>{t("Tema do Contador de Membros", "Counter theme")}</span>
                   {activeConfig.theme !== "default" && premiumType === "free" && (
                     <span className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-[2px] px-2 py-0.5 rounded bg-violet-600/15 text-violet-400">
                       <Crown className="h-2.5 w-2.5" /> Premium
@@ -293,8 +295,8 @@ export default function MemberCounterPage({
                     const val = e.target.value
                     if (val !== "default" && premiumType === "free") {
                       toast({
-                        title: "Tema Premium Bloqueado",
-                        description: "Upgrade para o plano Básico ou superior para usar temas customizados de números!",
+                        title: t("Tema Premium Bloqueado", "Premium theme locked"),
+                        description: t("Upgrade para o plano Básico ou superior para usar temas customizados de números!", "Upgrade to Basic or higher to use custom number themes!"),
                         variant: "destructive"
                       })
                       return
@@ -303,17 +305,17 @@ export default function MemberCounterPage({
                   }}
                   className="w-full h-11 rounded-[10px] border border-border bg-secondary/20 px-4 text-xs font-semibold text-foreground outline-none transition focus:border-violet-500"
                 >
-                  <option value="default">Padrão (123)</option>
-                  <option value="lunna">Lunna Emojis (Exclusivo) [Premium]</option>
+                  <option value="default">{t("Padrão (123)", "Default (123)")}</option>
+                  <option value="lunna">{t("Lunna Emojis (Exclusivo) [Premium]", "Lunna emojis (exclusive) [Premium]")}</option>
                   <option value="emoji">Emojis/Keycaps (1️⃣2️⃣3️⃣) [Premium]</option>
-                  <option value="circle">Círculos (①②③) [Premium]</option>
-                  <option value="gothic">Negrito (𝟏𝟐𝟑) [Premium]</option>
+                  <option value="circle">{t("Círculos (①②③) [Premium]", "Circles (①②③) [Premium]")}</option>
+                  <option value="gothic">{t("Negrito (𝟏𝟐𝟑) [Premium]", "Bold (𝟏𝟐𝟑) [Premium]")}</option>
                 </select>
               </div>
 
               {/* Zero Padding */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-foreground">Preenchimento com Zeros (Zero Padding)</label>
+                <label className="text-xs font-semibold text-foreground">{t("Preenchimento com Zeros (Zero Padding)", "Zero padding")}</label>
                 <input
                   type="number"
                   min={0}
@@ -326,28 +328,28 @@ export default function MemberCounterPage({
 
               {/* Preview Rendering */}
               <div className="space-y-3 pt-2">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-[2px]">Pré-visualização do Formato</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-[2px]">{t("Pré-visualização do Formato", "Format preview")}</label>
                 <div className="flex flex-col gap-2 p-4 rounded-[14px] bg-secondary/40 border border-border/50">
                   <div className="flex items-center gap-1.5 font-semibold text-sm text-foreground">
-                    <span className="text-xs text-muted-foreground font-medium">5 membros:</span>
+                    <span className="text-xs text-muted-foreground font-medium">{t("5 membros:", "5 members:")}</span>
                     <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15 flex items-center min-h-[28px]">
                       {renderFormattedNumber(5, activeConfig.zero_padding, activeConfig.theme)}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 font-semibold text-sm text-foreground">
-                    <span className="text-xs text-muted-foreground font-medium">10 membros:</span>
+                    <span className="text-xs text-muted-foreground font-medium">{t("10 membros:", "10 members:")}</span>
                     <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15 flex items-center min-h-[28px]">
                       {renderFormattedNumber(10, activeConfig.zero_padding, activeConfig.theme)}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 font-semibold text-sm text-foreground">
-                    <span className="text-xs text-muted-foreground font-medium">34 membros:</span>
+                    <span className="text-xs text-muted-foreground font-medium">{t("34 membros:", "34 members:")}</span>
                     <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15 flex items-center min-h-[28px]">
                       {renderFormattedNumber(34, activeConfig.zero_padding, activeConfig.theme)}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 font-semibold text-sm text-foreground">
-                    <span className="text-xs text-muted-foreground font-medium">250 membros:</span>
+                    <span className="text-xs text-muted-foreground font-medium">{t("250 membros:", "250 members:")}</span>
                     <span className="bg-violet-600/10 px-2 py-0.5 rounded text-violet-400 border border-violet-500/15 flex items-center min-h-[28px]">
                       {renderFormattedNumber(250, activeConfig.zero_padding, activeConfig.theme)}
                     </span>
@@ -367,10 +369,10 @@ export default function MemberCounterPage({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="flex items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground">
-            Contador de Membros
+            {t("Contador de Membros", "Member counter")}
           </h1>
           <p className="mt-2 text-xs text-muted-foreground">
-            Configure e ative contadores de membros dinâmicos nos tópicos de seus canais.
+            {t("Configure e ative contadores de membros dinâmicos nos tópicos de seus canais.", "Set up live member counters in your channel topics.")}
           </p>
         </div>
 
@@ -380,7 +382,7 @@ export default function MemberCounterPage({
           className="w-full sm:w-auto h-10 rounded-full font-bold rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
         >
           <Save className="mr-2 h-4 w-4" />
-          {saving ? "Salvando..." : "Salvar Configurações"}
+          {saving ? t("Salvando...", "Saving...") : t("Salvar Configurações", "Save settings")}
         </Button>
       </div>
 
@@ -388,22 +390,22 @@ export default function MemberCounterPage({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-[14px] border border-border/80 bg-card p-5 flex items-center justify-between">
           <div className="space-y-0.5">
-            <span className="text-xs text-muted-foreground font-semibold">Plano do Servidor</span>
+            <span className="text-xs text-muted-foreground font-semibold">{t("Plano do Servidor", "Server plan")}</span>
             <div className="flex items-center gap-1.5">
               <Crown className="h-4 w-4 text-violet-500" />
               <span className="text-sm font-semibold uppercase text-foreground">{premiumType}</span>
             </div>
           </div>
           <span className="text-[10px] font-semibold bg-violet-500/10 text-violet-400 px-3 py-1 rounded-full uppercase tracking-[2px]">
-            {premiumType === "free" ? "Grátis" : premiumType}
+            {premiumType === "free" ? t("Grátis", "Free") : premiumType}
           </span>
         </div>
 
         <div className="rounded-[14px] border border-border/80 bg-card p-5 flex items-center justify-between">
           <div className="space-y-0.5">
-            <span className="text-xs text-muted-foreground font-semibold">Contadores Ativos</span>
+            <span className="text-xs text-muted-foreground font-semibold">{t("Contadores Ativos", "Active counters")}</span>
             <p className="text-sm font-semibold text-foreground">
-              {activeCount} <span className="text-muted-foreground text-xs font-medium">/ {limit === Infinity ? "Ilimitados" : limit}</span>
+              {activeCount} <span className="text-muted-foreground text-xs font-medium">/ {limit === Infinity ? t("Ilimitados", "Unlimited") : limit}</span>
             </p>
           </div>
           <div className="w-10 h-10 rounded-[10px] bg-violet-600/10 flex items-center justify-center font-bold text-violet-400">
@@ -416,14 +418,14 @@ export default function MemberCounterPage({
       {premiumType === "free" && limitReached && (
         <div className="rounded-[14px] border border-amber-500/20 bg-amber-500/5 p-4 flex items-center justify-between gap-4">
           <div className="space-y-1">
-            <h4 className="text-xs font-semibold text-foreground">Atingiu o Limite do Plano Grátis</h4>
-            <p className="text-[10px] text-muted-foreground">Você está utilizando os 3 contadores permitidos no plano Grátis. Faça upgrade para adicionar mais!</p>
+            <h4 className="text-xs font-semibold text-foreground">{t("Atingiu o Limite do Plano Grátis", "Free plan limit reached")}</h4>
+            <p className="text-[10px] text-muted-foreground">{t("Você está utilizando os 3 contadores permitidos no plano Grátis. Faça upgrade para adicionar mais!", "You're using the 3 counters the free plan allows. Upgrade to add more!")}</p>
           </div>
           <a
-            href={`/dashboard/${guildId}/premium`}
+            href={t(`/dashboard/${guildId}/premium`, `/en/dashboard/${guildId}/premium`)}
             className="flex-shrink-0 text-[10px] font-semibold uppercase bg-violet-600 text-white px-3 py-2 rounded-lg hover:bg-violet-700 transition-colors"
           >
-            Ver Planos
+            {t("Ver Planos", "See plans")}
           </a>
         </div>
       )}
@@ -431,13 +433,13 @@ export default function MemberCounterPage({
       {/* Channels List Table (Image 2 mockup style) */}
       <div className="rounded-[14px] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm">
         <div className="space-y-1">
-          <h3 className="text-[15px] font-semibold text-foreground">Canais do servidor com tópico</h3>
-          <p className="text-xs text-muted-foreground">{channels.length} canais elegíveis encontrados.</p>
+          <h3 className="text-[15px] font-semibold text-foreground">{t("Canais do servidor com tópico", "Server channels with a topic")}</h3>
+          <p className="text-xs text-muted-foreground">{t(`${channels.length} canais elegíveis encontrados.`, `${channels.length} eligible channels found.`)}</p>
         </div>
 
         <div className="divide-y divide-border/40">
           {channels.length === 0 ? (
-            <p className="py-6 text-center text-xs font-semibold text-muted-foreground">Nenhum canal com suporte a tópico encontrado no servidor.</p>
+            <p className="py-6 text-center text-xs font-semibold text-muted-foreground">{t("Nenhum canal com suporte a tópico encontrado no servidor.", "No channels with topics found in the server.")}</p>
           ) : (
             channels.map((ch) => {
               const conf = getOrCreateCounterConfig(ch.id)
@@ -451,13 +453,13 @@ export default function MemberCounterPage({
                       </span>
                       {conf.enabled && (
                         <span className="text-[9px] font-semibold uppercase tracking-[2px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">
-                          Ativo
+                          {t("Ativo", "On")}
                         </span>
                       )}
                     </div>
                     {conf.enabled && (
                       <p className="text-[10px] text-muted-foreground line-clamp-1 max-w-md">
-                        Template: <code className="bg-secondary/40 px-1 rounded">{conf.topic}</code>
+                        {t("Modelo", "Template")}: <code className="bg-secondary/40 px-1 rounded">{conf.topic}</code>
                       </p>
                     )}
                   </div>
@@ -467,7 +469,7 @@ export default function MemberCounterPage({
                     className="h-9 rounded-full border border-border bg-card px-4 text-[13px] font-semibold text-foreground hover:bg-secondary"
                   >
                     <Edit2 className="mr-1.5 h-3.5 w-3.5" />
-                    Editar
+                    {t("Editar", "Edit")}
                   </Button>
                 </div>
               )

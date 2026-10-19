@@ -20,13 +20,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 })
 
-export const metadata: Metadata = {
-  title: "Lunna — O coração que seu servidor precisava",
-  description: "Bot de Discord com RPG, economia, moderação com IA e dashboard completo para sua comunidade.",
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-icon.png",
-  },
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+  const en = locale === "en"
+  return {
+    title: en ? "Lunna — The heart your server needed" : "Lunna — O coração que seu servidor precisava",
+    description: en
+      ? "Discord bot with RPG, economy, AI moderation and a full dashboard for your community."
+      : "Bot de Discord com RPG, economia, moderação com IA e dashboard completo para sua comunidade.",
+    icons: {
+      icon: "/favicon.ico",
+      apple: "/apple-icon.png",
+    },
+  }
 }
 
 export function generateStaticParams() {

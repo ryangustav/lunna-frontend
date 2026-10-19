@@ -5,6 +5,7 @@ import { Save, AlertTriangle, Activity, MessageSquare, Mic, User, ShieldAlert, F
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import { useT } from "@/lib/use-t"
 
 interface Channel {
   id: string
@@ -17,6 +18,7 @@ export default function LogsPage({
 }: {
   params: Promise<{ guildId: string }>
 }) {
+  const t = useT()
   const { guildId } = use(params)
   const { toast } = useToast()
 
@@ -67,10 +69,10 @@ export default function LogsPage({
 
       } catch (err: any) {
         console.error("Failed to load logs settings:", err)
-        setError(err.message || "Não foi possível carregar as configurações do servidor.")
+        setError(err.message || t("Não foi possível carregar as configurações do servidor.", "Couldn't load the server settings."))
         toast({
-          title: "Erro ao carregar dados",
-          description: err.message || "Por favor, verifique se o bot está no servidor.",
+          title: t("Erro ao carregar dados", "Couldn't load the data"),
+          description: err.message || t("Por favor, verifique se o bot está no servidor.", "Please check that the bot is in the server."),
           variant: "destructive"
         })
       } finally {
@@ -105,14 +107,14 @@ export default function LogsPage({
       await api.updateGuildSettings(guildId, payload)
 
       toast({
-        title: "Sucesso!",
-        description: "Configurações de registros e auditoria salvas com sucesso.",
+        title: t("Sucesso!", "Saved!"),
+        description: t("Configurações de registros e auditoria salvas com sucesso.", "Log settings saved."),
       })
     } catch (err: any) {
       console.error("Failed to save settings:", err)
       toast({
-        title: "Erro ao salvar",
-        description: err.message || "Ocorreu um erro ao salvar as configurações.",
+        title: t("Erro ao salvar", "Couldn't save"),
+        description: err.message || t("Ocorreu um erro ao salvar as configurações.", "Something went wrong while saving the settings."),
         variant: "destructive"
       })
     } finally {
@@ -136,10 +138,10 @@ export default function LogsPage({
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center rounded-[14px] border border-destructive/20 bg-destructive/5 space-y-4">
         <AlertTriangle className="h-12 w-12 text-destructive" />
-        <h3 className="text-[15px] font-bold text-foreground">Falha de Comunicação</h3>
+        <h3 className="text-[15px] font-bold text-foreground">{t("Falha de Comunicação", "Connection failed")}</h3>
         <p className="text-sm text-muted-foreground max-w-md">{error}</p>
         <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full">
-          Tentar Novamente
+          {t("Tentar Novamente", "Try again")}
         </Button>
       </div>
     )
@@ -150,10 +152,10 @@ export default function LogsPage({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="flex items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground">
-            Registro de Eventos (Logs)
+            {t("Registro de Eventos (Logs)", "Event logs")}
           </h1>
           <p className="mt-2 max-w-[560px] text-[14px] leading-[1.7] text-muted-foreground">
-            Configure canais de texto específicos para registrar as ações do servidor de forma intuitiva.
+            {t("Configure canais de texto específicos para registrar as ações do servidor de forma intuitiva.", "Pick text channels to log what happens in the server. Logs are posted in the server's language.")}
           </p>
         </div>
 
@@ -163,7 +165,7 @@ export default function LogsPage({
           className="w-full sm:w-auto h-10 rounded-full font-bold transition-all rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
         >
           <Save className="mr-2 h-4 w-4" />
-          {saving ? "Salvando..." : "Salvar Configurações"}
+          {saving ? t("Salvando...", "Saving...") : t("Salvar Configurações", "Save settings")}
         </Button>
       </div>
 
@@ -176,18 +178,18 @@ export default function LogsPage({
             <div className="rounded-[14px] border border-border/60 bg-secondary/10 p-5 space-y-4">
               <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                 <MessageSquare className="h-5 w-5 text-violet-400" />
-                Logs de Mensagens
+                {t("Logs de Mensagens", "Message logs")}
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-muted-foreground">Mensagens Excluídas</label>
+                  <label className="text-xs font-semibold text-muted-foreground">{t("Mensagens Excluídas", "Deleted messages")}</label>
                   <select
                     value={logMsgDeleteChannel}
                     onChange={(e) => setLogMsgDeleteChannel(e.target.value)}
                     className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
-                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    <option value="" className="bg-card text-muted-foreground">{t("Desativado", "Off")}</option>
                     {channels.map((ch) => (
                       <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                     ))}
@@ -195,13 +197,13 @@ export default function LogsPage({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-muted-foreground">Mensagens Editadas</label>
+                  <label className="text-xs font-semibold text-muted-foreground">{t("Mensagens Editadas", "Edited messages")}</label>
                   <select
                     value={logMsgEditChannel}
                     onChange={(e) => setLogMsgEditChannel(e.target.value)}
                     className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
-                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    <option value="" className="bg-card text-muted-foreground">{t("Desativado", "Off")}</option>
                     {channels.map((ch) => (
                       <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                     ))}
@@ -214,17 +216,17 @@ export default function LogsPage({
             <div className="rounded-[14px] border border-border/60 bg-secondary/10 p-5 space-y-4">
               <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                 <Mic className="h-5 w-5 text-indigo-400" />
-                Logs de Canais de Voz
+                {t("Logs de Canais de Voz", "Voice channel logs")}
               </h3>
               
               <div className="space-y-2 max-w-md">
-                <label className="text-xs font-semibold text-muted-foreground">Entrada, Saída e Movimentação</label>
+                <label className="text-xs font-semibold text-muted-foreground">{t("Entrada, Saída e Movimentação", "Joins, leaves and moves")}</label>
                 <select
                   value={logVoiceChannel}
                   onChange={(e) => setLogVoiceChannel(e.target.value)}
                   className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                 >
-                  <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                  <option value="" className="bg-card text-muted-foreground">{t("Desativado", "Off")}</option>
                   {channels.map((ch) => (
                     <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                   ))}
@@ -236,18 +238,18 @@ export default function LogsPage({
             <div className="rounded-[14px] border border-border/60 bg-secondary/10 p-5 space-y-4">
               <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                 <User className="h-5 w-5 text-purple-400" />
-                Logs de Membros
+                {t("Logs de Membros", "Member logs")}
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-muted-foreground">Alteração de Apelido (Nickname)</label>
+                  <label className="text-xs font-semibold text-muted-foreground">{t("Alteração de Apelido (Nickname)", "Nickname changes")}</label>
                   <select
                     value={logMemberNicknameChannel}
                     onChange={(e) => setLogMemberNicknameChannel(e.target.value)}
                     className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
-                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    <option value="" className="bg-card text-muted-foreground">{t("Desativado", "Off")}</option>
                     {channels.map((ch) => (
                       <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                     ))}
@@ -255,13 +257,13 @@ export default function LogsPage({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-muted-foreground">Alteração de Avatar (Foto)</label>
+                  <label className="text-xs font-semibold text-muted-foreground">{t("Alteração de Avatar (Foto)", "Avatar changes")}</label>
                   <select
                     value={logMemberAvatarChannel}
                     onChange={(e) => setLogMemberAvatarChannel(e.target.value)}
                     className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
-                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    <option value="" className="bg-card text-muted-foreground">{t("Desativado", "Off")}</option>
                     {channels.map((ch) => (
                       <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                     ))}
@@ -274,18 +276,18 @@ export default function LogsPage({
             <div className="rounded-[14px] border border-border/60 bg-secondary/10 p-5 space-y-4">
               <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                 <FolderClosed className="h-5 w-5 text-yellow-400" />
-                Logs de Estrutura (Servidor)
+                {t("Logs de Estrutura (Servidor)", "Server structure logs")}
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-muted-foreground">Canais Criados</label>
+                  <label className="text-xs font-semibold text-muted-foreground">{t("Canais Criados", "Channels created")}</label>
                   <select
                     value={logServerChannelCreateChannel}
                     onChange={(e) => setLogServerChannelCreateChannel(e.target.value)}
                     className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
-                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    <option value="" className="bg-card text-muted-foreground">{t("Desativado", "Off")}</option>
                     {channels.map((ch) => (
                       <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                     ))}
@@ -293,13 +295,13 @@ export default function LogsPage({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-muted-foreground">Canais Excluídos</label>
+                  <label className="text-xs font-semibold text-muted-foreground">{t("Canais Excluídos", "Channels deleted")}</label>
                   <select
                     value={logServerChannelDeleteChannel}
                     onChange={(e) => setLogServerChannelDeleteChannel(e.target.value)}
                     className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
-                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    <option value="" className="bg-card text-muted-foreground">{t("Desativado", "Off")}</option>
                     {channels.map((ch) => (
                       <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                     ))}
@@ -307,13 +309,13 @@ export default function LogsPage({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-muted-foreground">Cargos Criados</label>
+                  <label className="text-xs font-semibold text-muted-foreground">{t("Cargos Criados", "Roles created")}</label>
                   <select
                     value={logServerRoleCreateChannel}
                     onChange={(e) => setLogServerRoleCreateChannel(e.target.value)}
                     className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
-                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    <option value="" className="bg-card text-muted-foreground">{t("Desativado", "Off")}</option>
                     {channels.map((ch) => (
                       <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                     ))}
@@ -321,13 +323,13 @@ export default function LogsPage({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-muted-foreground">Cargos Excluídos</label>
+                  <label className="text-xs font-semibold text-muted-foreground">{t("Cargos Excluídos", "Roles deleted")}</label>
                   <select
                     value={logServerRoleDeleteChannel}
                     onChange={(e) => setLogServerRoleDeleteChannel(e.target.value)}
                     className="w-full h-11 rounded-[10px] border border-border/80 bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
-                    <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                    <option value="" className="bg-card text-muted-foreground">{t("Desativado", "Off")}</option>
                     {channels.map((ch) => (
                       <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                     ))}

@@ -13,6 +13,7 @@ import { Link } from "@/src/i18n/routing";
 import { Navbar } from "@/components/lunna/navbar";
 import { api, isUnauthorized } from "@/lib/api";
 import { HCaptcha } from "@/components/lunna/hcaptcha";
+import { useT } from "@/lib/use-t"
 
 // Custom counter hook for ticking up the coins smoothly
 function useAnimatedCounter(endValue: number, startValue: number = 0, durationMs: number = 2000) {
@@ -45,6 +46,7 @@ function useAnimatedCounter(endValue: number, startValue: number = 0, durationMs
 
 export default function DailyPage() {
   const t = useTranslations("Daily");
+  const L = useT();
   const [isPending, startTransition] = useTransition();
 
   // Session state
@@ -269,7 +271,7 @@ export default function DailyPage() {
                   {t("loginToClaim")}
                 </CardTitle>
                 <CardDescription className="text-sm font-medium px-4 text-muted-foreground/80">
-                  Faça login com sua conta do Discord para vincular seu perfil e resgatar recompensas.
+                  {L("Faça login com sua conta do Discord para vincular seu perfil e resgatar recompensas.", "Log in with your Discord account to link your profile and claim rewards.")}
                 </CardDescription>
               </CardHeader>
               <CardFooter className="pb-10 pt-4 px-8">
@@ -358,7 +360,7 @@ export default function DailyPage() {
                     <div className="flex items-center justify-center gap-3 p-4 rounded-2xl bg-purple-950/20 border border-purple-500/20 shadow-inner">
                       <Gift className="h-5 w-5 text-purple-400 animate-bounce" />
                       <span className="font-extrabold text-sm text-purple-200">
-                        {userData?.isVip ? "Sua recompensa diária VIP está pronta!" : "Sua recompensa diária está pronta!"}
+                        {userData?.isVip ? L("Sua recompensa diária VIP está pronta!", "Your VIP daily reward is ready!") : L("Sua recompensa diária está pronta!", "Your daily reward is ready!")}
                       </span>
                     </div>
 

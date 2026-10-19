@@ -5,6 +5,7 @@ import { Save, AlertTriangle, MessageSquare, Image as ImageIcon, Type, Lock, Cro
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import { useT } from "@/lib/use-t"
 
 interface Channel {
   id: string
@@ -17,6 +18,7 @@ export default function WelcomePage({
 }: {
   params: Promise<{ guildId: string }>
 }) {
+  const t = useT()
   const { guildId } = use(params)
   const { toast } = useToast()
 
@@ -79,11 +81,14 @@ export default function WelcomePage({
 
         if (settingsRes) {
           setWelcomeChannel(settingsRes.welcome_channel || "")
-          setWelcomeMsg(settingsRes.welcome_msg !== null && settingsRes.welcome_msg !== undefined ? settingsRes.welcome_msg : "Bem-vindo {user_mention} ao servidor!")
+          // the stored default is Portuguese: on the English site, show (and save) the English one
+          const wm = settingsRes.welcome_msg !== null && settingsRes.welcome_msg !== undefined ? settingsRes.welcome_msg : "Bem-vindo {user_mention} ao servidor!"
+          setWelcomeMsg(wm === "Bem-vindo {user_mention} ao servidor!" ? t(wm, "Welcome {user_mention} to the server!") : wm)
           setWelcomeDeleteTime(settingsRes.welcome_delete_time || 0)
 
           setLeaveChannel(settingsRes.leave_channel || "")
-          setLeaveMsg(settingsRes.leave_msg !== null && settingsRes.leave_msg !== undefined ? settingsRes.leave_msg : "Adeus {user_mention}!")
+          const lm = settingsRes.leave_msg !== null && settingsRes.leave_msg !== undefined ? settingsRes.leave_msg : "Adeus {user_mention}!"
+          setLeaveMsg(lm === "Adeus {user_mention}!" ? t(lm, "Goodbye {user_mention}!") : lm)
           setLeaveDeleteTime(settingsRes.leave_delete_time || 0)
 
           // Welcome banner settings
@@ -110,10 +115,10 @@ export default function WelcomePage({
 
       } catch (err: any) {
         console.error("Failed to load settings data:", err)
-        setError(err.message || "Não foi possível carregar as configurações do servidor.")
+        setError(err.message || t("Não foi possível carregar as configurações do servidor.", "Couldn't load the server settings."))
         toast({
-          title: "Erro ao carregar dados",
-          description: err.message || "Por favor, verifique se o bot está no servidor.",
+          title: t("Erro ao carregar dados", "Couldn't load the data"),
+          description: err.message || t("Por favor, verifique se o bot está no servidor.", "Please check that the bot is in the server."),
           variant: "destructive"
         })
       } finally {
@@ -161,14 +166,14 @@ export default function WelcomePage({
       await api.updateGuildSettings(guildId, payload)
 
       toast({
-        title: "Sucesso!",
-        description: "Configurações salvas e sincronizadas com sucesso.",
+        title: t("Sucesso!", "Saved!"),
+        description: t("Configurações salvas e sincronizadas com sucesso.", "Settings saved."),
       })
     } catch (err: any) {
       console.error("Failed to save settings:", err)
       toast({
-        title: "Erro ao salvar",
-        description: err.message || "Ocorreu um erro ao salvar as configurações.",
+        title: t("Erro ao salvar", "Couldn't save"),
+        description: err.message || t("Ocorreu um erro ao salvar as configurações.", "Something went wrong while saving the settings."),
         variant: "destructive"
       })
     } finally {
@@ -356,18 +361,18 @@ export default function WelcomePage({
 
     const replaceMockPlaceholders = (str: string) => {
       return str
-        .replace(/{user_mention}/g, "@Novo membro")
-        .replace(/{username}/g, "Novo membro")
-        .replace(/{user_name}/g, "Novo membro")
-        .replace(/{user_tag}/g, "novo.membro")
+        .replace(/{user_mention}/g, t("@Novo membro", "@New member"))
+        .replace(/{username}/g, t("Novo membro", "New member"))
+        .replace(/{user_name}/g, t("Novo membro", "New member"))
+        .replace(/{user_tag}/g, t("novo.membro", "new.member"))
         .replace(/{user_id}/g, "123456789012345678")
-        .replace(/{server_name}/g, "Servidor Demo")
-        .replace(/{guild_name}/g, "Servidor Demo")
+        .replace(/{server_name}/g, t("Servidor Demo", "Demo Server"))
+        .replace(/{guild_name}/g, t("Servidor Demo", "Demo Server"))
         .replace(/{total_members}/g, "123")
         .replace(/{member_count}/g, "123")
-        .replace(/{inviter_mention}/g, "@Divulgador")
-        .replace(/{inviter_name}/g, "Divulgador")
-        .replace(/{inviter_tag}/g, "Divulgador#1111")
+        .replace(/{inviter_mention}/g, t("@Divulgador", "@Inviter"))
+        .replace(/{inviter_name}/g, t("Divulgador", "Inviter"))
+        .replace(/{inviter_tag}/g, t("Divulgador#1111", "Inviter#1111"))
         .replace(/{inviter_id}/g, "987654321098765432")
     }
 
@@ -419,10 +424,10 @@ export default function WelcomePage({
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center rounded-[14px] border border-destructive/20 bg-destructive/5 space-y-4">
         <AlertTriangle className="h-12 w-12 text-destructive" />
-        <h3 className="text-[15px] font-bold text-foreground">Falha de Comunicação</h3>
+        <h3 className="text-[15px] font-bold text-foreground">{t("Falha de Comunicação", "Connection failed")}</h3>
         <p className="text-sm text-muted-foreground max-w-md">{error}</p>
         <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full">
-          Tentar Novamente
+          {t("Tentar Novamente", "Try again")}
         </Button>
       </div>
     )
@@ -465,10 +470,10 @@ export default function WelcomePage({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="flex items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground">
-            Mensagens de Entrada/Saída
+            {t("Mensagens de Entrada/Saída", "Join and leave messages")}
           </h1>
           <p className="mt-2 max-w-[560px] text-[14px] leading-[1.7] text-muted-foreground">
-            Gerencie e personalize como os membros são recebidos e quando saem do servidor.
+            {t("Gerencie e personalize como os membros são recebidos e quando saem do servidor.", "Customize how members are welcomed and what happens when they leave.")}
           </p>
         </div>
 
@@ -478,7 +483,7 @@ export default function WelcomePage({
           className="w-full sm:w-auto h-10 rounded-full font-bold transition-all rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
         >
           <Save className="mr-2 h-4 w-4" />
-          {saving ? "Salvando..." : "Salvar Configurações"}
+          {saving ? t("Salvando...", "Saving...") : t("Salvar Configurações", "Save settings")}
         </Button>
       </div>
 
@@ -489,22 +494,22 @@ export default function WelcomePage({
           <div className="space-y-1">
             <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-violet-500/10 text-violet-400 text-sm font-semibold">1</span>
-              Mensagem de Boas-vindas (Entrada)
+              {t("Mensagem de Boas-vindas (Entrada)", "Welcome message (join)")}
             </h2>
             <p className="text-sm text-muted-foreground">
-              Configure como a Lunna cumprimentará os novos membros que entrarem no servidor. (Você pode deixar a mensagem vazia caso queira enviar apenas o banner por imagem!)
+              {t("Configure como a Lunna cumprimentará os novos membros que entrarem no servidor. (Você pode deixar a mensagem vazia caso queira enviar apenas o banner por imagem!)", "Set how Lunna greets new members. (Leave the message empty to send only the image banner!)")}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-foreground">Canal de Envio</label>
+              <label className="text-sm font-semibold text-foreground">{t("Canal de Envio", "Channel")}</label>
               <select
                 value={welcomeChannel}
                 onChange={(e) => setWelcomeChannel(e.target.value)}
                 className="w-full h-12 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
               >
-                <option value="" className="bg-card text-muted-foreground">Desativado (Não enviar)</option>
+                <option value="" className="bg-card text-muted-foreground">{t("Desativado (Não enviar)", "Off (don't send)")}</option>
                 {channels.map((ch) => (
                   <option key={ch.id} value={ch.id} className="bg-card text-foreground">
                     #{ch.name}
@@ -514,26 +519,26 @@ export default function WelcomePage({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-foreground">Auto-deletar Mensagem</label>
+              <label className="text-sm font-semibold text-foreground">{t("Auto-deletar Mensagem", "Auto-delete message")}</label>
               <select
                 value={welcomeDeleteTime}
                 onChange={(e) => setWelcomeDeleteTime(Number(e.target.value))}
                 className="w-full h-12 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
               >
-                <option value={0} className="bg-card text-foreground">Nunca apagar (Manter no histórico)</option>
-                <option value={5} className="bg-card text-foreground">Apagar após 5 segundos</option>
-                <option value={10} className="bg-card text-foreground">Apagar após 10 segundos</option>
-                <option value={30} className="bg-card text-foreground">Apagar após 30 segundos</option>
-                <option value={60} className="bg-card text-foreground">Apagar após 1 minuto</option>
-                <option value={300} className="bg-card text-foreground">Apagar após 5 minutos</option>
+                <option value={0} className="bg-card text-foreground">{t("Nunca apagar (Manter no histórico)", "Never delete (keep it)")}</option>
+                <option value={5} className="bg-card text-foreground">{t("Apagar após 5 segundos", "Delete after 5 seconds")}</option>
+                <option value={10} className="bg-card text-foreground">{t("Apagar após 10 segundos", "Delete after 10 seconds")}</option>
+                <option value={30} className="bg-card text-foreground">{t("Apagar após 30 segundos", "Delete after 30 seconds")}</option>
+                <option value={60} className="bg-card text-foreground">{t("Apagar após 1 minuto", "Delete after 1 minute")}</option>
+                <option value={300} className="bg-card text-foreground">{t("Apagar após 5 minutos", "Delete after 5 minutes")}</option>
               </select>
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="text-sm font-semibold text-foreground">Mensagem de Boas-vindas</label>
-              <span className="text-xs text-muted-foreground font-medium">Suporta Markdown do Discord</span>
+              <label className="text-sm font-semibold text-foreground">{t("Mensagem de Boas-vindas", "Welcome message")}</label>
+              <span className="text-xs text-muted-foreground font-medium">{t("Suporta Markdown do Discord", "Supports Discord Markdown")}</span>
             </div>
             <textarea
               ref={welcomeTextareaRef}
@@ -541,13 +546,13 @@ export default function WelcomePage({
               onChange={(e) => setWelcomeMsg(e.target.value)}
               disabled={!welcomeChannel}
               rows={4}
-              placeholder="Deixe em branco para desativar a mensagem textual e manter apenas o banner de imagem..."
+              placeholder={t("Deixe em branco para desativar a mensagem textual e manter apenas o banner de imagem...", "Leave empty to turn off the text message and keep only the image banner...")}
               className="w-full rounded-[14px] border border-border bg-secondary/30 px-4 py-3 text-sm font-medium text-foreground outline-none transition focus:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed resize-none"
             />
             
             {welcomeChannel && (
               <div className="space-y-2 animate-in fade-in duration-300">
-                <span className="text-xs font-semibold text-muted-foreground">Variáveis Disponíveis (Clique para inserir):</span>
+                <span className="text-xs font-semibold text-muted-foreground">{t("Variáveis Disponíveis (Clique para inserir):", "Variables (click to insert):")}</span>
                 <div className="flex flex-wrap gap-2">
                   {["{user_mention}", "{username}", "{user_name}", "{user_tag}", "{user_id}", "{server_name}", "{guild_name}", "{total_members}", "{member_count}", "{member_count_ordinal}", "{inviter_mention}", "{inviter_name}", "{inviter_tag}", "{inviter_id}"].map((variable) => (
                     <button
@@ -572,16 +577,16 @@ export default function WelcomePage({
             <div className="space-y-1">
               <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-indigo-500/10 text-indigo-400 text-sm font-semibold">2</span>
-                Banner de Boas-vindas por Imagem
+                {t("Banner de Boas-vindas por Imagem", "Welcome image banner")}
               </h2>
               <p className="text-sm text-muted-foreground">
-                Ative e personalize um banner de imagem dinâmico gerado em tempo real quando novos membros entrarem.
+                {t("Ative e personalize um banner de imagem dinâmico gerado em tempo real quando novos membros entrarem.", "Turn on and customize an image banner generated live when new members join.")}
               </p>
             </div>
 
             <div className="flex items-center gap-3">
               <label className="text-sm font-semibold text-foreground cursor-pointer select-none" htmlFor="banner-toggle">
-                Habilitar Banner
+                {t("Habilitar Banner", "Enable banner")}
               </label>
               <input
                 id="banner-toggle"
@@ -598,8 +603,8 @@ export default function WelcomePage({
               {/* Canvas Preview Column */}
               <div className="xl:col-span-7 space-y-4">
                 <label className="text-sm font-semibold text-foreground flex items-center justify-between">
-                  <span>Pré-visualização do Banner (800x400)</span>
-                  <span className="text-xs text-muted-foreground">Arraste os controles ao lado para ajustar posições</span>
+                  <span>{t("Pré-visualização do Banner (800x400)", "Banner preview (800x400)")}</span>
+                  <span className="text-xs text-muted-foreground">{t("Arraste os controles ao lado para ajustar posições", "Use the controls beside it to adjust positions")}</span>
                 </label>
                 <div className="relative overflow-hidden rounded-[14px] border border-border/80 bg-secondary/5 p-2">
                   <canvas
@@ -622,13 +627,13 @@ export default function WelcomePage({
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <ImageIcon className="h-4 w-4 text-indigo-400" />
-                    <span>URL da Imagem de Fundo (Opcional)</span>
+                    <span>{t("URL da Imagem de Fundo (Opcional)", "Background image URL (optional)")}</span>
                   </label>
                   <input
                     type="url"
                     value={welcomeBannerBackground}
                     onChange={(e) => setWelcomeBannerBackground(e.target.value)}
-                    placeholder="https://exemplo.com/fundo.png (deixe vazio para gradiente premium)"
+                    placeholder={t("https://exemplo.com/fundo.png (deixe vazio para gradiente premium)", "https://example.com/background.png (leave empty for the premium gradient)")}
                     className="w-full h-11 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   />
                 </div>
@@ -637,17 +642,17 @@ export default function WelcomePage({
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <Type className="h-4 w-4 text-indigo-400" />
-                    <span>Fonte do Texto (Text Font)</span>
+                    <span>{t("Fonte do Texto (Text Font)", "Text font")}</span>
                   </label>
                   <select
                     value={welcomeBannerFont}
                     onChange={(e) => setWelcomeBannerFont(e.target.value)}
                     className="w-full h-11 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   >
-                    <option value="Uni Sans">Uni Sans (Padrão Lunna)</option>
-                    <option value="Montserrat">Moderno Bold (Montserrat)</option>
-                    <option value="More Sugar Regular">Fofo Gamer (More Sugar)</option>
-                    <option value="sans-serif">Clean Simples (Sans-serif)</option>
+                    <option value="Uni Sans">{t("Uni Sans (Padrão Lunna)", "Uni Sans (Lunna default)")}</option>
+                    <option value="Montserrat">{t("Moderno Bold (Montserrat)", "Modern bold (Montserrat)")}</option>
+                    <option value="More Sugar Regular">{t("Fofo Gamer (More Sugar)", "Cute gamer (More Sugar)")}</option>
+                    <option value="sans-serif">{t("Clean Simples (Sans-serif)", "Simple clean (Sans-serif)")}</option>
                   </select>
                 </div>
 
@@ -662,7 +667,7 @@ export default function WelcomePage({
                         onClick={() => setActiveTab(cat)}
                         className={`py-1.5 text-xs font-semibold rounded-lg capitalize transition-all ${ activeTab === cat ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground" }`}
                       >
-                        {cat === "sub" ? "Subtítulo" : cat === "titulo" ? "Título" : cat}
+                        {cat === "sub" ? t("Subtítulo", "Subtitle") : cat === "titulo" ? t("Título", "Title") : cat === "nome" ? t("nome", "name") : cat}
                       </button>
                     ))}
                   </div>
@@ -672,7 +677,7 @@ export default function WelcomePage({
                     <div className="space-y-4 animate-in fade-in duration-300">
                       <div className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold text-foreground">
-                          <span>Posição X</span>
+                          <span>{t("Posição X", "X position")}</span>
                           <span className="text-primary">{welcomeBannerAvatarX}px</span>
                         </div>
                         <input
@@ -687,7 +692,7 @@ export default function WelcomePage({
 
                       <div className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold text-foreground">
-                          <span>Posição Y</span>
+                          <span>{t("Posição Y", "Y position")}</span>
                           <span className="text-primary">{welcomeBannerAvatarY}px</span>
                         </div>
                         <input
@@ -702,7 +707,7 @@ export default function WelcomePage({
 
                       <div className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold text-foreground">
-                          <span>Tamanho do Avatar</span>
+                          <span>{t("Tamanho do Avatar", "Avatar size")}</span>
                           <span className="text-primary">{welcomeBannerAvatarSize}px</span>
                         </div>
                         <input
@@ -721,7 +726,7 @@ export default function WelcomePage({
                   {activeTab === "titulo" && (
                     <div className="space-y-4 animate-in fade-in duration-300">
                       <div className="space-y-2">
-                        <label className="text-xs font-semibold text-foreground">Texto do Título</label>
+                        <label className="text-xs font-semibold text-foreground">{t("Texto do Título", "Title text")}</label>
                         <input
                           type="text"
                           value={welcomeBannerTitleText}
@@ -733,7 +738,7 @@ export default function WelcomePage({
 
                       <div className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold text-foreground">
-                          <span>Posição X</span>
+                          <span>{t("Posição X", "X position")}</span>
                           <span className="text-primary">{welcomeBannerTitleX}px</span>
                         </div>
                         <input
@@ -748,7 +753,7 @@ export default function WelcomePage({
 
                       <div className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold text-foreground">
-                          <span>Posição Y</span>
+                          <span>{t("Posição Y", "Y position")}</span>
                           <span className="text-primary">{welcomeBannerTitleY}px</span>
                         </div>
                         <input
@@ -764,7 +769,7 @@ export default function WelcomePage({
                       {/* Font Size Selector */}
                       <div className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold text-foreground">
-                          <span>Tamanho da Fonte (Título)</span>
+                          <span>{t("Tamanho da Fonte (Título)", "Font size (title)")}</span>
                           <span className="text-primary">{welcomeBannerTitleSize}px</span>
                         </div>
                         <input
@@ -782,12 +787,12 @@ export default function WelcomePage({
                   {activeTab === "nome" && (
                     <div className="space-y-4 animate-in fade-in duration-300">
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        O nome será preenchido dinamicamente com o nome do usuário no Discord.
+                        {t("O nome será preenchido dinamicamente com o nome do usuário no Discord.", "The name is filled in with the member's Discord name.")}
                       </p>
 
                       <div className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold text-foreground">
-                          <span>Posição X</span>
+                          <span>{t("Posição X", "X position")}</span>
                           <span className="text-primary">{welcomeBannerNameX}px</span>
                         </div>
                         <input
@@ -802,7 +807,7 @@ export default function WelcomePage({
 
                       <div className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold text-foreground">
-                          <span>Posição Y</span>
+                          <span>{t("Posição Y", "Y position")}</span>
                           <span className="text-primary">{welcomeBannerNameY}px</span>
                         </div>
                         <input
@@ -818,7 +823,7 @@ export default function WelcomePage({
                       {/* Font Size Selector */}
                       <div className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold text-foreground">
-                          <span>Tamanho da Fonte (Nome)</span>
+                          <span>{t("Tamanho da Fonte (Nome)", "Font size (name)")}</span>
                           <span className="text-primary">{welcomeBannerNameSize}px</span>
                         </div>
                         <input
@@ -836,7 +841,7 @@ export default function WelcomePage({
                   {activeTab === "sub" && (
                     <div className="space-y-4 animate-in fade-in duration-300">
                       <div className="space-y-2">
-                        <label className="text-xs font-semibold text-foreground">Texto do Subtítulo</label>
+                        <label className="text-xs font-semibold text-foreground">{t("Texto do Subtítulo", "Subtitle text")}</label>
                         <input
                           type="text"
                           value={welcomeBannerSubText}
@@ -848,7 +853,7 @@ export default function WelcomePage({
 
                       <div className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold text-foreground">
-                          <span>Posição X</span>
+                          <span>{t("Posição X", "X position")}</span>
                           <span className="text-primary">{welcomeBannerSubX}px</span>
                         </div>
                         <input
@@ -863,7 +868,7 @@ export default function WelcomePage({
 
                       <div className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold text-foreground">
-                          <span>Posição Y</span>
+                          <span>{t("Posição Y", "Y position")}</span>
                           <span className="text-primary">{welcomeBannerSubY}px</span>
                         </div>
                         <input
@@ -879,7 +884,7 @@ export default function WelcomePage({
                       {/* Font Size Selector */}
                       <div className="space-y-1">
                         <div className="flex justify-between text-xs font-semibold text-foreground">
-                          <span>Tamanho da Fonte (Subtítulo)</span>
+                          <span>{t("Tamanho da Fonte (Subtítulo)", "Font size (subtitle)")}</span>
                           <span className="text-primary">{welcomeBannerSubSize}px</span>
                         </div>
                         <input
@@ -905,22 +910,22 @@ export default function WelcomePage({
           <div className="space-y-1">
             <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-red-500/10 text-red-400 text-sm font-semibold">3</span>
-              Mensagem de Despedida (Saída)
+              {t("Mensagem de Despedida (Saída)", "Goodbye message (leave)")}
             </h2>
             <p className="text-sm text-muted-foreground">
-              Configure a notificação de quando um membro sai do servidor.
+              {t("Configure a notificação de quando um membro sai do servidor.", "Set the message posted when a member leaves the server.")}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-foreground">Canal de Envio</label>
+              <label className="text-sm font-semibold text-foreground">{t("Canal de Envio", "Channel")}</label>
               <select
                 value={leaveChannel}
                 onChange={(e) => setLeaveChannel(e.target.value)}
                 className="w-full h-12 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
               >
-                <option value="" className="bg-card text-muted-foreground">Desativado (Não enviar)</option>
+                <option value="" className="bg-card text-muted-foreground">{t("Desativado (Não enviar)", "Off (don't send)")}</option>
                 {channels.map((ch) => (
                   <option key={ch.id} value={ch.id} className="bg-card text-foreground">
                     #{ch.name}
@@ -930,26 +935,26 @@ export default function WelcomePage({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-foreground">Auto-deletar Mensagem</label>
+              <label className="text-sm font-semibold text-foreground">{t("Auto-deletar Mensagem", "Auto-delete message")}</label>
               <select
                 value={leaveDeleteTime}
                 onChange={(e) => setLeaveDeleteTime(Number(e.target.value))}
                 className="w-full h-12 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
               >
-                <option value={0} className="bg-card text-foreground">Nunca apagar (Manter no histórico)</option>
-                <option value={5} className="bg-card text-foreground">Apagar após 5 segundos</option>
-                <option value={10} className="bg-card text-foreground">Apagar após 10 segundos</option>
-                <option value={30} className="bg-card text-foreground">Apagar após 30 segundos</option>
-                <option value={60} className="bg-card text-foreground">Apagar após 1 minuto</option>
-                <option value={300} className="bg-card text-foreground">Apagar após 5 minutos</option>
+                <option value={0} className="bg-card text-foreground">{t("Nunca apagar (Manter no histórico)", "Never delete (keep it)")}</option>
+                <option value={5} className="bg-card text-foreground">{t("Apagar após 5 segundos", "Delete after 5 seconds")}</option>
+                <option value={10} className="bg-card text-foreground">{t("Apagar após 10 segundos", "Delete after 10 seconds")}</option>
+                <option value={30} className="bg-card text-foreground">{t("Apagar após 30 segundos", "Delete after 30 seconds")}</option>
+                <option value={60} className="bg-card text-foreground">{t("Apagar após 1 minuto", "Delete after 1 minute")}</option>
+                <option value={300} className="bg-card text-foreground">{t("Apagar após 5 minutos", "Delete after 5 minutes")}</option>
               </select>
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="text-sm font-semibold text-foreground">Mensagem de Despedida</label>
-              <span className="text-xs text-muted-foreground font-medium">Suporta Markdown do Discord</span>
+              <label className="text-sm font-semibold text-foreground">{t("Mensagem de Despedida", "Goodbye message")}</label>
+              <span className="text-xs text-muted-foreground font-medium">{t("Suporta Markdown do Discord", "Supports Discord Markdown")}</span>
             </div>
             <textarea
               ref={leaveTextareaRef}
@@ -957,13 +962,13 @@ export default function WelcomePage({
               onChange={(e) => setLeaveMsg(e.target.value)}
               disabled={!leaveChannel}
               rows={4}
-              placeholder="Digite a mensagem de despedida..."
+              placeholder={t("Digite a mensagem de despedida...", "Type the goodbye message...")}
               className="w-full rounded-[14px] border border-border bg-secondary/30 px-4 py-3 text-sm font-medium text-foreground outline-none transition focus:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed resize-none"
             />
             
             {leaveChannel && (
               <div className="space-y-2 animate-in fade-in duration-300">
-                <span className="text-xs font-semibold text-muted-foreground">Variáveis Disponíveis (Clique para inserir):</span>
+                <span className="text-xs font-semibold text-muted-foreground">{t("Variáveis Disponíveis (Clique para inserir):", "Variables (click to insert):")}</span>
                 <div className="flex flex-wrap gap-2">
                   {["{user_mention}", "{username}", "{user_name}", "{user_tag}", "{user_id}", "{server_name}", "{guild_name}", "{total_members}", "{member_count}", "{member_count_ordinal}", "{inviter_mention}", "{inviter_name}", "{inviter_tag}", "{inviter_id}"].map((variable) => (
                     <button

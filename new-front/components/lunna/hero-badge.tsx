@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { api } from "@/lib/api"
+import { useT } from "@/lib/use-t"
 
 export function HeroBadge() {
+  const t = useT()
   const [servers, setServers] = useState<number | undefined>(undefined)
 
   useEffect(() => {
@@ -17,7 +19,7 @@ export function HeroBadge() {
   }, [])
 
   const fmtServers = servers 
-    ? new Intl.NumberFormat("pt-BR", { notation: "compact" }).format(servers)
+    ? new Intl.NumberFormat(t("pt-BR", "en-US"), { notation: "compact" }).format(servers)
     : "2.4K+"
 
   return (
@@ -27,7 +29,7 @@ export function HeroBadge() {
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
         </span>
-        Online agora em {fmtServers} servidores
+        {t(`Online agora em ${fmtServers} servidores`, `Online now in ${fmtServers} servers`)}
       </span>
     </div>
   )

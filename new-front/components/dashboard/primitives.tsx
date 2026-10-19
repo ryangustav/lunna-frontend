@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useT } from "@/lib/use-t"
 
 /**
  * Dashboard building blocks. They reuse the exact type scale, radii and accent of the public
@@ -154,13 +155,14 @@ export function LoadingState() {
 }
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  const t = useT()
   return (
     <div className="rounded-[14px] border border-border bg-card p-8 text-center">
-      <p className="text-[15px] font-semibold text-foreground">Não foi possível carregar</p>
+      <p className="text-[15px] font-semibold text-foreground">{t("Não foi possível carregar", "Couldn't load")}</p>
       <p className="mx-auto mt-1 max-w-md text-[13px] text-muted-foreground">{message}</p>
       {onRetry && (
         <SecondaryButton className="mt-5" onClick={onRetry}>
-          Tentar novamente
+          {t("Tentar novamente", "Try again")}
         </SecondaryButton>
       )}
     </div>

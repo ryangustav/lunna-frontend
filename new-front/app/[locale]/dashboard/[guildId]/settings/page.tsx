@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, use } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/src/i18n/routing"
 
 export default function SettingsRedirectPage({
   params,

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { api } from "@/lib/api"
+import { useT } from "@/lib/use-t"
 
 function FloatingPill({
   dotColor,
@@ -28,6 +29,7 @@ function FloatingPill({
 }
 
 export function HeroStats() {
+  const t = useT()
   const [stats, setStats] = useState<{
     onlineMembers?: number
     totalServers?: number
@@ -48,27 +50,27 @@ export function HeroStats() {
 
   // Formata números (ex: 1200000 -> 1.200.000)
   const formatNumber = (num?: number, fallback: string = "...") => 
-    num ? new Intl.NumberFormat("pt-BR").format(num) : fallback
+    num ? new Intl.NumberFormat(t("pt-BR", "en-US")).format(num) : fallback
 
   return (
     <>
       <FloatingPill
         dotColor="#4ade80"
-        text={`${formatNumber(stats.onlineMembers, "47")} membros online`}
+        text={t(`${formatNumber(stats.onlineMembers, "47")} membros online`, `${formatNumber(stats.onlineMembers, "47")} members online`)}
         animationClass="animate-float"
         className="-left-8 top-8"
       />
 
       <FloatingPill
         dotColor="#a78bfa"
-        text={stats.totalServers ? `${formatNumber(stats.totalServers)} servidores` : "Masmorra desbloqueada"}
+        text={stats.totalServers ? t(`${formatNumber(stats.totalServers)} servidores`, `${formatNumber(stats.totalServers)} servers`) : t("Masmorra desbloqueada", "Dungeon unlocked")}
         animationClass="animate-float-delayed"
         className="-left-10 top-1/2 -translate-y-1/2"
       />
 
       <FloatingPill
         dotColor="#f9a8d4"
-        text={`${formatNumber(stats.totalCoins, "1.200")} moedas ganhas`}
+        text={t(`${formatNumber(stats.totalCoins, "1.200")} moedas ganhas`, `${formatNumber(stats.totalCoins, "1,200")} coins earned`)}
         animationClass="animate-float-slow"
         className="-right-8 bottom-10"
       />

@@ -5,6 +5,7 @@ import { Save, AlertTriangle, ShieldCheck, UserCheck } from "lucide-react"
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import { useT } from "@/lib/use-t"
 
 interface Role {
   id: string
@@ -17,6 +18,7 @@ export default function AutorolePage({
 }: {
   params: Promise<{ guildId: string }>
 }) {
+  const t = useT()
   const { guildId } = use(params)
   const { toast } = useToast()
 
@@ -53,10 +55,10 @@ export default function AutorolePage({
 
       } catch (err: any) {
         console.error("Failed to load autorole settings:", err)
-        setError(err.message || "Não foi possível carregar as configurações do servidor.")
+        setError(err.message || t("Não foi possível carregar as configurações do servidor.", "Couldn't load the server settings."))
         toast({
-          title: "Erro ao carregar dados",
-          description: err.message || "Por favor, verifique se o bot está no servidor.",
+          title: t("Erro ao carregar dados", "Couldn't load the data"),
+          description: err.message || t("Por favor, verifique se o bot está no servidor.", "Please check that the bot is in the server."),
           variant: "destructive"
         })
       } finally {
@@ -80,14 +82,14 @@ export default function AutorolePage({
       await api.updateGuildSettings(guildId, payload)
 
       toast({
-        title: "Sucesso!",
-        description: "Cargos de autorole salvos e aplicados com sucesso.",
+        title: t("Sucesso!", "Saved!"),
+        description: t("Cargos de autorole salvos e aplicados com sucesso.", "Autorole roles saved."),
       })
     } catch (err: any) {
       console.error("Failed to save settings:", err)
       toast({
-        title: "Erro ao salvar",
-        description: err.message || "Ocorreu um erro ao salvar as configurações.",
+        title: t("Erro ao salvar", "Couldn't save"),
+        description: err.message || t("Ocorreu um erro ao salvar as configurações.", "Something went wrong while saving the settings."),
         variant: "destructive"
       })
     } finally {
@@ -111,10 +113,10 @@ export default function AutorolePage({
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center rounded-[14px] border border-destructive/20 bg-destructive/5 space-y-4">
         <AlertTriangle className="h-12 w-12 text-destructive" />
-        <h3 className="text-[15px] font-bold text-foreground">Falha de Comunicação</h3>
+        <h3 className="text-[15px] font-bold text-foreground">{t("Falha de Comunicação", "Connection failed")}</h3>
         <p className="text-sm text-muted-foreground max-w-md">{error}</p>
         <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full">
-          Tentar Novamente
+          {t("Tentar Novamente", "Try again")}
         </Button>
       </div>
     )
@@ -129,10 +131,10 @@ export default function AutorolePage({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="flex items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground">
-            Cargos de Entrada (Autorole)
+            {t("Cargos de Entrada (Autorole)", "Join roles (Autorole)")}
           </h1>
           <p className="mt-2 max-w-[560px] text-[14px] leading-[1.7] text-muted-foreground">
-            Defina um ou mais cargos automáticos que serão atribuídos aos aventureiros que entrarem no seu servidor.
+            {t("Defina um ou mais cargos automáticos que serão atribuídos aos aventureiros que entrarem no seu servidor.", "Pick one or more roles to give automatically to everyone who joins your server.")}
           </p>
         </div>
 
@@ -142,7 +144,7 @@ export default function AutorolePage({
           className="w-full sm:w-auto h-10 rounded-full font-bold transition-all rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
         >
           <Save className="mr-2 h-4 w-4" />
-          {saving ? "Salvando..." : "Salvar Configurações"}
+          {saving ? t("Salvando...", "Saving...") : t("Salvar Configurações", "Save settings")}
         </Button>
       </div>
 
@@ -151,19 +153,19 @@ export default function AutorolePage({
           
           <div className="space-y-1">
             <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
-              Atribuir Cargo Automaticamente
+              {t("Atribuir Cargo Automaticamente", "Give roles automatically")}
             </h2>
             <p className="text-sm text-muted-foreground">
-              A Lunna concederá os cargos selecionados instantaneamente a qualquer novo usuário que ingressar no servidor.
+              {t("A Lunna concederá os cargos selecionados instantaneamente a qualquer novo usuário que ingressar no servidor.", "Lunna gives the selected roles right away to every new member who joins the server.")}
             </p>
           </div>
 
           <div className="space-y-4 max-w-xl">
-            <label className="text-sm font-semibold text-foreground">Cargos Autorole (Selecione múltiplos)</label>
+            <label className="text-sm font-semibold text-foreground">{t("Cargos Autorole (Selecione múltiplos)", "Autorole roles (pick as many as you want)")}</label>
             
             <input
               type="text"
-              placeholder="Pesquisar cargos..."
+              placeholder={t("Pesquisar cargos...", "Search roles...")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-12 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold outline-none transition focus:border-primary/50"
@@ -171,7 +173,7 @@ export default function AutorolePage({
 
             <div className="rounded-[14px] border border-border/80 bg-secondary/15 p-4 max-h-64 overflow-y-auto space-y-2">
               {filteredRoles.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-4">Nenhum cargo encontrado.</p>
+                <p className="text-xs text-muted-foreground text-center py-4">{t("Nenhum cargo encontrado.", "No roles found.")}</p>
               ) : (
                 filteredRoles.map((role) => {
                   const isChecked = autoroleRoles.includes(role.id)
@@ -200,7 +202,7 @@ export default function AutorolePage({
             <div className="flex items-center gap-2 rounded-[10px] bg-secondary/20 p-4 border border-border/50 mt-2">
               <ShieldCheck className="h-5 w-5 text-purple-400 flex-shrink-0" />
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Certifique-se de posicionar o cargo da <strong>Lunna</strong> acima dos cargos selecionados nas configurações de cargos do Discord, caso contrário, o bot não terá permissão hierárquica suficiente para atribuí-los aos membros.
+                {t("Certifique-se de posicionar o cargo da ", "Make sure ")}<strong>Lunna</strong>{t(" acima dos cargos selecionados nas configurações de cargos do Discord, caso contrário, o bot não terá permissão hierárquica suficiente para atribuí-los aos membros.", "'s role is above the selected roles in Discord's role settings. Otherwise the bot can't give them to members.")}
               </p>
             </div>
           </div>

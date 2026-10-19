@@ -6,6 +6,7 @@ import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Switch } from "@/components/ui/switch"
 import { PageHeader, Section, Pill, LoadingState, ErrorState } from "@/components/dashboard/primitives"
+import { useT, type T } from "@/lib/use-t"
 
 type Automation = {
   id: string; type: "reaction_role" | "join_role" | "scheduled_message"; channel_id: string | null; message_id: string | null
@@ -22,16 +23,23 @@ type AgentData = {
 }
 
 const DAYS = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"]
-const STATUS: Record<string, { label: string; tone: "neutral" | "accent" | "success" }> = {
-  planned: { label: "Aguardando aprovação", tone: "accent" }, blocked: { label: "Bloqueado", tone: "neutral" }, running: { label: "Executando", tone: "accent" },
-  done: { label: "Concluído", tone: "success" }, failed: { label: "Parou no meio", tone: "neutral" }, cancelled: { label: "Cancelado", tone: "neutral" },
-  undone: { label: "Desfeito", tone: "neutral" }, expired: { label: "Expirado", tone: "neutral" },
-}
+const DAYS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+const STATUS = (t: T): Record<string, { label: string; tone: "neutral" | "accent" | "success" }> => ({
+  planned: { label: t("Aguardando aprovação", "Waiting for approval"), tone: "accent" }, blocked: { label: t("Bloqueado", "Blocked"), tone: "neutral" }, running: { label: t("Executando", "Running"), tone: "accent" },
+  done: { label: t("Concluído", "Done"), tone: "success" }, failed: { label: t("Parou no meio", "Stopped halfway"), tone: "neutral" }, cancelled: { label: t("Cancelado", "Cancelled"), tone: "neutral" },
+  undone: { label: t("Desfeito", "Undone"), tone: "neutral" }, expired: { label: t("Expirado", "Expired"), tone: "neutral" },
+})
 const EXAMPLES = [
   "@Lunna crie um canal #regras só leitura, envie regras de convivência, reaja com ✅ e dê o cargo “Leu as regras” para quem reagir",
   "@Lunna monte um sistema de tickets com Suporte e Denúncias no canal #abrir-ticket, atendido pelo cargo Moderador",
   "@Lunna ative os níveis, anuncie em #geral e dê o cargo VIP do chat no nível 20",
   "@Lunna toda segunda às 9h envie um bom dia em #geral",
+]
+const EXAMPLES_EN = [
+  "@Lunna create a read-only #rules channel, post community rules, react with ✅ and give the “Read the rules” role to everyone who reacts",
+  "@Lunna set up a ticket system with Support and Reports in #open-ticket, handled by the Moderator role",
+  "@Lunna turn on levels, announce them in #general and give the chat VIP role at level 20",
+  "@Lunna every Monday at 9am post a good morning in #general",
 ]
 
 function Meter({ label, used, max }: { label: string; used: number; max: number }) {
@@ -46,6 +54,7 @@ function Meter({ label, used, max }: { label: string; used: number; max: number 
 }
 
 export default function AgentPage({ params }: { params: Promise<{ guildId: string }> }) {
+  const t = useT()
   const { guildId } = use(params)
   const { toast } = useToast()
   const [data, setData] = useState<AgentData | null>(null)
@@ -65,24 +74,25 @@ export default function AgentPage({ params }: { params: Promise<{ guildId: strin
   }
   useEffect(() => { load() /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [guildId])
 
-  const ch = (id: string | null) => (id ? `#${channels[id] || "canal removido"}` : "—")
-  const rl = (id: string | null) => (id ? `@${roles[id] || "cargo removido"}` : "—")
+  const ch = (id: string | null) => (id ? `#${channels[id] || t("canal removido", "deleted channel")}` : "—")
+  const rl = (id: string | null) => (id ? `@${roles[id] || t("cargo removido", "deleted role")}` : "—")
   const describe = (a: Automation) => {
-    if (a.type === "reaction_role") return { title: "Reação → cargo", text: `${a.emoji} em ${ch(a.channel_id)} dá ${rl(a.role_id)}${a.remove_on_unreact ? " (tira ao remover a reação)" : ""}` }
-    if (a.type === "join_role") return { title: "Cargo de entrada", text: `Todo membro novo ganha ${rl(a.role_id)}` }
+    if (a.type === "reaction_role") return { title: t("Reação → cargo", "Reaction → role"), text: t(`${a.emoji} em ${ch(a.channel_id)} dá ${rl(a.role_id)}${a.remove_on_unreact ? " (tira ao remover a reação)" : ""}`, `${a.emoji} in ${ch(a.channel_id)} gives ${rl(a.role_id)}${a.remove_on_unreact ? " (removed when the reaction is removed)" : ""}`) }
+    if (a.type === "join_role") return { title: t("Cargo de entrada", "Join role"), text: t(`Todo membro novo ganha ${rl(a.role_id)}`, `Every new member gets ${rl(a.role_id)}`) }
     const s = a.schedule
-    const days = s?.days?.length === 7 ? "todo dia" : (s?.days || []).map((d) => DAYS[d]).join(", ")
-    return { title: "Mensagem agendada", text: `${ch(a.channel_id)} · ${days} às ${String(s?.hour ?? 0).padStart(2, "0")}:${String(s?.minute ?? 0).padStart(2, "0")}${a.title ? ` · “${a.title}”` : ""}` }
+    const days = s?.days?.length === 7 ? t("todo dia", "every day") : (s?.days || []).map((d) => t(DAYS[d], DAYS_EN[d])).join(", ")
+    const time = `${String(s?.hour ?? 0).padStart(2, "0")}:${String(s?.minute ?? 0).padStart(2, "0")}`
+    return { title: t("Mensagem agendada", "Scheduled message"), text: `${ch(a.channel_id)} · ${days} ${t("às", "at")} ${time}${a.title ? ` · “${a.title}”` : ""}` }
   }
 
   const toggle = async (a: Automation, enabled: boolean) => {
     try { await api.updateAutomation(guildId, a.id, enabled); await load() }
-    catch (e: any) { toast({ title: "Não foi possível", description: e.message, variant: "destructive" }) }
+    catch (e: any) { toast({ title: t("Não foi possível", "Couldn't do it"), description: e.message, variant: "destructive" }) }
   }
   const remove = async (a: Automation) => {
-    if (!window.confirm(`Apagar a automação “${describe(a).title}”? Isso não apaga canais, cargos ou mensagens.`)) return
+    if (!window.confirm(t(`Apagar a automação “${describe(a).title}”? Isso não apaga canais, cargos ou mensagens.`, `Delete the automation “${describe(a).title}”? Channels, roles and messages are not deleted.`))) return
     try { await api.deleteAutomation(guildId, a.id); await load() }
-    catch (e: any) { toast({ title: "Não foi possível", description: e.message, variant: "destructive" }) }
+    catch (e: any) { toast({ title: t("Não foi possível", "Couldn't do it"), description: e.message, variant: "destructive" }) }
   }
 
   if (error) return <ErrorState message={error} onRetry={load} />
@@ -92,33 +102,33 @@ export default function AgentPage({ params }: { params: Promise<{ guildId: strin
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader eyebrow="Geral" title="Lunna IA"
-        description="Peça tarefas de administração mencionando a Lunna no seu servidor. Ela monta um plano, você aprova, e ela executa passo a passo — com botão para desfazer." />
+      <PageHeader eyebrow={t("Geral", "General")} title={t("Lunna IA", "Lunna AI")}
+        description={t("Peça tarefas de administração mencionando a Lunna no seu servidor. Ela monta um plano, você aprova, e ela executa passo a passo — com botão para desfazer.", "Ask for admin tasks by mentioning Lunna in your server. She makes a plan, you approve it, and she carries it out step by step, with a button to undo.")} />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Meter label="Pedidos este mês" used={usage.runs} max={limits.runs} />
-        <Meter label="Automações ativas" used={usage.automations} max={limits.automations} />
+        <Meter label={t("Pedidos este mês", "Requests this month")} used={usage.runs} max={limits.runs} />
+        <Meter label={t("Automações ativas", "Active automations")} used={usage.automations} max={limits.automations} />
         <div className="rounded-[14px] border border-border bg-card p-4">
-          <p className="text-[12px] text-muted-foreground">Plano do servidor</p>
+          <p className="text-[12px] text-muted-foreground">{t("Plano do servidor", "Server plan")}</p>
           <p className="mt-1 text-[18px] font-bold text-foreground">{limits.label}</p>
-          <p className="text-[12px] text-muted-foreground">Até {limits.steps} passos por pedido{limits.scheduled ? " · mensagens agendadas" : ""}</p>
+          <p className="text-[12px] text-muted-foreground">{t(`Até ${limits.steps} passos por pedido`, `Up to ${limits.steps} steps per request`)}{limits.scheduled ? t(" · mensagens agendadas", " · scheduled messages") : ""}</p>
         </div>
       </div>
       {nearLimit && (
         <p className="rounded-[12px] border border-[#7c3aed]/30 bg-[#7c3aed]/10 px-4 py-3 text-[13px] text-foreground">
-          {data.plan === "free" ? "No Premium Básico são 60 pedidos por mês, 15 automações, mensagens agendadas e desfazer por 7 dias." : "No Premium Completo são 300 pedidos por mês e 50 automações."}{" "}
-          <Link href={`/dashboard/${guildId}/premium`} className="font-semibold text-[#a78bfa] hover:underline">Ver planos</Link>
+          {data.plan === "free" ? t("No Premium Básico são 60 pedidos por mês, 15 automações, mensagens agendadas e desfazer por 7 dias.", "Premium Basic gives 60 requests a month, 15 automations, scheduled messages and 7 days to undo.") : t("No Premium Completo são 300 pedidos por mês e 50 automações.", "Premium Complete gives 300 requests a month and 50 automations.")}{" "}
+          <Link href={`/dashboard/${guildId}/premium`} className="font-semibold text-[#a78bfa] hover:underline">{t("Ver planos", "See plans")}</Link>
         </p>
       )}
 
-      <Section title="Como pedir" description="Só quem tem Gerenciar Servidor pode pedir. A IA nunca faz algo que você não poderia fazer sozinho, e nunca dá permissões de administração.">
+      <Section title={t("Como pedir", "How to ask")} description={t("Só quem tem Gerenciar Servidor pode pedir. A IA nunca faz algo que você não poderia fazer sozinho, e nunca dá permissões de administração.", "Only people with Manage Server can ask. The AI never does anything you couldn't do yourself, and never gives admin permissions.")}>
         <div className="flex flex-col gap-2">
-          {EXAMPLES.map((e) => <p key={e} className="rounded-[10px] bg-secondary px-3 py-2 font-mono text-[12px] text-foreground">{e}</p>)}
+          {(t("pt", "en") === "en" ? EXAMPLES_EN : EXAMPLES).map((e) => <p key={e} className="rounded-[10px] bg-secondary px-3 py-2 font-mono text-[12px] text-foreground">{e}</p>)}
         </div>
       </Section>
 
-      <Section title="Automações" description="Criadas pela Lunna IA. Pausar mantém a configuração; apagar remove só a automação.">
-        {data.automations.length === 0 ? <p className="text-[13px] text-muted-foreground">Nenhuma automação ainda.</p> : (
+      <Section title={t("Automações", "Automations")} description={t("Criadas pela Lunna IA. Pausar mantém a configuração; apagar remove só a automação.", "Created by Lunna AI. Pausing keeps the setup; deleting removes only the automation.")}>
+        {data.automations.length === 0 ? <p className="text-[13px] text-muted-foreground">{t("Nenhuma automação ainda.", "No automations yet.")}</p> : (
           <div className="flex flex-col gap-2">
             {data.automations.map((a) => {
               const d = describe(a)
@@ -130,7 +140,7 @@ export default function AgentPage({ params }: { params: Promise<{ guildId: strin
                     <p className="truncate text-[12px] text-muted-foreground">{d.text}</p>
                   </div>
                   <Switch checked={a.enabled && !lockedScheduled} disabled={lockedScheduled} onCheckedChange={(v) => toggle(a, v)} />
-                  <button className="text-[12px] text-red-500 hover:underline" onClick={() => remove(a)}>Apagar</button>
+                  <button className="text-[12px] text-red-500 hover:underline" onClick={() => remove(a)}>{t("Apagar", "Delete")}</button>
                 </div>
               )
             })}
@@ -138,18 +148,18 @@ export default function AgentPage({ params }: { params: Promise<{ guildId: strin
         )}
       </Section>
 
-      <Section title="Pedidos recentes" description="Os 30 últimos pedidos feitos à Lunna IA neste servidor.">
-        {data.runs.length === 0 ? <p className="text-[13px] text-muted-foreground">Nenhum pedido ainda.</p> : (
+      <Section title={t("Pedidos recentes", "Recent requests")} description={t("Os 30 últimos pedidos feitos à Lunna IA neste servidor.", "The last 30 requests made to Lunna AI in this server.")}>
+        {data.runs.length === 0 ? <p className="text-[13px] text-muted-foreground">{t("Nenhum pedido ainda.", "No requests yet.")}</p> : (
           <div className="flex flex-col gap-2">
             {data.runs.map((r) => {
-              const st = STATUS[r.status] || { label: r.status, tone: "neutral" as const }
+              const st = STATUS(t)[r.status] || { label: r.status, tone: "neutral" as const }
               const open = openRun === r.id
               return (
                 <div key={r.id} className="rounded-[10px] border border-border">
                   <button className="flex w-full items-center gap-3 px-4 py-3 text-left" onClick={() => setOpenRun(open ? null : r.id)}>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[14px] text-foreground">{r.prompt || r.summary || "(sem texto)"}</p>
-                      <p className="text-[12px] text-muted-foreground">{new Date(r.created_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })} · {r.steps.length} passo(s) · <span className="font-mono">{r.user_id}</span></p>
+                      <p className="truncate text-[14px] text-foreground">{r.prompt || r.summary || t("(sem texto)", "(no text)")}</p>
+                      <p className="text-[12px] text-muted-foreground">{new Date(r.created_at).toLocaleString(t("pt-BR", "en-US"), { dateStyle: "short", timeStyle: "short" })} · {t(`${r.steps.length} passo(s)`, `${r.steps.length} step(s)`)} · <span className="font-mono">{r.user_id}</span></p>
                     </div>
                     <Pill tone={st.tone}>{st.label}</Pill>
                   </button>

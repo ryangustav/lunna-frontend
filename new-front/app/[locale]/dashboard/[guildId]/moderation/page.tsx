@@ -5,6 +5,7 @@ import { Save, AlertTriangle, ShieldAlert, ShieldCheck, Zap, Mail, Trash2, Plus 
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import { useT } from "@/lib/use-t"
 
 interface Channel {
   id: string
@@ -34,6 +35,7 @@ export default function ModerationPage({
 }: {
   params: Promise<{ guildId: string }>
 }) {
+  const t = useT()
   const { guildId } = use(params)
   const { toast } = useToast()
 
@@ -103,10 +105,10 @@ export default function ModerationPage({
 
       } catch (err: any) {
         console.error("Failed to load moderation settings:", err)
-        setError(err.message || "Não foi possível carregar as configurações do servidor.")
+        setError(err.message || t("Não foi possível carregar as configurações do servidor.", "Couldn't load the server settings."))
         toast({
-          title: "Erro ao carregar dados",
-          description: err.message || "Por favor, verifique se o bot está no servidor.",
+          title: t("Erro ao carregar dados", "Couldn't load the data"),
+          description: err.message || t("Por favor, verifique se o bot está no servidor.", "Please check that the bot is in the server."),
           variant: "destructive"
         })
       } finally {
@@ -131,14 +133,14 @@ export default function ModerationPage({
       await api.updateGuildSettings(guildId, payload)
 
       toast({
-        title: "Sucesso!",
-        description: "Configurações de moderação salvas com sucesso.",
+        title: t("Sucesso!", "Saved!"),
+        description: t("Configurações de moderação salvas com sucesso.", "Moderation settings saved."),
       })
     } catch (err: any) {
       console.error("Failed to save settings:", err)
       toast({
-        title: "Erro ao salvar",
-        description: err.message || "Ocorreu um erro ao salvar as configurações.",
+        title: t("Erro ao salvar", "Couldn't save"),
+        description: err.message || t("Ocorreu um erro ao salvar as configurações.", "Something went wrong while saving the settings."),
         variant: "destructive"
       })
     } finally {
@@ -153,8 +155,8 @@ export default function ModerationPage({
     // Check if count already has a rule
     if (warnPunishments.some(p => p.warn_count === newWarnCount)) {
       toast({
-        title: "Regra duplicada",
-        description: `Já existe uma punição configurada para ${newWarnCount} avisos.`,
+        title: t("Regra duplicada", "Duplicate rule"),
+        description: t(`Já existe uma punição configurada para ${newWarnCount} avisos.`, `There is already a punishment set for ${newWarnCount} warnings.`),
         variant: "destructive"
       })
       return
@@ -169,8 +171,8 @@ export default function ModerationPage({
     // Sort by warn_count ascending
     setWarnPunishments([...warnPunishments, newRule].sort((a, b) => a.warn_count - b.warn_count))
     toast({
-      title: "Regra adicionada",
-      description: `Regra para ${newWarnCount} avisos adicionada temporariamente. Lembre-se de salvar!`,
+      title: t("Regra adicionada", "Rule added"),
+      description: t(`Regra para ${newWarnCount} avisos adicionada temporariamente. Lembre-se de salvar!`, `Rule for ${newWarnCount} warnings added. Remember to save!`),
     })
   }
 
@@ -195,10 +197,10 @@ export default function ModerationPage({
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center rounded-[14px] border border-destructive/20 bg-destructive/5 space-y-4">
         <AlertTriangle className="h-12 w-12 text-destructive" />
-        <h3 className="text-[15px] font-bold text-foreground">Falha de Comunicação</h3>
+        <h3 className="text-[15px] font-bold text-foreground">{t("Falha de Comunicação", "Connection failed")}</h3>
         <p className="text-sm text-muted-foreground max-w-md">{error}</p>
         <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full">
-          Tentar Novamente
+          {t("Tentar Novamente", "Try again")}
         </Button>
       </div>
     )
@@ -206,17 +208,17 @@ export default function ModerationPage({
 
   const translateAction = (act: string, durationSec: number) => {
     switch (act) {
-      case "warn": return "Aviso"
+      case "warn": return t("Aviso", "Warning")
       case "mute": {
         const mins = durationSec / 60
         if (mins >= 60) {
           const hrs = Math.round(mins / 60)
-          return `Silenciamento por ${hrs} hora(s)`
+          return t(`Silenciamento por ${hrs} hora(s)`, `Timeout for ${hrs} hour(s)`)
         }
-        return `Silenciamento por ${mins} minuto(s)`
+        return t(`Silenciamento por ${mins} minuto(s)`, `Timeout for ${mins} minute(s)`)
       }
-      case "kick": return "Expulsão"
-      case "ban": return "Banimento"
+      case "kick": return t("Expulsão", "Kick")
+      case "ban": return t("Banimento", "Ban")
       default: return act
     }
   }
@@ -226,10 +228,10 @@ export default function ModerationPage({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="flex items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground">
-            Defesas & Moderação
+            {t("Defesas & Moderação", "Defenses & moderation")}
           </h1>
           <p className="mt-2 max-w-[560px] text-[14px] leading-[1.7] text-muted-foreground">
-            Configure punições automáticas e notificações diretas no privado dos membros.
+            {t("Configure punições automáticas e notificações diretas no privado dos membros.", "Set up automatic punishments and DM notices to members.")}
           </p>
         </div>
 
@@ -239,7 +241,7 @@ export default function ModerationPage({
           className="w-full sm:w-auto h-10 rounded-full font-bold transition-all rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
         >
           <Save className="mr-2 h-4 w-4" />
-          {saving ? "Salvando..." : "Salvar Configurações"}
+          {saving ? t("Salvando...", "Saving...") : t("Salvar Configurações", "Save settings")}
         </Button>
       </div>
 
@@ -253,22 +255,22 @@ export default function ModerationPage({
           <div className="space-y-1">
             <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
               <Mail className="h-5 w-5 text-violet-400" />
-              Notificações no Privado (DMs de Punição)
+              {t("Notificações no Privado (DMs de Punição)", "DM notices (punishment DMs)")}
             </h2>
             <p className="text-sm text-muted-foreground">
-              Escolha quais ações enviarão mensagens privadas avisando o usuário sobre o motivo e punição aplicada.
+              {t("Escolha quais ações enviarão mensagens privadas avisando o usuário sobre o motivo e punição aplicada.", "Pick which actions send the member a DM with the reason and the punishment. The DM is in the server's language.")}
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {(Object.keys(punishmentDM) as Array<keyof PunishmentDM>).map((type) => {
-              const label = type === "ban" ? "Banimento" : 
-                            type === "kick" ? "Expulsão" :
-                            type === "mute" ? "Silenciamento" :
-                            type === "warn" ? "Aviso" :
-                            type === "unban" ? "Desbanimento" :
-                            type === "unmute" ? "Dessilenciamento" :
-                            type === "unwarn" ? "Desavisado" : "Expulsão c/ Msg Deletada";
+              const label = type === "ban" ? t("Banimento", "Ban") : 
+                            type === "kick" ? t("Expulsão", "Kick") :
+                            type === "mute" ? t("Silenciamento", "Timeout") :
+                            type === "warn" ? t("Aviso", "Warning") :
+                            type === "unban" ? t("Desbanimento", "Unban") :
+                            type === "unmute" ? t("Dessilenciamento", "Timeout removed") :
+                            type === "unwarn" ? t("Aviso removido", "Warning removed") : t("Expulsão c/ Msg Deletada", "Softban (kick + delete messages)");
               const isChecked = punishmentDM[type]
               return (
                 <div
@@ -292,17 +294,17 @@ export default function ModerationPage({
           <div className="space-y-1">
             <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-red-400" />
-              Punições de Avisos
+              {t("Punições de Avisos", "Warning punishments")}
             </h2>
             <p className="text-sm text-muted-foreground">
-              Adicione regras automáticas de moderação baseadas na quantidade acumulada de avisos de um membro.
+              {t("Adicione regras automáticas de moderação baseadas na quantidade acumulada de avisos de um membro.", "Add automatic rules based on how many warnings a member has.")}
             </p>
           </div>
 
           {/* Rule Creator */}
           <div className="flex flex-wrap gap-4 items-end bg-secondary/15 p-5 rounded-[14px] border border-border/50 max-w-3xl">
             <div className="space-y-1">
-              <span className="text-xs font-semibold text-muted-foreground">Ao chegar em</span>
+              <span className="text-xs font-semibold text-muted-foreground">{t("Ao chegar em", "On reaching")}</span>
               <div className="flex items-center gap-1.5">
                 <input
                   type="number"
@@ -312,26 +314,26 @@ export default function ModerationPage({
                   onChange={(e) => setNewWarnCount(Math.max(1, Number(e.target.value)))}
                   className="w-16 h-10 rounded-lg border border-border bg-background px-2 text-center text-sm font-semibold outline-none"
                 />
-                <span className="text-xs font-semibold text-foreground">avisos</span>
+                <span className="text-xs font-semibold text-foreground">{t("avisos", "warnings")}</span>
               </div>
             </div>
 
             <div className="space-y-1">
-              <span className="text-xs font-semibold text-muted-foreground">Aplicar Ação</span>
+              <span className="text-xs font-semibold text-muted-foreground">{t("Aplicar Ação", "Action")}</span>
               <select
                 value={newWarnAction}
                 onChange={(e) => setNewWarnAction(e.target.value)}
                 className="h-10 rounded-lg border border-border bg-background px-3 text-xs font-semibold outline-none cursor-pointer"
               >
-                <option value="mute">Silenciar (Mute)</option>
-                <option value="kick">Expulsar (Kick)</option>
-                <option value="ban">Banir (Ban)</option>
+                <option value="mute">{t("Silenciar (Mute)", "Timeout (mute)")}</option>
+                <option value="kick">{t("Expulsar (Kick)", "Kick")}</option>
+                <option value="ban">{t("Banir (Ban)", "Ban")}</option>
               </select>
             </div>
 
             {newWarnAction === "mute" && (
               <div className="space-y-1">
-                <span className="text-xs font-semibold text-muted-foreground">Duração (Minutos)</span>
+                <span className="text-xs font-semibold text-muted-foreground">{t("Duração (Minutos)", "Duration (minutes)")}</span>
                 <input
                   type="number"
                   min={5}
@@ -348,17 +350,17 @@ export default function ModerationPage({
               className="h-10 rounded-lg bg-[#7c3aed] text-white font-semibold px-4 text-xs hover:bg-[#7c3aed]/95 flex items-center gap-1.5 transition"
             >
               <Plus className="h-3.5 w-3.5" />
-              Adicionar Regra
+              {t("Adicionar Regra", "Add rule")}
             </button>
           </div>
 
           {/* Rule List */}
           <div className="space-y-3 max-w-3xl">
-            <h4 className="text-sm font-semibold text-foreground">Regras de Ações Automáticas Ativas</h4>
+            <h4 className="text-sm font-semibold text-foreground">{t("Regras de Ações Automáticas Ativas", "Active automatic rules")}</h4>
             
             {warnPunishments.length === 0 ? (
               <p className="text-xs text-muted-foreground italic bg-secondary/10 p-4 rounded-[10px] border border-dashed text-center">
-                Nenhuma regra automática configurada. Usuários que receberem avisos acumularão avisos indefinidamente.
+                {t("Nenhuma regra automática configurada. Usuários que receberem avisos acumularão avisos indefinidamente.", "No automatic rules. Members who get warnings just keep adding up warnings.")}
               </p>
             ) : (
               <div className="space-y-2">
@@ -368,7 +370,7 @@ export default function ModerationPage({
                     className="flex justify-between items-center bg-secondary/20 p-4 rounded-[10px] border border-border/60 hover:bg-secondary/35 transition"
                   >
                     <span className="text-xs font-semibold text-foreground">
-                      Ao atingir <strong className="text-red-400 font-semibold">{rule.warn_count}</strong> aviso(s), o usuário será punido com: <strong>{translateAction(rule.action, rule.duration).toUpperCase()}</strong>
+                      {t("Ao atingir", "On reaching")} <strong className="text-red-400 font-semibold">{rule.warn_count}</strong> {t("aviso(s), o usuário será punido com:", "warning(s), the member gets:")} <strong>{translateAction(rule.action, rule.duration).toUpperCase()}</strong>
                     </span>
                     <button
                       type="button"
@@ -376,7 +378,7 @@ export default function ModerationPage({
                       className="text-xs text-red-400 hover:text-red-500 font-semibold flex items-center gap-1 transition p-1 hover:bg-red-500/5 rounded-lg"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                      Remover
+                      {t("Remover", "Remove")}
                     </button>
                   </div>
                 ))}

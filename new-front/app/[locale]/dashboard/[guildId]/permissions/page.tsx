@@ -5,6 +5,7 @@ import { Save, AlertTriangle, Key, Shield, ChevronLeft, ToggleLeft, ToggleRight,
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import { useT } from "@/lib/use-t"
 
 interface Role {
   id: string
@@ -23,6 +24,7 @@ export default function PermissionsPage({
 }: {
   params: Promise<{ guildId: string }>
 }) {
+  const t = useT()
   const { guildId } = use(params)
   const { toast } = useToast()
 
@@ -62,10 +64,10 @@ export default function PermissionsPage({
 
       } catch (err: any) {
         console.error("Failed to load permission settings:", err)
-        setError(err.message || "Não foi possível carregar as configurações do servidor.")
+        setError(err.message || t("Não foi possível carregar as configurações do servidor.", "Couldn't load the server settings."))
         toast({
-          title: "Erro ao carregar dados",
-          description: err.message || "Por favor, verifique se o bot está no servidor.",
+          title: t("Erro ao carregar dados", "Couldn't load the data"),
+          description: err.message || t("Por favor, verifique se o bot está no servidor.", "Please check that the bot is in the server."),
           variant: "destructive"
         })
       } finally {
@@ -89,14 +91,14 @@ export default function PermissionsPage({
       await api.updateGuildSettings(guildId, payload)
 
       toast({
-        title: "Sucesso!",
-        description: "Permissões de cargos salvas com sucesso.",
+        title: t("Sucesso!", "Saved!"),
+        description: t("Permissões de cargos salvas com sucesso.", "Role permissions saved."),
       })
     } catch (err: any) {
       console.error("Failed to save permissions:", err)
       toast({
-        title: "Erro ao salvar",
-        description: err.message || "Ocorreu um erro ao salvar as configurações.",
+        title: t("Erro ao salvar", "Couldn't save"),
+        description: err.message || t("Ocorreu um erro ao salvar as configurações.", "Something went wrong while saving the settings."),
         variant: "destructive"
       })
     } finally {
@@ -142,10 +144,10 @@ export default function PermissionsPage({
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center rounded-[14px] border border-destructive/20 bg-destructive/5 space-y-4">
         <AlertTriangle className="h-12 w-12 text-destructive" />
-        <h3 className="text-[15px] font-bold text-foreground">Falha de Comunicação</h3>
+        <h3 className="text-[15px] font-bold text-foreground">{t("Falha de Comunicação", "Connection failed")}</h3>
         <p className="text-sm text-muted-foreground max-w-md">{error}</p>
         <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full">
-          Tentar Novamente
+          {t("Tentar Novamente", "Try again")}
         </Button>
       </div>
     )
@@ -159,10 +161,10 @@ export default function PermissionsPage({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="flex items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground">
-            Permissões de Cargos
+            {t("Permissões de Cargos", "Role permissions")}
           </h1>
           <p className="mt-2 max-w-[560px] text-[14px] leading-[1.7] text-muted-foreground">
-            Defina permissões personalizadas para o bot de todos os cargos do seu servidor.
+            {t("Defina permissões personalizadas para o bot de todos os cargos do seu servidor.", "Set custom bot permissions for any role in your server.")}
           </p>
         </div>
 
@@ -172,7 +174,7 @@ export default function PermissionsPage({
           className="w-full sm:w-auto h-10 rounded-full font-bold transition-all rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
         >
           <Save className="mr-2 h-4 w-4" />
-          {saving ? "Salvando..." : "Salvar Configurações"}
+          {saving ? t("Salvando...", "Saving...") : t("Salvar Configurações", "Save settings")}
         </Button>
       </div>
 
@@ -183,16 +185,16 @@ export default function PermissionsPage({
           <div className="rounded-[14px] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group">
 
             <div className="space-y-1">
-              <h2 className="text-[15px] font-semibold text-foreground">Lista de Cargos</h2>
+              <h2 className="text-[15px] font-semibold text-foreground">{t("Lista de Cargos", "Roles")}</h2>
               <p className="text-sm text-muted-foreground">
-                Selecione um cargo para configurar as permissões especiais no bot.
+                {t("Selecione um cargo para configurar as permissões especiais no bot.", "Pick a role to set its special permissions in the bot.")}
               </p>
             </div>
 
             <div className="space-y-4 max-w-xl">
               <input
                 type="text"
-                placeholder="Pesquisar cargos do servidor..."
+                placeholder={t("Pesquisar cargos do servidor...", "Search the server's roles...")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full h-11 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold outline-none transition focus:border-primary/50"
@@ -200,7 +202,7 @@ export default function PermissionsPage({
 
               <div className="rounded-[14px] border border-border bg-secondary/15 p-4 max-h-80 overflow-y-auto space-y-2">
                 {filteredRoles.length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-4">Nenhum cargo encontrado.</p>
+                  <p className="text-xs text-muted-foreground text-center py-4">{t("Nenhum cargo encontrado.", "No roles found.")}</p>
                 ) : (
                   filteredRoles.map((role) => {
                     const customPerms = rolePermissions[role.id];
@@ -221,7 +223,7 @@ export default function PermissionsPage({
                         </div>
                         {hasOverrides && (
                           <span className="rounded-lg bg-[#7c3aed]/10 border border-[#7c3aed]/20 px-2 py-0.5 text-[10px] font-semibold text-primary flex items-center gap-1">
-                            <Check className="h-3 w-3" /> Customizado
+                            <Check className="h-3 w-3" /> {t("Customizado", "Custom")}
                           </span>
                         )}
                       </div>
@@ -242,7 +244,7 @@ export default function PermissionsPage({
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-secondary/40 text-xs font-semibold text-foreground hover:bg-secondary/70 transition mb-6"
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
-                Voltar para a lista de cargos
+                {t("Voltar para a lista de cargos", "Back to the role list")}
               </button>
 
               <div className="flex items-center gap-3">
@@ -256,7 +258,7 @@ export default function PermissionsPage({
               {/* Toggle 1: Permitir enviar convites */}
               <div className="flex items-center justify-between p-4 rounded-[10px] border border-border/40 bg-secondary/10">
                 <div className="space-y-0.5">
-                  <span className="text-sm font-semibold text-foreground">Permitir enviar convites</span>
+                  <span className="text-sm font-semibold text-foreground">{t("Permitir enviar convites", "Allow sending invites")}</span>
                 </div>
                 <div className="flex items-center">
                   <input
@@ -271,9 +273,9 @@ export default function PermissionsPage({
               {/* Toggle 2: Permitir usar comandos */}
               <div className="flex items-center justify-between p-4 rounded-[10px] border border-border/40 bg-secondary/10">
                 <div className="space-y-1 pr-4">
-                  <span className="text-sm font-semibold text-foreground">Permitir usar comandos</span>
+                  <span className="text-sm font-semibold text-foreground">{t("Permitir usar comandos", "Allow using commands")}</span>
                   <p className="text-xs text-muted-foreground">
-                    Caso esteja ativado, eu irei processar comandos enviados por este usuário.
+                    {t("Caso esteja ativado, eu irei processar comandos enviados por este usuário.", "When on, I'll run commands sent by members with this role.")}
                   </p>
                 </div>
                 <div className="flex items-center">
@@ -289,9 +291,9 @@ export default function PermissionsPage({
               {/* Toggle 3: Permitir usar comandos em qualquer canal */}
               <div className="flex items-center justify-between p-4 rounded-[10px] border border-border/40 bg-secondary/10">
                 <div className="space-y-1 pr-4">
-                  <span className="text-sm font-semibold text-foreground">Permitir usar comandos em qualquer canal</span>
+                  <span className="text-sm font-semibold text-foreground">{t("Permitir usar comandos em qualquer canal", "Allow commands in any channel")}</span>
                   <p className="text-xs text-muted-foreground">
-                    Caso esteja ativado, eu irei permitir usar comandos em canais que foram adicionados para eu ignorar.
+                    {t("Caso esteja ativado, eu irei permitir usar comandos em canais que foram adicionados para eu ignorar.", "When on, commands also work in channels I've been told to ignore.")}
                   </p>
                 </div>
                 <div className="flex items-center">

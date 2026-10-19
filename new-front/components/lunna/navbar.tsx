@@ -7,7 +7,7 @@ import { Link } from "@/src/i18n/routing"
 import { Button } from "@/components/ui/button"
 import { Menu, Moon, Sun, LayoutDashboard, LogOut, ChevronDown, Crown, Coins, Gift, Ticket, ShieldCheck } from "lucide-react"
 import { useTheme } from "next-themes"
-import { LanguageSwitcher, LanguageButtons } from "@/components/lunna/language-switcher"
+import { LanguageSwitcher, LanguageButtons, AccountLanguageSync } from "@/components/lunna/language-switcher"
 import {
   Sheet,
   SheetContent,
@@ -20,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useT } from "@/lib/use-t"
 
 interface User {
   id: string
@@ -29,6 +30,7 @@ interface User {
 
 export function Navbar() {
   const t = useTranslations("Navigation")
+  const L = useT()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [user, setUser] = useState<User | null>(null)
   const [mounted, setMounted] = useState(false)
@@ -174,12 +176,13 @@ export function Navbar() {
             variant="ghost"
             size="icon"
             className="rounded-full"
-            aria-label="Alternar tema"
+            aria-label={L("Alternar tema", "Toggle theme")}
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
             {mounted && theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
 
+          <AccountLanguageSync />
           <div className="hidden md:block"><LanguageSwitcher /></div>
 
           <div className="hidden items-center gap-3 md:flex">
@@ -216,7 +219,7 @@ export function Navbar() {
                     <DropdownMenuItem asChild className="cursor-pointer gap-2 rounded-lg p-2.5">
                       <Link href="/admin">
                         <ShieldCheck className="h-4 w-4 text-[#7c3aed]" />
-                        <span>Administração</span>
+                        <span>{L("Administração", "Admin")}</span>
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -279,7 +282,7 @@ export function Navbar() {
                     </Link>
                     {isAdmin && (
                       <Link href="/admin" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">
-                        <ShieldCheck className="h-5 w-5" /> Administração
+                        <ShieldCheck className="h-5 w-5" /> {L("Administração", "Admin")}
                       </Link>
                     )}
                     <Link href="/daily" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">

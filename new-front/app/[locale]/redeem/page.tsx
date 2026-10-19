@@ -12,6 +12,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@/src/i18n/routing";
 import { Navbar } from "@/components/lunna/navbar";
 import { api, isUnauthorized } from "@/lib/api";
+import { useT } from "@/lib/use-t"
+import { serverText } from "@/lib/server-text"
 
 // Custom counter hook for ticking up the coins smoothly
 function useAnimatedCounter(endValue: number, startValue: number = 0, durationMs: number = 2000) {
@@ -44,6 +46,7 @@ function useAnimatedCounter(endValue: number, startValue: number = 0, durationMs
 
 export default function RedeemPage() {
   const t = useTranslations("Redeem");
+  const L = useT();
   const [isPending, startTransition] = useTransition();
 
   // Session state
@@ -136,7 +139,7 @@ export default function RedeemPage() {
         const result = await api.redeemCode(code.trim());
         if (result.success) {
           setSuccess(true);
-          setSuccessMsg(result.message);
+          setSuccessMsg(serverText(result.message, L("pt", "en")));
           setShowParticles(true);
           
           // Re-fetch user data to update balance & VIP
@@ -165,7 +168,7 @@ export default function RedeemPage() {
         }
       } catch (err: any) {
         if (isUnauthorized(err)) setIsAuthenticated(false);
-        setErrorMsg(err.message || "Erro ao resgatar o código");
+        setErrorMsg(err.message || L("Erro ao resgatar o código", "Couldn't redeem the code"));
       }
     });
   };
@@ -269,7 +272,7 @@ export default function RedeemPage() {
                   {t("loginToClaim")}
                 </CardTitle>
                 <CardDescription className="text-sm font-medium px-4 text-muted-foreground/80">
-                  Faça login com sua conta do Discord para vincular seu perfil e resgatar códigos promocionais.
+                  {L("Faça login com sua conta do Discord para vincular seu perfil e resgatar códigos promocionais.", "Log in with your Discord account to link your profile and redeem promo codes.")}
                 </CardDescription>
               </CardHeader>
               <CardFooter className="pb-10 pt-4 px-8">
@@ -343,7 +346,7 @@ export default function RedeemPage() {
                       }}
                       className="mt-2 text-xs font-bold text-purple-400 hover:text-purple-300 bg-transparent border border-purple-500/20 px-4 py-1.5 rounded-xl hover:bg-purple-500/5"
                     >
-                      Resgatar outro código
+                      {L("Resgatar outro código", "Redeem another code")}
                     </Button>
                   </div>
                 ) : (
@@ -351,7 +354,7 @@ export default function RedeemPage() {
                   <div className="space-y-4 animate-fade-in">
                     <div className="flex flex-col gap-2">
                       <label htmlFor="code-input" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                        Código Promocional
+                        {L("Código Promocional", "Promo code")}
                       </label>
                       <input
                         id="code-input"

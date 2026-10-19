@@ -7,26 +7,28 @@ import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { guildPlan } from "@/lib/guild-premium"
 import { PageHeader, Section, PrimaryButton, Pill, LoadingState, ErrorState } from "@/components/dashboard/primitives"
+import { useT, type T } from "@/lib/use-t"
 
 type Settings = Record<string, any>
 
 // Each module's on/off state, derived only from saved settings (no invented numbers)
-function modules(s: Settings, base: string) {
+function modules(s: Settings, base: string, t: T) {
   const counters = Object.values(s.member_counters || {}).filter((c: any) => c?.enabled).length
   return [
-    { name: "Mensagem de boas-vindas", on: !!s.welcome_channel, href: `${base}/welcome` },
-    { name: "Banner de boas-vindas", on: !!s.welcome_banner_enabled, href: `${base}/welcome` },
+    { name: t("Mensagem de boas-vindas", "Welcome message"), on: !!s.welcome_channel, href: `${base}/welcome` },
+    { name: t("Banner de boas-vindas", "Welcome banner"), on: !!s.welcome_banner_enabled, href: `${base}/welcome` },
     { name: "Autorole", on: !!s.autorole_role, href: `${base}/autorole` },
-    { name: "Contador de membros", on: counters > 0, detail: counters ? `${counters} ativo(s)` : undefined, href: `${base}/member-counter` },
+    { name: t("Contador de membros", "Member counter"), on: counters > 0, detail: counters ? t(`${counters} ativo(s)`, `${counters} active`) : undefined, href: `${base}/member-counter` },
     { name: "Anti-spam", on: !!s.anti_spam?.enabled, href: `${base}/moderation` },
-    { name: "Bloqueio de convites", on: !!s.anti_invite?.enabled, href: `${base}/anti-invite` },
-    { name: "Bloqueio de links", on: !!s.anti_link?.enabled, href: `${base}/anti-invite` },
-    { name: "Canal armadilha", on: !!s.trap_channel?.enabled, href: `${base}/trap-channel` },
-    { name: "Logs de eventos", on: !!(s.mod_log_channel || s.log_msg_delete_channel || s.log_msg_edit_channel), href: `${base}/logs` },
+    { name: t("Bloqueio de convites", "Invite blocking"), on: !!s.anti_invite?.enabled, href: `${base}/anti-invite` },
+    { name: t("Bloqueio de links", "Link blocking"), on: !!s.anti_link?.enabled, href: `${base}/anti-invite` },
+    { name: t("Canal armadilha", "Trap channel"), on: !!s.trap_channel?.enabled, href: `${base}/trap-channel` },
+    { name: t("Logs de eventos", "Event logs"), on: !!(s.mod_log_channel || s.log_msg_delete_channel || s.log_msg_edit_channel), href: `${base}/logs` },
   ]
 }
 
 export default function GuildOverviewPage({ params }: { params: Promise<{ guildId: string }> }) {
+  const t = useT()
   const { guildId } = use(params)
   const { toast } = useToast()
   const base = `/dashboard/${guildId}`
@@ -35,7 +37,8 @@ export default function GuildOverviewPage({ params }: { params: Promise<{ guildI
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [settings, setSettings] = useState<Settings>({})
-  const [language, setLanguage] = useState("en")
+  // "auto" = nothing saved: Lunna follows the server's Discord language
+  const [language, setLanguage] = useState<string>("auto")
 
   const load = async () => {
     try {
@@ -44,10 +47,10 @@ export default function GuildOverviewPage({ params }: { params: Promise<{ guildI
       const res = await api.getGuildSettings(guildId)
       if (res) {
         setSettings(res)
-        setLanguage(res.language || "en")
+        setLanguage(res.language === "pt" || res.language === "en" ? res.language : "auto")
       }
     } catch (err: any) {
-      setError(err.message || "Erro ao carregar as configurações do servidor.")
+      setError(err.message || t("Erro ao carregar as configurações do servidor.", "Couldn't load the server settings."))
     } finally {
       setLoading(false)
     }
@@ -61,10 +64,10 @@ export default function GuildOverviewPage({ params }: { params: Promise<{ guildI
   const saveLanguage = async () => {
     setSaving(true)
     try {
-      await api.updateGuildSettings(guildId, { language })
-      toast({ title: "Idioma salvo", description: "A Lunna vai responder neste idioma no servidor." })
+      await api.updateGuildSettings(guildId, { language: language === "auto" ? null : language })
+      toast({ title: t("Idioma salvo", "Language saved"), description: t("A Lunna vai usar este idioma no servidor.", "Lunna will use this language in the server.") })
     } catch (err: any) {
-      toast({ title: "Erro ao salvar", description: err.message || "Não foi possível salvar o idioma.", variant: "destructive" })
+      toast({ title: t("Erro ao salvar", "Couldn't save"), description: err.message || t("Não foi possível salvar o idioma.", "Couldn't save the language."), variant: "destructive" })
     } finally {
       setSaving(false)
     }
@@ -74,35 +77,35 @@ export default function GuildOverviewPage({ params }: { params: Promise<{ guildI
   if (error) return <ErrorState message={error} onRetry={load} />
 
   const plan = guildPlan(settings.premium_type) || guildPlan("free")!
-  const mods = modules(settings, base)
+  const mods = modules(settings, base, t)
   const active = mods.filter((m) => m.on).length
 
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
-        eyebrow="Visão geral"
-        title="Configurações do servidor"
-        description={`${active} de ${mods.length} módulos ativos. Escolha um módulo para configurar.`}
+        eyebrow={t("Visão geral", "Overview")}
+        title={t("Configurações do servidor", "Server settings")}
+        description={t(`${active} de ${mods.length} módulos ativos. Escolha um módulo para configurar.`, `${active} of ${mods.length} modules on. Pick a module to set it up.`)}
       />
 
       <Section
-        title="Plano do servidor"
+        title={t("Plano do servidor", "Server plan")}
         description={
           plan.key === "free"
-            ? "Este servidor está no plano gratuito."
-            : `${plan.name} ativo${settings.premium_expires_at ? ` até ${new Date(settings.premium_expires_at * 1000).toLocaleDateString("pt-BR")}` : ""}.`
+            ? t("Este servidor está no plano gratuito.", "This server is on the free plan.")
+            : t(`${plan.name} ativo${settings.premium_expires_at ? ` até ${new Date(settings.premium_expires_at * 1000).toLocaleDateString("pt-BR")}` : ""}.`, `${plan.name} active${settings.premium_expires_at ? ` until ${new Date(settings.premium_expires_at * 1000).toLocaleDateString("en-US")}` : ""}.`)
         }
         action={
           <Link
             href={`${base}/premium`}
             className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-4 py-2 text-[13px] font-semibold text-foreground transition-colors hover:bg-secondary"
           >
-            {plan.key === "free" ? "Ver planos" : "Renovar"}
+            {plan.key === "free" ? t("Ver planos", "See plans") : t("Renovar", "Renew")}
           </Link>
         }
       />
 
-      <Section title="Módulos">
+      <Section title={t("Módulos", "Modules")}>
         <ul className="-mx-2 divide-y divide-border">
           {mods.map((m) => (
             <li key={m.name}>
@@ -113,7 +116,7 @@ export default function GuildOverviewPage({ params }: { params: Promise<{ guildI
                 <span className="text-[14px] text-foreground">{m.name}</span>
                 <span className="flex items-center gap-2">
                   {m.detail && <span className="text-[12px] text-muted-foreground">{m.detail}</span>}
-                  <Pill tone={m.on ? "success" : "neutral"}>{m.on ? "Ativo" : "Desativado"}</Pill>
+                  <Pill tone={m.on ? "success" : "neutral"}>{m.on ? t("Ativo", "On") : t("Desativado", "Off")}</Pill>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </span>
               </Link>
@@ -123,19 +126,20 @@ export default function GuildOverviewPage({ params }: { params: Promise<{ guildI
       </Section>
 
       <Section
-        title="Idioma da Lunna"
-        description="Idioma das respostas e mensagens automáticas neste servidor."
+        title={t("Idioma da Lunna", "Lunna's language")}
+        description={t("Idioma das mensagens que a Lunna posta neste servidor, como logs, tickets e boas-vindas. As respostas a cada membro seguem o idioma pessoal de cada um.", "Language of the messages Lunna posts in this server, like logs, tickets and welcomes. Each member's own replies follow their personal language.")}
         action={
           <PrimaryButton onClick={saveLanguage} loading={saving}>
-            Salvar
+            {t("Salvar", "Save")}
           </PrimaryButton>
         }
       >
-        <div className="grid max-w-[520px] grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid max-w-[720px] grid-cols-1 gap-3 sm:grid-cols-3">
           {[
+            { value: "auto", label: t("Automático", "Automatic"), hint: t("Idioma do servidor no Discord", "The server's Discord language") },
             { value: "pt", label: "Português (Brasil)" },
             { value: "en", label: "English" },
-          ].map((opt) => (
+          ].map((opt: { value: string; label: string; hint?: string }) => (
             <label
               key={opt.value}
               className={`flex cursor-pointer items-center gap-3 rounded-[10px] border px-4 py-3 text-[14px] transition-colors ${
@@ -150,7 +154,10 @@ export default function GuildOverviewPage({ params }: { params: Promise<{ guildI
                 onChange={(e) => setLanguage(e.target.value)}
                 className="h-4 w-4 accent-[#7c3aed]"
               />
-              {opt.label}
+              <span className="flex flex-col">
+                {opt.label}
+                {opt.hint && <span className="text-[12px] text-muted-foreground">{opt.hint}</span>}
+              </span>
             </label>
           ))}
         </div>
