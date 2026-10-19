@@ -5,6 +5,7 @@ import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Switch } from "@/components/ui/switch"
 import { PageHeader, Section, Field, PrimaryButton, LoadingState, ErrorState } from "@/components/dashboard/primitives"
+import { useT, type T } from "@/lib/use-t"
 
 type WordFilter = {
   enabled: boolean
@@ -21,15 +22,16 @@ const DEFAULTS: WordFilter = {
   action: "none", message: "", exempt_channels: [], exempt_roles: [],
 }
 
-const PRESETS: { key: keyof WordFilter["presets"]; label: string; hint: string }[] = [
-  { key: "profanity", label: "Palavrões", hint: "Lista mantida pelo próprio Discord." },
-  { key: "sexual_content", label: "Conteúdo sexual", hint: "Termos sexuais explícitos." },
-  { key: "slurs", label: "Ofensas e insultos", hint: "Termos discriminatórios e ofensivos." },
+const PRESETS = (t: T): { key: keyof WordFilter["presets"]; label: string; hint: string }[] => [
+  { key: "profanity", label: t("Palavrões", "Profanity"), hint: t("Lista mantida pelo próprio Discord.", "A list kept by Discord itself.") },
+  { key: "sexual_content", label: t("Conteúdo sexual", "Sexual content"), hint: t("Termos sexuais explícitos.", "Explicit sexual terms.") },
+  { key: "slurs", label: t("Ofensas e insultos", "Slurs and insults"), hint: t("Termos discriminatórios e ofensivos.", "Discriminatory and offensive terms.") },
 ]
 
 const inputCls = "h-10 w-full rounded-[10px] border border-border bg-background px-3 text-[14px] text-foreground outline-none focus:border-[#7c3aed]/60"
 
 export default function WordFilterPage({ params }: { params: Promise<{ guildId: string }> }) {
+  const t = useT()
   const { guildId } = use(params)
   const { toast } = useToast()
   const [loading, setLoading] = useState(true)
@@ -51,7 +53,7 @@ export default function WordFilterPage({ params }: { params: Promise<{ guildId: 
       setChannels((c?.data || []).filter((ch: any) => ch.type === 0 || ch.type === 5))
       setRoles((r?.data || []).filter((role: any) => role.name !== "@everyone"))
     } catch (err: any) {
-      setError(err.message || "Não foi possível carregar as configurações.")
+      setError(err.message || t("Não foi possível carregar as configurações.", "Couldn't load the settings."))
     } finally {
       setLoading(false)
     }
@@ -66,9 +68,9 @@ export default function WordFilterPage({ params }: { params: Promise<{ guildId: 
     setSaving(true)
     try {
       await api.updateGuildSettings(guildId, { word_filter: { ...cfg, words } })
-      toast({ title: "Filtro salvo", description: "As regras chegam ao AutoMod do Discord em até 10 minutos." })
+      toast({ title: t("Filtro salvo", "Filter saved"), description: t("As regras chegam ao AutoMod do Discord em até 10 minutos.", "The rules reach Discord's AutoMod within 10 minutes.") })
     } catch (err: any) {
-      toast({ title: "Erro ao salvar", description: err.message, variant: "destructive" })
+      toast({ title: t("Erro ao salvar", "Couldn't save"), description: err.message, variant: "destructive" })
     } finally {
       setSaving(false)
     }
@@ -81,21 +83,21 @@ export default function WordFilterPage({ params }: { params: Promise<{ guildId: 
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
-        eyebrow="Moderação"
-        title="Filtro de palavras"
-        description="Mensagens com palavras proibidas são bloqueadas pelo AutoMod do próprio Discord, antes de aparecerem no chat. A Lunna precisa da permissão Gerenciar Servidor."
-        action={<PrimaryButton onClick={save} loading={saving}>Salvar</PrimaryButton>}
+        eyebrow={t("Moderação", "Moderation")}
+        title={t("Filtro de palavras", "Word filter")}
+        description={t("Mensagens com palavras proibidas são bloqueadas pelo AutoMod do próprio Discord, antes de aparecerem no chat. A Lunna precisa da permissão Gerenciar Servidor.", "Messages with banned words are blocked by Discord's own AutoMod before they show up in chat. Lunna needs the Manage Server permission.")}
+        action={<PrimaryButton onClick={save} loading={saving}>{t("Salvar", "Save")}</PrimaryButton>}
       />
 
       <Section
-        title="Filtro de palavras"
-        description="Liga ou desliga o filtro neste servidor."
+        title={t("Filtro de palavras", "Word filter")}
+        description={t("Liga ou desliga o filtro neste servidor.", "Turns the filter on or off in this server.")}
         action={<Switch checked={cfg.enabled} onCheckedChange={(v) => set("enabled", v)} />}
       />
 
-      <Section title="Listas prontas do Discord" description="Listas mantidas e atualizadas pelo Discord. Podem ser usadas junto com as suas palavras.">
+      <Section title={t("Listas prontas do Discord", "Discord's ready-made lists")} description={t("Listas mantidas e atualizadas pelo Discord. Podem ser usadas junto com as suas palavras.", "Lists kept up to date by Discord. You can use them together with your own words.")}>
         <div className="flex flex-col gap-3">
-          {PRESETS.map((p) => (
+          {PRESETS(t).map((p) => (
             <label key={p.key} className="flex items-center justify-between gap-4 rounded-[10px] border border-border px-4 py-3">
               <span>
                 <span className="block text-[14px] text-foreground">{p.label}</span>
@@ -108,46 +110,46 @@ export default function WordFilterPage({ params }: { params: Promise<{ guildId: 
       </Section>
 
       <Section
-        title="Suas palavras"
-        description="Uma por linha (ou separadas por vírgula). Use * como curinga: palavra* bloqueia tudo que começa com “palavra”, *palavra* bloqueia em qualquer parte."
+        title={t("Suas palavras", "Your words")}
+        description={t("Uma por linha (ou separadas por vírgula). Use * como curinga: palavra* bloqueia tudo que começa com “palavra”, *palavra* bloqueia em qualquer parte.", "One per line (or separated by commas). Use * as a wildcard: word* blocks anything starting with “word”, *word* blocks it anywhere.")}
       >
         <textarea rows={8} className={`${inputCls} h-auto py-2 font-mono text-[13px]`} value={wordsText}
-          onChange={(e) => setWordsText(e.target.value)} placeholder={"exemplo\ngolpe*\n*spam*"} />
+          onChange={(e) => setWordsText(e.target.value)} placeholder={t("exemplo\ngolpe*\n*spam*", "example\nscam*\n*spam*")} />
         <p className="mt-2 text-[12px] text-muted-foreground">
-          {words.length} / 1000 palavras
-          {tooLong.length > 0 && <span className="text-destructive"> · {tooLong.length} com mais de 60 caracteres serão ignoradas</span>}
+          {words.length} / 1000 {t("palavras", "words")}
+          {tooLong.length > 0 && <span className="text-destructive"> · {t(`${tooLong.length} com mais de 60 caracteres serão ignoradas`, `${tooLong.length} longer than 60 characters will be ignored`)}</span>}
         </p>
       </Section>
 
-      <Section title="O que acontece" description="A mensagem é sempre bloqueada. Você pode também punir o autor.">
+      <Section title={t("O que acontece", "What happens")} description={t("A mensagem é sempre bloqueada. Você pode também punir o autor.", "The message is always blocked. You can also punish the author.")}>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Punição">
+          <Field label={t("Punição", "Punishment")}>
             <select className={inputCls} value={cfg.action} onChange={(e) => set("action", e.target.value as WordFilter["action"])}>
-              <option value="none">Só bloquear a mensagem</option>
-              <option value="warn">Bloquear e avisar (warn)</option>
-              <option value="mute">Bloquear e silenciar por 1 hora</option>
-              <option value="kick">Bloquear e expulsar</option>
-              <option value="ban">Bloquear e banir</option>
+              <option value="none">{t("Só bloquear a mensagem", "Only block the message")}</option>
+              <option value="warn">{t("Bloquear e avisar (warn)", "Block and warn")}</option>
+              <option value="mute">{t("Bloquear e silenciar por 1 hora", "Block and time out for 1 hour")}</option>
+              <option value="kick">{t("Bloquear e expulsar", "Block and kick")}</option>
+              <option value="ban">{t("Bloquear e banir", "Block and ban")}</option>
             </select>
           </Field>
-          <Field label="Aviso para o autor" hint="Mostrado só para quem enviou. Máx. 150 caracteres.">
-            <input maxLength={150} className={inputCls} value={cfg.message} placeholder="Sua mensagem contém uma palavra proibida neste servidor."
+          <Field label={t("Aviso para o autor", "Notice for the author")} hint={t("Mostrado só para quem enviou. Máx. 150 caracteres.", "Shown only to the sender. Max 150 characters.")}>
+            <input maxLength={150} className={inputCls} value={cfg.message} placeholder={t("Sua mensagem contém uma palavra proibida neste servidor.", "Your message contains a word that is not allowed here.")}
               onChange={(e) => set("message", e.target.value)} />
           </Field>
         </div>
       </Section>
 
-      <Section title="Exceções" description="Canais onde o filtro não vale e cargos que podem usar as palavras. Administradores já são isentos pelo Discord.">
+      <Section title={t("Exceções", "Exceptions")} description={t("Canais onde o filtro não vale e cargos que podem usar as palavras. Administradores já são isentos pelo Discord.", "Channels where the filter doesn't apply and roles that may use the words. Discord already exempts administrators.")}>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Canais">
+          <Field label={t("Canais", "Channels")}>
             <select className={inputCls} value="" onChange={(e) => e.target.value && set("exempt_channels", [...new Set([...cfg.exempt_channels, e.target.value])])}>
-              <option value="">Adicionar canal</option>
+              <option value="">{t("Adicionar canal", "Add channel")}</option>
               {channels.filter((c) => !cfg.exempt_channels.includes(c.id)).map((c) => <option key={c.id} value={c.id}>#{c.name}</option>)}
             </select>
           </Field>
-          <Field label="Cargos">
+          <Field label={t("Cargos", "Roles")}>
             <select className={inputCls} value="" onChange={(e) => e.target.value && set("exempt_roles", [...new Set([...cfg.exempt_roles, e.target.value])])}>
-              <option value="">Adicionar cargo</option>
+              <option value="">{t("Adicionar cargo", "Add role")}</option>
               {roles.filter((r) => !cfg.exempt_roles.includes(r.id)).map((r) => <option key={r.id} value={r.id}>@{r.name}</option>)}
             </select>
           </Field>
@@ -156,12 +158,12 @@ export default function WordFilterPage({ params }: { params: Promise<{ guildId: 
           <div className="mt-4 flex flex-wrap gap-2">
             {cfg.exempt_channels.map((id) => (
               <button key={id} className={chip} onClick={() => set("exempt_channels", cfg.exempt_channels.filter((x) => x !== id))}>
-                #{channels.find((c) => c.id === id)?.name || "canal removido"} ✕
+                #{channels.find((c) => c.id === id)?.name || t("canal removido", "deleted channel")} ✕
               </button>
             ))}
             {cfg.exempt_roles.map((id) => (
               <button key={id} className={chip} onClick={() => set("exempt_roles", cfg.exempt_roles.filter((x) => x !== id))}>
-                @{roles.find((r) => r.id === id)?.name || "cargo removido"} ✕
+                @{roles.find((r) => r.id === id)?.name || t("cargo removido", "deleted role")} ✕
               </button>
             ))}
           </div>

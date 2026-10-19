@@ -5,6 +5,7 @@ import { Save, AlertTriangle, FileText, ShieldAlert, Ban, UserMinus, ShieldAlert
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import { useT } from "@/lib/use-t"
 
 interface Channel {
   id: string
@@ -17,6 +18,7 @@ export default function PunishmentsLogPage({
 }: {
   params: Promise<{ guildId: string }>
 }) {
+  const t = useT()
   const { guildId } = use(params)
   const { toast } = useToast()
 
@@ -61,10 +63,10 @@ export default function PunishmentsLogPage({
 
       } catch (err: any) {
         console.error("Failed to load punishments log settings:", err)
-        setError(err.message || "Não foi possível carregar as configurações do servidor.")
+        setError(err.message || t("Não foi possível carregar as configurações do servidor.", "Couldn't load the server settings."))
         toast({
-          title: "Erro ao carregar dados",
-          description: err.message || "Por favor, verifique se o bot está no servidor.",
+          title: t("Erro ao carregar dados", "Couldn't load the data"),
+          description: err.message || t("Por favor, verifique se o bot está no servidor.", "Please check that the bot is in the server."),
           variant: "destructive"
         })
       } finally {
@@ -93,14 +95,14 @@ export default function PunishmentsLogPage({
       await api.updateGuildSettings(guildId, payload)
 
       toast({
-        title: "Sucesso!",
-        description: "Configurações de registro de punições salvas com sucesso.",
+        title: t("Sucesso!", "Saved!"),
+        description: t("Configurações de registro de punições salvas com sucesso.", "Punishment log settings saved."),
       })
     } catch (err: any) {
       console.error("Failed to save settings:", err)
       toast({
-        title: "Erro ao salvar",
-        description: err.message || "Ocorreu um erro ao salvar as configurações.",
+        title: t("Erro ao salvar", "Couldn't save"),
+        description: err.message || t("Ocorreu um erro ao salvar as configurações.", "Something went wrong while saving the settings."),
         variant: "destructive"
       })
     } finally {
@@ -124,10 +126,10 @@ export default function PunishmentsLogPage({
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center rounded-[14px] border border-destructive/20 bg-destructive/5 space-y-4">
         <AlertTriangle className="h-12 w-12 text-destructive" />
-        <h3 className="text-[15px] font-bold text-foreground">Falha de Comunicação</h3>
+        <h3 className="text-[15px] font-bold text-foreground">{t("Falha de Comunicação", "Connection failed")}</h3>
         <p className="text-sm text-muted-foreground max-w-md">{error}</p>
         <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full">
-          Tentar Novamente
+          {t("Tentar Novamente", "Try again")}
         </Button>
       </div>
     )
@@ -138,10 +140,10 @@ export default function PunishmentsLogPage({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="flex items-center gap-3 text-[26px] font-bold leading-tight tracking-[-0.5px] text-foreground">
-            Registro de Punições
+            {t("Registro de Punições", "Punishment logs")}
           </h1>
           <p className="mt-2 max-w-[560px] text-[14px] leading-[1.7] text-muted-foreground">
-            Configure canais específicos para cada tipo de punição. Se um canal específico não for selecionado, ele usará o Canal Geral de Punições.
+            {t("Configure canais específicos para cada tipo de punição. Se um canal específico não for selecionado, ele usará o Canal Geral de Punições.", "Set a channel for each kind of punishment. Without one, the general punishment channel is used. Logs are posted in the server's language.")}
           </p>
         </div>
 
@@ -151,7 +153,7 @@ export default function PunishmentsLogPage({
           className="w-full sm:w-auto h-10 rounded-full font-bold transition-all rounded-full bg-[#7c3aed] px-5 text-[13px] font-semibold text-white hover:bg-[#7c3aed]/90"
         >
           <Save className="mr-2 h-4 w-4" />
-          {saving ? "Salvando..." : "Salvar Configurações"}
+          {saving ? t("Salvando...", "Saving...") : t("Salvar Configurações", "Save settings")}
         </Button>
       </div>
 
@@ -163,17 +165,17 @@ export default function PunishmentsLogPage({
           <div className="space-y-4 max-w-md">
             <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
               <ShieldAlert className="h-5 w-5 text-red-400" />
-              Canal Geral de Punições
+              {t("Canal Geral de Punições", "General punishment channel")}
             </h3>
             
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-muted-foreground">Canal Padrão (Fallback)</label>
+              <label className="text-xs font-semibold text-muted-foreground">{t("Canal Padrão (Fallback)", "Default channel (fallback)")}</label>
               <select
                 value={modLogChannel}
                 onChange={(e) => setModLogChannel(e.target.value)}
                 className="w-full h-11 rounded-[10px] border border-border bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
               >
-                <option value="" className="bg-card text-muted-foreground">Desativado</option>
+                <option value="" className="bg-card text-muted-foreground">{t("Desativado", "Off")}</option>
                 {channels.map((ch) => (
                   <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                 ))}
@@ -187,7 +189,7 @@ export default function PunishmentsLogPage({
 
           <h3 className="text-[15px] font-bold text-foreground flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
-            Canais Específicos por Tipo de Punição
+            {t("Canais Específicos por Tipo de Punição", "Channels per punishment type")}
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -196,16 +198,16 @@ export default function PunishmentsLogPage({
             <div className="rounded-[14px] border border-border/60 bg-secondary/10 p-5 space-y-4">
               <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <Ban className="h-4 w-4 text-red-400" />
-                Logs de Banimento
+                {t("Logs de Banimento", "Ban logs")}
               </h4>
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted-foreground">Canal de Banimentos</label>
+                <label className="text-xs font-semibold text-muted-foreground">{t("Canal de Banimentos", "Ban channel")}</label>
                 <select
                   value={logModBanChannel}
                   onChange={(e) => setLogModBanChannel(e.target.value)}
                   className="w-full h-11 rounded-[10px] border border-border bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                 >
-                  <option value="" className="bg-card text-muted-foreground">Usar Canal Geral (Padrão)</option>
+                  <option value="" className="bg-card text-muted-foreground">{t("Usar Canal Geral (Padrão)", "Use the general channel (default)")}</option>
                   {channels.map((ch) => (
                     <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                   ))}
@@ -217,16 +219,16 @@ export default function PunishmentsLogPage({
             <div className="rounded-[14px] border border-border/60 bg-secondary/10 p-5 space-y-4">
               <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-green-400" />
-                Logs de Desbanimento
+                {t("Logs de Desbanimento", "Unban logs")}
               </h4>
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted-foreground">Canal de Desbanimentos</label>
+                <label className="text-xs font-semibold text-muted-foreground">{t("Canal de Desbanimentos", "Unban channel")}</label>
                 <select
                   value={logModUnbanChannel}
                   onChange={(e) => setLogModUnbanChannel(e.target.value)}
                   className="w-full h-11 rounded-[10px] border border-border bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                 >
-                  <option value="" className="bg-card text-muted-foreground">Usar Canal Geral (Padrão)</option>
+                  <option value="" className="bg-card text-muted-foreground">{t("Usar Canal Geral (Padrão)", "Use the general channel (default)")}</option>
                   {channels.map((ch) => (
                     <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                   ))}
@@ -238,16 +240,16 @@ export default function PunishmentsLogPage({
             <div className="rounded-[14px] border border-border/60 bg-secondary/10 p-5 space-y-4">
               <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <UserMinus className="h-4 w-4 text-orange-400" />
-                Logs de Expulsão (Kick)
+                {t("Logs de Expulsão (Kick)", "Kick logs")}
               </h4>
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted-foreground">Canal de Expulsões</label>
+                <label className="text-xs font-semibold text-muted-foreground">{t("Canal de Expulsões", "Kick channel")}</label>
                 <select
                   value={logModKickChannel}
                   onChange={(e) => setLogModKickChannel(e.target.value)}
                   className="w-full h-11 rounded-[10px] border border-border bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                 >
-                  <option value="" className="bg-card text-muted-foreground">Usar Canal Geral (Padrão)</option>
+                  <option value="" className="bg-card text-muted-foreground">{t("Usar Canal Geral (Padrão)", "Use the general channel (default)")}</option>
                   {channels.map((ch) => (
                     <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                   ))}
@@ -259,16 +261,16 @@ export default function PunishmentsLogPage({
             <div className="rounded-[14px] border border-border/60 bg-secondary/10 p-5 space-y-4">
               <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <VolumeX className="h-4 w-4 text-purple-400" />
-                Logs de Silenciamento (Timeout)
+                {t("Logs de Silenciamento (Timeout)", "Timeout logs")}
               </h4>
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted-foreground">Canal de Silenciamentos</label>
+                <label className="text-xs font-semibold text-muted-foreground">{t("Canal de Silenciamentos", "Timeout channel")}</label>
                 <select
                   value={logModMuteChannel}
                   onChange={(e) => setLogModMuteChannel(e.target.value)}
                   className="w-full h-11 rounded-[10px] border border-border bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                 >
-                  <option value="" className="bg-card text-muted-foreground">Usar Canal Geral (Padrão)</option>
+                  <option value="" className="bg-card text-muted-foreground">{t("Usar Canal Geral (Padrão)", "Use the general channel (default)")}</option>
                   {channels.map((ch) => (
                     <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                   ))}
@@ -280,16 +282,16 @@ export default function PunishmentsLogPage({
             <div className="rounded-[14px] border border-border/60 bg-secondary/10 p-5 space-y-4 md:col-span-2 max-w-xl mx-auto w-full">
               <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <WarnIcon className="h-4 w-4 text-yellow-400" />
-                Logs de Aviso (Warn)
+                {t("Logs de Aviso (Warn)", "Warning logs")}
               </h4>
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted-foreground">Canal de Avisos</label>
+                <label className="text-xs font-semibold text-muted-foreground">{t("Canal de Avisos", "Warning channel")}</label>
                 <select
                   value={logModWarnChannel}
                   onChange={(e) => setLogModWarnChannel(e.target.value)}
                   className="w-full h-11 rounded-[10px] border border-border bg-secondary/30 px-3.5 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                 >
-                  <option value="" className="bg-card text-muted-foreground">Usar Canal Geral (Padrão)</option>
+                  <option value="" className="bg-card text-muted-foreground">{t("Usar Canal Geral (Padrão)", "Use the general channel (default)")}</option>
                   {channels.map((ch) => (
                     <option key={ch.id} value={ch.id} className="bg-card text-foreground">#{ch.name}</option>
                   ))}

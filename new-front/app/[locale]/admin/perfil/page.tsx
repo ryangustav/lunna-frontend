@@ -15,6 +15,7 @@ type Profile = {
   avatar_asset: string | null; banner_asset: string | null
   applied: { revision: number; at: string | null; errors?: Record<string, string> } | null
   current: { username: string; avatar_url: string; banner_url: string | null; bio: string; at: string | null } | null
+  current_error?: { message: string; code: string | number | null; at: string | null } | null
   updated_at: string | null
 }
 
@@ -265,7 +266,7 @@ export default function AdminBotProfilePage() {
             </div>
           </div>
           <p className="mt-2 text-[12px] text-muted-foreground">
-            {pending ? "Esperando a Lunna aplicar a última alteração…" : cur?.at ? `Discord atualizado em ${new Date(cur.at).toLocaleString("pt-BR")}.` : "A Lunna ainda não publicou o perfil atual (ela faz isso ao ligar)."}
+            {profile.current_error && !cur ? <span className="text-amber-500">A Lunna não conseguiu ler o próprio perfil no Discord: {profile.current_error.message}{profile.current_error.code ? ` (${profile.current_error.code})` : ""}</span> : pending ? "Esperando a Lunna aplicar a última alteração…" : cur?.at ? `Discord atualizado em ${new Date(cur.at).toLocaleString("pt-BR")}.` : "A Lunna ainda não publicou o perfil atual (ela faz isso ao ligar)."}
           </p>
         </div>
       </div>

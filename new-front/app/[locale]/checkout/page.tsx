@@ -23,7 +23,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Link } from "@/src/i18n/routing";
 import { Navbar } from "@/components/lunna/navbar";
 import { API_URL } from "@/lib/api";
-import { guildPlan } from "@/lib/guild-premium";
+import { guildPlan, planText } from "@/lib/guild-premium";
 
 interface ItemDetails {
   name: string;
@@ -44,6 +44,7 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const locale = useLocale();
+  const L = (pt: string, en: string) => (locale === "en" ? en : pt);
   
   const type = searchParams.get('type') || ''; // 'VIP' | 'COINS'
   const itemId = searchParams.get('id') || ''; // tierId, packageId or server plan (basico/completo)
@@ -133,9 +134,9 @@ function CheckoutContent() {
           const selected = list.find((t: any) => t.id === itemId);
           if (selected) {
             setItem({
-              name: `Plano VIP ${selected.name}`,
+              name: L(`Plano VIP ${selected.name}`, `VIP plan ${selected.name}`),
               price: selected.price,
-              description: `Acesso VIP por ${selected.duration} dias com ${selected.coins} Lunar Coins inclusas.`,
+              description: L(`Acesso VIP por ${selected.duration} dias com ${selected.coins} Lunar Coins inclusas.`, `VIP access for ${selected.duration} days with ${selected.coins} Lunar Coins included.`),
               benefits: selected.benefits || []
             });
           } else {
@@ -151,12 +152,12 @@ function CheckoutContent() {
             setItem({
               name: `${selected.amount.toLocaleString()} Lunar Coins`,
               price: selected.price,
-              description: `Pacote contendo ${selected.amount.toLocaleString()} moedas com +${selected.bonus.toLocaleString()} de bônus coins.`,
+              description: L(`Pacote contendo ${selected.amount.toLocaleString()} moedas com +${selected.bonus.toLocaleString()} de bônus coins.`, `A pack with ${selected.amount.toLocaleString()} coins plus ${selected.bonus.toLocaleString()} bonus coins.`),
               benefits: [
                 `${selected.amount.toLocaleString()} Lunar Coins`,
-                `+${selected.bonus.toLocaleString()} Moedas de Bônus inclusas`,
-                'Crédito automático imediato',
-                'Uso liberado em minijogos e cosméticos'
+                L(`+${selected.bonus.toLocaleString()} Moedas de Bônus inclusas`, `+${selected.bonus.toLocaleString()} bonus coins included`),
+                L('Crédito automático imediato', 'Credited instantly'),
+                L('Uso liberado em minijogos e cosméticos', 'Use them in minigames and cosmetics')
               ]
             });
           } else {
@@ -164,12 +165,13 @@ function CheckoutContent() {
           }
         } else if (type === 'GUILD_VIP') {
           const plan = guildPlan(itemId);
-          if (!plan || plan.key === 'free' || !guildId) throw new Error('Plano de servidor inválido.');
+          if (!plan || plan.key === 'free' || !guildId) throw new Error(L('Plano de servidor inválido.', 'Invalid server plan.'));
+          const text = planText(plan, locale);
           setItem({
-            name: `${plan.name} para Servidor`,
+            name: L(`${text.name} para Servidor`, `${text.name} for a server`),
             price: plan.price,
-            description: `${plan.days} dias de ${plan.name} para o servidor ${guildId}. Pagamento único, sem renovação automática.`,
-            benefits: plan.benefits
+            description: L(`${plan.days} dias de ${text.name} para o servidor ${guildId}. Pagamento único, sem renovação automática.`, `${plan.days} days of ${text.name} for server ${guildId}. One-time payment, no automatic renewal.`),
+            benefits: text.benefits
           });
         } else {
           throw new Error('Invalid checkout type');

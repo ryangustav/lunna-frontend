@@ -5,6 +5,8 @@ import { Plus, Trash2, ArrowUp, ArrowDown, Pencil } from "lucide-react"
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { PageHeader, Section, Field, PrimaryButton, SecondaryButton, Pill, LoadingState, ErrorState } from "@/components/dashboard/primitives"
+import { useT, type T } from "@/lib/use-t"
+import { publishErrorText } from "@/lib/publish-error"
 
 type PanelRole = { role_id: string; label: string; emoji: string; description: string }
 type Panel = {
@@ -22,15 +24,16 @@ type Panel = {
 }
 
 const EMPTY: Panel = { title: "", description: "", channel_id: "", color: 0x7c3aed, mode: "toggle", style: "buttons", roles: [] }
-const MODES = {
-  toggle: { label: "Alternar", hint: "Clicar pega o cargo; clicar de novo tira. Ideal para notificações e interesses." },
-  unique: { label: "Escolher só um", hint: "O membro fica com apenas um cargo do painel. Ideal para cores ou região." },
-  add_only: { label: "Só adicionar", hint: "O cargo não pode ser removido pelo painel. Ideal para regras aceitas ou verificação." },
-}
+const MODES = (t: T) => ({
+  toggle: { label: t("Alternar", "Toggle"), hint: t("Clicar pega o cargo; clicar de novo tira. Ideal para notificações e interesses.", "Click to get the role; click again to remove it. Great for notifications and interests.") },
+  unique: { label: t("Escolher só um", "Pick only one"), hint: t("O membro fica com apenas um cargo do painel. Ideal para cores ou região.", "The member keeps only one role from the panel. Great for colors or region.") },
+  add_only: { label: t("Só adicionar", "Add only"), hint: t("O cargo não pode ser removido pelo painel. Ideal para regras aceitas ou verificação.", "The role can't be removed through the panel. Great for accepted rules or verification.") },
+})
 const inputCls = "h-10 w-full rounded-[10px] border border-border bg-background px-3 text-[14px] text-foreground outline-none focus:border-[#7c3aed]/60"
 const hex = (n: number) => `#${(n ?? 0x7c3aed).toString(16).padStart(6, "0")}`
 
 export default function RolePanelsPage({ params }: { params: Promise<{ guildId: string }> }) {
+  const t = useT()
   const { guildId } = use(params)
   const { toast } = useToast()
   const [loading, setLoading] = useState(true)
@@ -42,6 +45,7 @@ export default function RolePanelsPage({ params }: { params: Promise<{ guildId: 
   const [saving, setSaving] = useState(false)
   const [newRole, setNewRole] = useState("")
   const poll = useRef<any>(null)
+  const modes = MODES(t)
 
   const loadPanels = async () => {
     const res = await api.getRolePanels(guildId)
@@ -57,7 +61,7 @@ export default function RolePanelsPage({ params }: { params: Promise<{ guildId: 
       setChannels((c?.data || []).filter((ch: any) => ch.type === 0 || ch.type === 5))
       setRoles((r?.data || []).filter((role: any) => role.name !== "@everyone"))
     } catch (err: any) {
-      setError(err.message || "Não foi possível carregar os painéis.")
+      setError(err.message || t("Não foi possível carregar os painéis.", "Couldn't load the panels."))
     } finally {
       setLoading(false)
     }
@@ -79,8 +83,8 @@ export default function RolePanelsPage({ params }: { params: Promise<{ guildId: 
     }, 5000)
   }
 
-  const roleName = (id: string) => roles.find((r) => r.id === id)?.name || "cargo removido"
-  const channelName = (id: string) => channels.find((c) => c.id === id)?.name || "canal removido"
+  const roleName = (id: string) => roles.find((r) => r.id === id)?.name || t("cargo removido", "deleted role")
+  const channelName = (id: string) => channels.find((c) => c.id === id)?.name || t("canal removido", "deleted channel")
 
   const save = async () => {
     if (!editing) return
@@ -88,25 +92,25 @@ export default function RolePanelsPage({ params }: { params: Promise<{ guildId: 
     try {
       if (editing.id) await api.updateRolePanel(guildId, editing.id, editing)
       else await api.createRolePanel(guildId, editing)
-      toast({ title: "Painel salvo", description: "A Lunna publica a mensagem no canal em alguns segundos." })
+      toast({ title: t("Painel salvo", "Panel saved"), description: t("A Lunna publica a mensagem no canal em alguns segundos.", "Lunna posts the message in the channel in a few seconds.") })
       setEditing(null)
       await loadPanels()
       watchPublishing()
     } catch (err: any) {
-      toast({ title: "Erro ao salvar", description: err.message, variant: "destructive" })
+      toast({ title: t("Erro ao salvar", "Couldn't save"), description: err.message, variant: "destructive" })
     } finally {
       setSaving(false)
     }
   }
 
   const remove = async (panel: Panel) => {
-    if (!panel.id || !confirm(`Excluir o painel "${panel.title}"? A mensagem também será apagada do canal.`)) return
+    if (!panel.id || !confirm(t(`Excluir o painel "${panel.title}"? A mensagem também será apagada do canal.`, `Delete the panel "${panel.title}"? Its message is deleted from the channel too.`))) return
     try {
       await api.deleteRolePanel(guildId, panel.id)
       setPanels((list) => list.filter((p) => p.id !== panel.id))
-      toast({ title: "Painel excluído" })
+      toast({ title: t("Painel excluído", "Panel deleted") })
     } catch (err: any) {
-      toast({ title: "Erro ao excluir", description: err.message, variant: "destructive" })
+      toast({ title: t("Erro ao excluir", "Couldn't delete"), description: err.message, variant: "destructive" })
     }
   }
 
@@ -134,53 +138,53 @@ export default function RolePanelsPage({ params }: { params: Promise<{ guildId: 
     return (
       <div className="flex flex-col gap-5">
         <PageHeader
-          eyebrow="Cargos por botão"
-          title={editing.id ? "Editar painel" : "Novo painel"}
-          description="Os membros pegam os cargos sozinhos clicando nos botões ou escolhendo no menu."
+          eyebrow={t("Cargos por botão", "Button roles")}
+          title={editing.id ? t("Editar painel", "Edit panel") : t("Novo painel", "New panel")}
+          description={t("Os membros pegam os cargos sozinhos clicando nos botões ou escolhendo no menu.", "Members get the roles themselves by clicking the buttons or picking from the menu.")}
           action={
             <div className="flex gap-2">
-              <SecondaryButton onClick={() => setEditing(null)}>Cancelar</SecondaryButton>
-              <PrimaryButton onClick={save} loading={saving} disabled={!editing.title || !editing.channel_id}>Salvar e publicar</PrimaryButton>
+              <SecondaryButton onClick={() => setEditing(null)}>{t("Cancelar", "Cancel")}</SecondaryButton>
+              <PrimaryButton onClick={save} loading={saving} disabled={!editing.title || !editing.channel_id}>{t("Salvar e publicar", "Save and publish")}</PrimaryButton>
             </div>
           }
         />
 
-        <Section title="Mensagem">
+        <Section title={t("Mensagem", "Message")}>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Título">
-              <input maxLength={100} className={inputCls} value={editing.title} placeholder="Escolha seus cargos" onChange={(e) => setField("title", e.target.value)} />
+            <Field label={t("Título", "Title")}>
+              <input maxLength={100} className={inputCls} value={editing.title} placeholder={t("Escolha seus cargos", "Pick your roles")} onChange={(e) => setField("title", e.target.value)} />
             </Field>
-            <Field label="Canal">
+            <Field label={t("Canal", "Channel")}>
               <select className={inputCls} value={editing.channel_id} onChange={(e) => setField("channel_id", e.target.value)}>
-                <option value="">Selecione um canal</option>
+                <option value="">{t("Selecione um canal", "Select a channel")}</option>
                 {channels.map((c) => <option key={c.id} value={c.id}>#{c.name}</option>)}
               </select>
             </Field>
           </div>
-          <Field className="mt-4" label="Descrição" hint="Aceita Markdown do Discord.">
+          <Field className="mt-4" label={t("Descrição", "Description")} hint={t("Aceita Markdown do Discord.", "Supports Discord Markdown.")}>
             <textarea rows={3} maxLength={1000} className={`${inputCls} h-auto py-2`} value={editing.description} onChange={(e) => setField("description", e.target.value)} />
           </Field>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <Field label="Modo" hint={MODES[editing.mode].hint}>
+            <Field label={t("Modo", "Mode")} hint={modes[editing.mode].hint}>
               <select className={inputCls} value={editing.mode} onChange={(e) => setField("mode", e.target.value as Panel["mode"])}>
-                {Object.entries(MODES).map(([k, m]) => <option key={k} value={k}>{m.label}</option>)}
+                {Object.entries(modes).map(([k, m]) => <option key={k} value={k}>{m.label}</option>)}
               </select>
             </Field>
-            <Field label="Formato">
+            <Field label={t("Formato", "Format")}>
               <select className={inputCls} value={editing.style} onChange={(e) => setField("style", e.target.value as Panel["style"])}>
-                <option value="buttons">Botões</option>
-                <option value="menu">Menu de seleção</option>
+                <option value="buttons">{t("Botões", "Buttons")}</option>
+                <option value="menu">{t("Menu de seleção", "Select menu")}</option>
               </select>
             </Field>
-            <Field label="Cor da barra lateral">
+            <Field label={t("Cor da barra lateral", "Side bar color")}>
               <input type="color" className={`${inputCls} p-1`} value={hex(editing.color)} onChange={(e) => setField("color", parseInt(e.target.value.slice(1), 16))} />
             </Field>
           </div>
         </Section>
 
         <Section
-          title={`Cargos (${editing.roles.length}/25)`}
-          description="Cargos com permissões de staff, acima do cargo da Lunna ou gerenciados por integrações não são publicados."
+          title={t(`Cargos (${editing.roles.length}/25)`, `Roles (${editing.roles.length}/25)`)}
+          description={t("Cargos com permissões de staff, acima do cargo da Lunna ou gerenciados por integrações não são publicados.", "Roles with staff permissions, above Lunna's role or managed by integrations are not published.")}
         >
           {editing.roles.length > 0 && (
             <ul className="mb-4 flex flex-col gap-3">
@@ -189,20 +193,20 @@ export default function RolePanelsPage({ params }: { params: Promise<{ guildId: 
                   <div className="mb-3 flex items-center justify-between gap-2">
                     <span className="text-[14px] font-medium text-foreground">@{roleName(r.role_id)}</span>
                     <span className="flex items-center gap-1">
-                      <button aria-label="Subir" className="rounded-full p-1.5 text-muted-foreground hover:bg-secondary" onClick={() => moveRole(i, -1)}><ArrowUp className="h-4 w-4" /></button>
-                      <button aria-label="Descer" className="rounded-full p-1.5 text-muted-foreground hover:bg-secondary" onClick={() => moveRole(i, 1)}><ArrowDown className="h-4 w-4" /></button>
-                      <button aria-label="Remover" className="rounded-full p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      <button aria-label={t("Subir", "Move up")} className="rounded-full p-1.5 text-muted-foreground hover:bg-secondary" onClick={() => moveRole(i, -1)}><ArrowUp className="h-4 w-4" /></button>
+                      <button aria-label={t("Descer", "Move down")} className="rounded-full p-1.5 text-muted-foreground hover:bg-secondary" onClick={() => moveRole(i, 1)}><ArrowDown className="h-4 w-4" /></button>
+                      <button aria-label={t("Remover", "Remove")} className="rounded-full p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
                         onClick={() => setField("roles", editing.roles.filter((_, j) => j !== i))}><Trash2 className="h-4 w-4" /></button>
                     </span>
                   </div>
                   <div className="grid gap-3 sm:grid-cols-[1fr_110px_1.4fr]">
-                    <Field label="Texto do botão">
+                    <Field label={t("Texto do botão", "Button text")}>
                       <input maxLength={80} className={inputCls} value={r.label} onChange={(e) => setRole(i, { label: e.target.value })} />
                     </Field>
-                    <Field label="Emoji" hint="😀 ou <:nome:id>">
+                    <Field label="Emoji" hint={t("😀 ou <:nome:id>", "😀 or <:name:id>")}>
                       <input maxLength={64} className={inputCls} value={r.emoji} onChange={(e) => setRole(i, { emoji: e.target.value })} />
                     </Field>
-                    <Field label="Descrição (opcional)">
+                    <Field label={t("Descrição (opcional)", "Description (optional)")}>
                       <input maxLength={100} className={inputCls} value={r.description} onChange={(e) => setRole(i, { description: e.target.value })} />
                     </Field>
                   </div>
@@ -211,30 +215,30 @@ export default function RolePanelsPage({ params }: { params: Promise<{ guildId: 
             </ul>
           )}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-            <Field label="Adicionar cargo" className="flex-1">
+            <Field label={t("Adicionar cargo", "Add role")} className="flex-1">
               <select className={inputCls} value={newRole} onChange={(e) => setNewRole(e.target.value)}>
-                <option value="">Selecione um cargo</option>
+                <option value="">{t("Selecione um cargo", "Select a role")}</option>
                 {roles.filter((r) => !editing.roles.some((x) => x.role_id === r.id)).map((r) => <option key={r.id} value={r.id}>@{r.name}</option>)}
               </select>
             </Field>
             <SecondaryButton onClick={addRole} disabled={!newRole || editing.roles.length >= 25}>
-              <Plus className="h-4 w-4" /> Adicionar
+              <Plus className="h-4 w-4" /> {t("Adicionar", "Add")}
             </SecondaryButton>
           </div>
         </Section>
 
-        <Section title="Prévia">
+        <Section title={t("Prévia", "Preview")}>
           <div className="rounded-[10px] border-l-4 bg-background p-4" style={{ borderLeftColor: hex(editing.color) }}>
-            <p className="text-[16px] font-semibold text-foreground">{editing.title || "Título do painel"}</p>
+            <p className="text-[16px] font-semibold text-foreground">{editing.title || t("Título do painel", "Panel title")}</p>
             {editing.description && <p className="mt-1 whitespace-pre-line text-[13px] text-muted-foreground">{editing.description}</p>}
-            <p className="mt-1 text-[11px] text-muted-foreground">{MODES[editing.mode].hint.split(".")[0]}.</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">{modes[editing.mode].hint.split(".")[0]}.</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {editing.style === "buttons"
                 ? editing.roles.map((r) => (
                     <span key={r.role_id} className="rounded-[6px] bg-secondary px-3 py-1.5 text-[13px] text-foreground">{r.emoji ? `${r.emoji} ` : ""}{r.label}</span>
                   ))
-                : <span className="w-full rounded-[6px] border border-border px-3 py-2 text-[13px] text-muted-foreground">{editing.mode === "unique" ? "Escolha um cargo" : "Escolha seus cargos"} ▾</span>}
-              {editing.roles.length === 0 && <span className="text-[13px] text-muted-foreground">Adicione cargos para ver os botões.</span>}
+                : <span className="w-full rounded-[6px] border border-border px-3 py-2 text-[13px] text-muted-foreground">{editing.mode === "unique" ? t("Escolha um cargo", "Pick a role") : t("Escolha seus cargos", "Pick your roles")} ▾</span>}
+              {editing.roles.length === 0 && <span className="text-[13px] text-muted-foreground">{t("Adicione cargos para ver os botões.", "Add roles to see the buttons.")}</span>}
             </div>
           </div>
         </Section>
@@ -246,28 +250,28 @@ export default function RolePanelsPage({ params }: { params: Promise<{ guildId: 
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
-        eyebrow="Comunidade"
-        title="Cargos por botão"
-        description="Painéis em que os membros pegam cargos sozinhos: cores, notificações, interesses ou verificação."
-        action={<PrimaryButton onClick={() => setEditing({ ...EMPTY, channel_id: channels[0]?.id || "" })}><Plus className="h-4 w-4" /> Novo painel</PrimaryButton>}
+        eyebrow={t("Comunidade", "Community")}
+        title={t("Cargos por botão", "Button roles")}
+        description={t("Painéis em que os membros pegam cargos sozinhos: cores, notificações, interesses ou verificação.", "Panels where members get roles themselves: colors, notifications, interests or verification.")}
+        action={<PrimaryButton onClick={() => setEditing({ ...EMPTY, channel_id: channels[0]?.id || "" })}><Plus className="h-4 w-4" /> {t("Novo painel", "New panel")}</PrimaryButton>}
       />
 
       {panels.length === 0 ? (
-        <Section title="Nenhum painel ainda" description="Crie o primeiro painel e a Lunna envia a mensagem no canal escolhido." />
+        <Section title={t("Nenhum painel ainda", "No panels yet")} description={t("Crie o primeiro painel e a Lunna envia a mensagem no canal escolhido.", "Create the first panel and Lunna posts the message in the chosen channel.")} />
       ) : panels.map((p) => (
         <Section
           key={p.id}
           title={p.title}
-          description={`#${channelName(p.channel_id)} · ${MODES[p.mode].label} · ${p.style === "menu" ? "Menu" : "Botões"} · ${p.roles.length} cargo(s)`}
+          description={`#${channelName(p.channel_id)} · ${modes[p.mode].label} · ${p.style === "menu" ? "Menu" : t("Botões", "Buttons")} · ${t(`${p.roles.length} cargo(s)`, `${p.roles.length} role(s)`)}`}
           action={
             <div className="flex items-center gap-2">
-              {p.status === "published" && <Pill tone="success">Publicado</Pill>}
-              {p.status === "pending" && <Pill tone="neutral">Publicando…</Pill>}
-              {p.status === "error" && <Pill tone="accent">Atenção</Pill>}
-              <button aria-label="Editar" className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-foreground" onClick={() => setEditing({ ...EMPTY, ...p })}>
+              {p.status === "published" && <Pill tone="success">{t("Publicado", "Published")}</Pill>}
+              {p.status === "pending" && <Pill tone="neutral">{t("Publicando…", "Publishing…")}</Pill>}
+              {p.status === "error" && <Pill tone="accent">{t("Atenção", "Attention")}</Pill>}
+              <button aria-label={t("Editar", "Edit")} className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-foreground" onClick={() => setEditing({ ...EMPTY, ...p })}>
                 <Pencil className="h-4 w-4" />
               </button>
-              <button aria-label="Excluir" className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-foreground" onClick={() => remove(p)}>
+              <button aria-label={t("Excluir", "Delete")} className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-foreground" onClick={() => remove(p)}>
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>
@@ -284,7 +288,7 @@ export default function RolePanelsPage({ params }: { params: Promise<{ guildId: 
                   ))}
                 </div>
               )}
-              {p.publish_error && <p className="text-[12px] leading-[1.5] text-destructive">{p.publish_error}</p>}
+              {p.publish_error && <p className="text-[12px] leading-[1.5] text-destructive">{publishErrorText(p.publish_error, t)}</p>}
             </div>
           )}
         </Section>

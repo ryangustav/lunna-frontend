@@ -22,8 +22,10 @@ import {
   Filter,
   MousePointerClick,
   Ticket,
+  BellRing,
   Bot,
 } from "lucide-react"
+import { useT } from "@/lib/use-t"
 
 type NavItem = { name: string; href: string; icon: React.ReactNode; badge?: string }
 
@@ -34,41 +36,43 @@ export default function GuildDashboardLayout({
   children: React.ReactNode
   params: Promise<{ guildId: string }>
 }) {
+  const t = useT()
   const pathname = usePathname()
   const { guildId } = use(params)
   const base = `/dashboard/${guildId}`
 
   const categories: { title: string; items: NavItem[] }[] = [
     {
-      title: "Geral",
+      title: t("Geral", "General"),
       items: [
-        { name: "Visão geral", href: base, icon: <LayoutDashboard /> },
+        { name: t("Visão geral", "Overview"), href: base, icon: <LayoutDashboard /> },
         { name: "Premium", href: `${base}/premium`, icon: <Crown /> },
-        { name: "Lunna IA", href: `${base}/ia`, icon: <Bot />, badge: "Novo" },
+        { name: t("Lunna IA", "Lunna AI"), href: `${base}/ia`, icon: <Bot />, badge: t("Novo", "New") },
       ],
     },
     {
-      title: "Comunidade",
+      title: t("Comunidade", "Community"),
       items: [
-        { name: "Entrada e saída", href: `${base}/welcome`, icon: <MessageSquare /> },
+        { name: t("Entrada e saída", "Join and leave"), href: `${base}/welcome`, icon: <MessageSquare /> },
         { name: "Autorole", href: `${base}/autorole`, icon: <UserCheck /> },
-        { name: "Cargos por botão", href: `${base}/role-panels`, icon: <MousePointerClick />, badge: "Novo" },
-        { name: "Tickets", href: `${base}/tickets`, icon: <Ticket />, badge: "Novo" },
-        { name: "Níveis", href: `${base}/levels`, icon: <Star />, badge: "Novo" },
-        { name: "Contador de membros", href: `${base}/member-counter`, icon: <Users /> },
-        { name: "Permissões", href: `${base}/permissions`, icon: <Key /> },
-        { name: "Cérebro da Lunna", href: `${base}/brain`, icon: <Brain /> },
+        { name: t("Cargos por botão", "Button roles"), href: `${base}/role-panels`, icon: <MousePointerClick />, badge: t("Novo", "New") },
+        { name: "Tickets", href: `${base}/tickets`, icon: <Ticket />, badge: t("Novo", "New") },
+        { name: t("Alertas de redes", "Social alerts"), href: `${base}/alertas`, icon: <BellRing />, badge: t("Novo", "New") },
+        { name: t("Níveis", "Levels"), href: `${base}/levels`, icon: <Star />, badge: t("Novo", "New") },
+        { name: t("Contador de membros", "Member counter"), href: `${base}/member-counter`, icon: <Users /> },
+        { name: t("Permissões", "Permissions"), href: `${base}/permissions`, icon: <Key /> },
+        { name: t("Cérebro da Lunna", "Lunna's Brain"), href: `${base}/brain`, icon: <Brain /> },
       ],
     },
     {
-      title: "Moderação",
+      title: t("Moderação", "Moderation"),
       items: [
-        { name: "Moderação e anti-raid", href: `${base}/moderation`, icon: <ShieldAlert /> },
-        { name: "Bloqueio de convites", href: `${base}/anti-invite`, icon: <Ban /> },
-        { name: "Filtro de palavras", href: `${base}/word-filter`, icon: <Filter />, badge: "Novo" },
-        { name: "Canal armadilha", href: `${base}/trap-channel`, icon: <Skull />, badge: "Novo" },
-        { name: "Punições", href: `${base}/punishments`, icon: <FileText /> },
-        { name: "Logs de eventos", href: `${base}/logs`, icon: <Activity /> },
+        { name: t("Moderação e anti-raid", "Moderation and anti-raid"), href: `${base}/moderation`, icon: <ShieldAlert /> },
+        { name: t("Bloqueio de convites", "Invite blocking"), href: `${base}/anti-invite`, icon: <Ban /> },
+        { name: t("Filtro de palavras", "Word filter"), href: `${base}/word-filter`, icon: <Filter />, badge: t("Novo", "New") },
+        { name: t("Canal armadilha", "Trap channel"), href: `${base}/trap-channel`, icon: <Skull />, badge: t("Novo", "New") },
+        { name: t("Punições", "Punishments"), href: `${base}/punishments`, icon: <FileText /> },
+        { name: t("Logs de eventos", "Event logs"), href: `${base}/logs`, icon: <Activity /> },
       ],
     },
   ]
@@ -89,7 +93,7 @@ export default function GuildDashboardLayout({
             className="mb-8 flex w-max items-center gap-2 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
-            Seus servidores
+            {t("Seus servidores", "Your servers")}
           </Link>
 
           <nav className="flex flex-col gap-7">
@@ -130,7 +134,7 @@ export default function GuildDashboardLayout({
           <div className="mb-6 md:hidden">
             <Link href="/dashboard" className="mb-3 flex w-max items-center gap-2 text-[13px] font-medium text-muted-foreground">
               <ArrowLeft className="h-4 w-4" />
-              Seus servidores
+              {t("Seus servidores", "Your servers")}
             </Link>
             <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
               {allItems.map((item) => (

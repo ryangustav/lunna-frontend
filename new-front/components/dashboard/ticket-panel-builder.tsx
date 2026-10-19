@@ -8,6 +8,7 @@ import {
   GripVertical, Type, PanelLeft, Image as ImageIcon, Minus, List, Link2, MousePointerClick,
   ChevronUp, ChevronDown, Trash2, Copy, Plus,
 } from "lucide-react"
+import { useT, type T } from "@/lib/use-t"
 
 // ─── Types (mirror lunna-backend tickets.controller.ts / Lunna_Bot TicketService.js) ─────────
 
@@ -34,16 +35,16 @@ export type PanelConfig = {
 
 type Keyed = Block & { _k: string }
 
-const BLOCKS: { type: Block["type"]; label: string; hint: string; icon: React.ReactNode }[] = [
-  { type: "text", label: "Texto", hint: "Markdown: # título, **negrito**, listas", icon: <Type /> },
-  { type: "section", label: "Texto com miniatura", hint: "Texto com uma imagem pequena ao lado", icon: <PanelLeft /> },
-  { type: "image", label: "Imagem", hint: "Banner ou galeria (até 10)", icon: <ImageIcon /> },
-  { type: "separator", label: "Separador", hint: "Linha ou espaço entre blocos", icon: <Minus /> },
-  { type: "category_list", label: "Lista de categorias", hint: "Emoji, nome e descrição de cada categoria", icon: <List /> },
-  { type: "links", label: "Botões de link", hint: "Até 5 links (regras, site…)", icon: <Link2 /> },
-  { type: "open", label: "Abrir ticket", hint: "Botões ou menu das categorias", icon: <MousePointerClick /> },
+const BLOCKS = (t: T): { type: Block["type"]; label: string; hint: string; icon: React.ReactNode }[] => [
+  { type: "text", label: t("Texto", "Text"), hint: t("Markdown: # título, **negrito**, listas", "Markdown: # heading, **bold**, lists"), icon: <Type /> },
+  { type: "section", label: t("Texto com miniatura", "Text with thumbnail"), hint: t("Texto com uma imagem pequena ao lado", "Text with a small image beside it"), icon: <PanelLeft /> },
+  { type: "image", label: t("Imagem", "Image"), hint: t("Banner ou galeria (até 10)", "Banner or gallery (up to 10)"), icon: <ImageIcon /> },
+  { type: "separator", label: t("Separador", "Separator"), hint: t("Linha ou espaço entre blocos", "Line or space between blocks"), icon: <Minus /> },
+  { type: "category_list", label: t("Lista de categorias", "Category list"), hint: t("Emoji, nome e descrição de cada categoria", "Emoji, name and description of each category"), icon: <List /> },
+  { type: "links", label: t("Botões de link", "Link buttons"), hint: t("Até 5 links (regras, site…)", "Up to 5 links (rules, website…)"), icon: <Link2 /> },
+  { type: "open", label: t("Abrir ticket", "Open ticket"), hint: t("Botões ou menu das categorias", "Category buttons or menu"), icon: <MousePointerClick /> },
 ]
-const meta = (type: Block["type"]) => BLOCKS.find((b) => b.type === type)!
+const meta = (type: Block["type"], t: T) => BLOCKS(t).find((b) => b.type === type)!
 
 export function emptyBlock(type: Block["type"]): Block {
   switch (type) {
@@ -89,7 +90,7 @@ export function panelLimits(cfg: PanelConfig, cats: PanelCategory[]) {
 
 // ─── Discord-flavoured markdown preview (no HTML injection: builds React nodes) ──────────────
 
-function inline(text: string, key: string): React.ReactNode[] {
+function inline(text: string, key: string, t: T): React.ReactNode[] {
   const parts = text.split(/(\*\*[^*]+\*\*|__[^_]+__|\*[^*]+\*|`[^`]+`|<@&?\d+>|<#\d+>)/g)
   return parts.filter(Boolean).map((p, i) => {
     const k = `${key}-${i}`
@@ -97,25 +98,26 @@ function inline(text: string, key: string): React.ReactNode[] {
     if (p.startsWith("__") && p.endsWith("__")) return <u key={k}>{p.slice(2, -2)}</u>
     if (p.startsWith("*") && p.endsWith("*") && p.length > 2) return <em key={k}>{p.slice(1, -1)}</em>
     if (p.startsWith("`") && p.endsWith("`")) return <code key={k} className="rounded bg-[#1e1f22] px-1 text-[13px]">{p.slice(1, -1)}</code>
-    if (/^<(@&?|#)\d+>$/.test(p)) return <span key={k} className="rounded bg-[#5865f2]/30 px-1 text-[#c9cdfb]">{p.includes("#") ? "#canal" : "@menção"}</span>
+    if (/^<(@&?|#)\d+>$/.test(p)) return <span key={k} className="rounded bg-[#5865f2]/30 px-1 text-[#c9cdfb]">{p.includes("#") ? t("#canal", "#channel") : t("@menção", "@mention")}</span>
     return <React.Fragment key={k}>{p}</React.Fragment>
   })
 }
 
 function Markdown({ text }: { text: string }) {
-  const filled = text.replace(/{server}/g, "Seu servidor").replace(/{members}/g, "1.234")
+  const t = useT()
+  const filled = text.replace(/{server}/g, t("Seu servidor", "Your server")).replace(/{members}/g, t("1.234", "1,234"))
   return (
     <div className="space-y-0.5 text-[14px] leading-[1.4] text-[#dbdee1]">
       {filled.split("\n").map((line, i) => {
         const k = `l${i}`
-        if (line.startsWith("### ")) return <p key={k} className="pt-1 text-[16px] font-bold text-white">{inline(line.slice(4), k)}</p>
-        if (line.startsWith("## ")) return <p key={k} className="pt-1 text-[20px] font-bold text-white">{inline(line.slice(3), k)}</p>
-        if (line.startsWith("# ")) return <p key={k} className="pt-1 text-[24px] font-bold text-white">{inline(line.slice(2), k)}</p>
-        if (line.startsWith("-# ")) return <p key={k} className="text-[12px] text-[#949ba4]">{inline(line.slice(3), k)}</p>
-        if (/^[-*] /.test(line)) return <p key={k} className="pl-4 before:-ml-3 before:mr-2 before:content-['•']">{inline(line.slice(2), k)}</p>
-        if (line.startsWith("> ")) return <p key={k} className="border-l-4 border-[#4e5058] pl-3">{inline(line.slice(2), k)}</p>
+        if (line.startsWith("### ")) return <p key={k} className="pt-1 text-[16px] font-bold text-white">{inline(line.slice(4), k, t)}</p>
+        if (line.startsWith("## ")) return <p key={k} className="pt-1 text-[20px] font-bold text-white">{inline(line.slice(3), k, t)}</p>
+        if (line.startsWith("# ")) return <p key={k} className="pt-1 text-[24px] font-bold text-white">{inline(line.slice(2), k, t)}</p>
+        if (line.startsWith("-# ")) return <p key={k} className="text-[12px] text-[#949ba4]">{inline(line.slice(3), k, t)}</p>
+        if (/^[-*] /.test(line)) return <p key={k} className="pl-4 before:-ml-3 before:mr-2 before:content-['•']">{inline(line.slice(2), k, t)}</p>
+        if (line.startsWith("> ")) return <p key={k} className="border-l-4 border-[#4e5058] pl-3">{inline(line.slice(2), k, t)}</p>
         if (!line.trim()) return <div key={k} className="h-2" />
-        return <p key={k}>{inline(line, k)}</p>
+        return <p key={k}>{inline(line, k, t)}</p>
       })}
     </div>
   )
@@ -126,6 +128,7 @@ const BUTTON_BG: Record<ButtonColor, string> = {
 }
 
 export function PanelPreview({ cfg, cats }: { cfg: PanelConfig; cats: PanelCategory[] }) {
+  const t = useT()
   const useMenu = cfg.style === "menu" || (cfg.style === "auto" && cats.length > 5)
   const list = listText(cats)
   let opened = false
@@ -175,11 +178,11 @@ export function PanelPreview({ cfg, cats }: { cfg: PanelConfig; cats: PanelCateg
                 case "open": {
                   if (opened) return null
                   opened = true
-                  if (!cats.length) return <p key={k} className="text-[14px] italic text-[#949ba4]">Nenhuma categoria configurada ainda.</p>
+                  if (!cats.length) return <p key={k} className="text-[14px] italic text-[#949ba4]">{t("Nenhuma categoria configurada ainda.", "No categories set up yet.")}</p>
                   if (useMenu) {
                     return (
                       <div key={k} className="flex items-center justify-between rounded-[8px] border border-black/30 bg-[#1e1f22] px-3 py-2.5 text-[14px] text-[#949ba4]">
-                        {cfg.menu_placeholder || "Escolha o assunto do ticket"} <ChevronDown className="h-4 w-4" />
+                        {cfg.menu_placeholder || t("Escolha o assunto do ticket", "Choose what the ticket is about")} <ChevronDown className="h-4 w-4" />
                       </div>
                     )
                   }
@@ -211,6 +214,7 @@ const withKey = (b: Block): Keyed => ({ ...b, _k: `k${++keySeq}` })
 const strip = (blocks: Keyed[]): Block[] => blocks.map(({ _k, ...b }) => b as Block)
 
 export function PanelBuilder({ value, cats, onChange }: { value: PanelConfig; cats: PanelCategory[]; onChange: (v: PanelConfig) => void }) {
+  const t = useT()
   // Stable keys for React while blocks move around (not saved)
   const [keyed, setKeyed] = useState<Keyed[]>(() => value.layout.map(withKey))
   const [dragFrom, setDragFrom] = useState<number | null>(null)
@@ -265,9 +269,9 @@ export function PanelBuilder({ value, cats, onChange }: { value: PanelConfig; ca
       <div className="flex min-w-0 flex-col gap-4">
         {/* Palette */}
         <div>
-          <p className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Blocos · arraste para o painel ou clique para adicionar</p>
+          <p className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">{t("Blocos · arraste para o painel ou clique para adicionar", "Blocks · drag onto the panel or click to add")}</p>
           <div className="flex flex-wrap gap-2">
-            {BLOCKS.map((b) => {
+            {BLOCKS(t).map((b) => {
               const disabled = b.type === "open" && hasOpen
               return (
                 <button key={b.type} type="button" draggable={!disabled} disabled={disabled} title={b.hint}
@@ -286,9 +290,9 @@ export function PanelBuilder({ value, cats, onChange }: { value: PanelConfig; ca
         <div className="flex min-h-[120px] flex-col gap-2 rounded-[12px] border border-border bg-background/40 p-3"
           onDragOver={(e) => { e.preventDefault(); if (!keyed.length) setDropAt(0) }} onDrop={onDrop}
           onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDropAt(null) }}>
-          {keyed.length === 0 && <p className="m-auto text-[13px] text-muted-foreground">Arraste blocos para cá</p>}
+          {keyed.length === 0 && <p className="m-auto text-[13px] text-muted-foreground">{t("Arraste blocos para cá", "Drag blocks here")}</p>}
           {keyed.map((b, i) => {
-            const m = meta(b.type)
+            const m = meta(b.type, t)
             const expanded = openBlock === b._k
             const editable = !["category_list", "open"].includes(b.type)
             return (
@@ -303,15 +307,15 @@ export function PanelBuilder({ value, cats, onChange }: { value: PanelConfig; ca
                       onClick={() => editable && setOpenBlock(expanded ? null : b._k)}>
                       {m.icon}
                       <span className="shrink-0 whitespace-nowrap text-[14px] text-foreground">{m.label}</span>
-                      <span className="min-w-0 truncate text-[12px] text-muted-foreground">{summary(b)}</span>
+                      <span className="min-w-0 truncate text-[12px] text-muted-foreground">{summary(b, t)}</span>
                     </button>
-                    <button type="button" className={iconBtn} disabled={i === 0} onClick={() => move(i, i - 1)} aria-label="Subir"><ChevronUp /></button>
-                    <button type="button" className={iconBtn} disabled={i === keyed.length - 1} onClick={() => move(i, i + 2)} aria-label="Descer"><ChevronDown /></button>
+                    <button type="button" className={iconBtn} disabled={i === 0} onClick={() => move(i, i - 1)} aria-label={t("Subir", "Move up")}><ChevronUp /></button>
+                    <button type="button" className={iconBtn} disabled={i === keyed.length - 1} onClick={() => move(i, i + 2)} aria-label={t("Descer", "Move down")}><ChevronDown /></button>
                     {b.type !== "open" && (
-                      <button type="button" className={iconBtn} aria-label="Duplicar"
+                      <button type="button" className={iconBtn} aria-label={t("Duplicar", "Duplicate")}
                         onClick={() => { const next = [...keyed]; next.splice(i + 1, 0, withKey(strip([b])[0])); commit(next) }}><Copy /></button>
                     )}
-                    <button type="button" className={cn(iconBtn, "hover:text-destructive")} aria-label="Remover"
+                    <button type="button" className={cn(iconBtn, "hover:text-destructive")} aria-label={t("Remover", "Remove")}
                       onClick={() => commit(keyed.filter((_, j) => j !== i))}><Trash2 /></button>
                   </div>
                   {expanded && <div className="border-t border-border p-3"><BlockEditor block={b} onChange={(patch) => update(i, patch)} /></div>}
@@ -323,24 +327,24 @@ export function PanelBuilder({ value, cats, onChange }: { value: PanelConfig; ca
         </div>
 
         {!hasOpen && cats.length > 0 && (
-          <p className="text-[12px] text-muted-foreground">Sem o bloco “Abrir ticket”, os botões vão para o fim do painel.</p>
+          <p className="text-[12px] text-muted-foreground">{t("Sem o bloco “Abrir ticket”, os botões vão para o fim do painel.", "Without the “Open ticket” block, the buttons go to the end of the panel.")}</p>
         )}
 
         {/* Panel options */}
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Como abrir o ticket">
+          <Field label={t("Como abrir o ticket", "How tickets are opened")}>
             <select className={inputCls} value={value.style} onChange={(e) => onChange({ ...value, style: e.target.value as PanelConfig["style"] })}>
-              <option value="buttons">Botões</option>
-              <option value="menu">Menu de seleção</option>
-              <option value="auto">Automático (menu com mais de 5 categorias)</option>
+              <option value="buttons">{t("Botões", "Buttons")}</option>
+              <option value="menu">{t("Menu de seleção", "Select menu")}</option>
+              <option value="auto">{t("Automático (menu com mais de 5 categorias)", "Automatic (menu with more than 5 categories)")}</option>
             </select>
           </Field>
           {value.style !== "buttons" && (
-            <Field label="Texto do menu">
+            <Field label={t("Texto do menu", "Menu text")}>
               <input maxLength={150} className={inputCls} value={value.menu_placeholder} onChange={(e) => onChange({ ...value, menu_placeholder: e.target.value })} />
             </Field>
           )}
-          <Field label="Borda colorida">
+          <Field label={t("Borda colorida", "Colored border")}>
             <div className="flex h-10 items-center gap-3">
               <Switch checked={value.accent} onCheckedChange={(v) => onChange({ ...value, accent: v })} />
               {value.accent && (
@@ -351,7 +355,7 @@ export function PanelBuilder({ value, cats, onChange }: { value: PanelConfig; ca
           </Field>
         </div>
         <p className="text-[12px] text-muted-foreground">
-          Nos textos: <code>{"{server}"}</code> nome do servidor · <code>{"{members}"}</code> número de membros · <code>{"<@&id>"}</code> menciona cargo (sem notificar).
+          {t("Nos textos:", "In texts:")} <code>{"{server}"}</code> {t("nome do servidor", "server name")} · <code>{"{members}"}</code> {t("número de membros", "member count")} · <code>{"<@&id>"}</code> {t("menciona cargo (sem notificar)", "mentions a role (without pinging)")}.
         </p>
       </div>
 
@@ -359,38 +363,39 @@ export function PanelBuilder({ value, cats, onChange }: { value: PanelConfig; ca
       <div className="flex min-w-0 flex-col gap-2 xl:sticky xl:top-24 xl:self-start">
         <PanelPreview cfg={value} cats={cats} />
         <div className="flex gap-4 text-[12px]">
-          <span className={limits.components > 40 ? "text-destructive" : "text-muted-foreground"}>{limits.components} / 40 componentes</span>
-          <span className={limits.chars > 4000 ? "text-destructive" : "text-muted-foreground"}>{limits.chars} / 4000 caracteres</span>
+          <span className={limits.components > 40 ? "text-destructive" : "text-muted-foreground"}>{limits.components} / 40 {t("componentes", "components")}</span>
+          <span className={limits.chars > 4000 ? "text-destructive" : "text-muted-foreground"}>{limits.chars} / 4000 {t("caracteres", "characters")}</span>
         </div>
       </div>
     </div>
   )
 }
 
-function summary(b: Block) {
+function summary(b: Block, t: T) {
   switch (b.type) {
-    case "text": case "section": return b.content.split("\n")[0].replace(/^#+\s|^-#\s/, "") || "vazio"
-    case "image": { const n = b.urls.filter(Boolean).length; return n ? `${n} imagem(ns)` : "sem imagem" }
-    case "separator": return `${b.divider ? "com linha" : "só espaço"} · ${b.spacing === "large" ? "grande" : "pequeno"}`
+    case "text": case "section": return b.content.split("\n")[0].replace(/^#+\s|^-#\s/, "") || t("vazio", "empty")
+    case "image": { const n = b.urls.filter(Boolean).length; return n ? t(`${n} imagem(ns)`, `${n} image(s)`) : t("sem imagem", "no image") }
+    case "separator": return `${b.divider ? t("com linha", "with line") : t("só espaço", "space only")} · ${b.spacing === "large" ? t("grande", "large") : t("pequeno", "small")}`
     case "links": { const n = b.links.filter((l) => l.label && l.url).length; return `${n} link(s)` }
-    case "category_list": return "automático"
-    case "open": return "botões ou menu das categorias"
+    case "category_list": return t("automático", "automatic")
+    case "open": return t("botões ou menu das categorias", "category buttons or menu")
   }
 }
 
 function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Partial<Block>) => void }) {
+  const t = useT()
   switch (block.type) {
     case "text":
       return (
         <textarea rows={4} maxLength={4000} className={`${inputCls} h-auto py-2 font-mono text-[13px]`} value={block.content}
-          placeholder={"## Central de ajuda\nEscolha um assunto abaixo."} onChange={(e) => onChange({ content: e.target.value })} />
+          placeholder={t("## Central de ajuda\nEscolha um assunto abaixo.", "## Help center\nPick a topic below.")} onChange={(e) => onChange({ content: e.target.value })} />
       )
     case "section":
       return (
         <div className="flex flex-col gap-3">
           <textarea rows={3} maxLength={4000} className={`${inputCls} h-auto py-2 font-mono text-[13px]`} value={block.content}
             onChange={(e) => onChange({ content: e.target.value })} />
-          <Field label="URL da miniatura" hint="https://… (png, jpg, gif ou webp)">
+          <Field label={t("URL da miniatura", "Thumbnail URL")} hint={t("https://… (png, jpg, gif ou webp)", "https://… (png, jpg, gif or webp)")}>
             <input className={inputCls} value={block.thumbnail_url} placeholder="https://" onChange={(e) => onChange({ thumbnail_url: e.target.value })} />
           </Field>
         </div>
@@ -402,12 +407,12 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
             <div key={i} className="flex gap-2">
               <input className={inputCls} value={u} placeholder="https://…/banner.png"
                 onChange={(e) => onChange({ urls: block.urls.map((x, j) => (j === i ? e.target.value : x)) })} />
-              <button type="button" className={iconBtn} aria-label="Remover imagem" onClick={() => onChange({ urls: block.urls.filter((_, j) => j !== i) })}><Trash2 /></button>
+              <button type="button" className={iconBtn} aria-label={t("Remover imagem", "Remove image")} onClick={() => onChange({ urls: block.urls.filter((_, j) => j !== i) })}><Trash2 /></button>
             </div>
           ))}
           {block.urls.length < 10 && (
             <button type="button" className="flex items-center gap-1 self-start text-[13px] text-[#a78bfa] hover:underline [&_svg]:h-4 [&_svg]:w-4"
-              onClick={() => onChange({ urls: [...block.urls, ""] })}><Plus /> Adicionar imagem</button>
+              onClick={() => onChange({ urls: [...block.urls, ""] })}><Plus /> {t("Adicionar imagem", "Add image")}</button>
           )}
         </div>
       )
@@ -415,11 +420,11 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
       return (
         <div className="flex flex-wrap items-center gap-6">
           <label className="flex items-center gap-2 text-[14px] text-foreground">
-            <Switch checked={block.divider} onCheckedChange={(v) => onChange({ divider: v })} /> Mostrar linha
+            <Switch checked={block.divider} onCheckedChange={(v) => onChange({ divider: v })} /> {t("Mostrar linha", "Show line")}
           </label>
           <select className={`${inputCls} w-auto`} value={block.spacing} onChange={(e) => onChange({ spacing: e.target.value as "small" | "large" })}>
-            <option value="small">Espaço pequeno</option>
-            <option value="large">Espaço grande</option>
+            <option value="small">{t("Espaço pequeno", "Small space")}</option>
+            <option value="large">{t("Espaço grande", "Large space")}</option>
           </select>
         </div>
       )
@@ -431,15 +436,15 @@ function BlockEditor({ block, onChange }: { block: Block; onChange: (patch: Part
             return (
               <div key={i} className="grid grid-cols-[64px_minmax(0,1fr)_minmax(0,1.4fr)_32px] gap-2">
                 <input maxLength={64} className={inputCls} value={l.emoji} placeholder="📜" onChange={(e) => set({ emoji: e.target.value })} />
-                <input maxLength={80} className={inputCls} value={l.label} placeholder="Regras" onChange={(e) => set({ label: e.target.value })} />
+                <input maxLength={80} className={inputCls} value={l.label} placeholder={t("Regras", "Rules")} onChange={(e) => set({ label: e.target.value })} />
                 <input className={inputCls} value={l.url} placeholder="https://" onChange={(e) => set({ url: e.target.value })} />
-                <button type="button" className={iconBtn} aria-label="Remover link" onClick={() => onChange({ links: block.links.filter((_, j) => j !== i) })}><Trash2 /></button>
+                <button type="button" className={iconBtn} aria-label={t("Remover link", "Remove link")} onClick={() => onChange({ links: block.links.filter((_, j) => j !== i) })}><Trash2 /></button>
               </div>
             )
           })}
           {block.links.length < 5 && (
             <button type="button" className="flex items-center gap-1 self-start text-[13px] text-[#a78bfa] hover:underline [&_svg]:h-4 [&_svg]:w-4"
-              onClick={() => onChange({ links: [...block.links, { label: "", url: "", emoji: "" }] })}><Plus /> Adicionar link</button>
+              onClick={() => onChange({ links: [...block.links, { label: "", url: "", emoji: "" }] })}><Plus /> {t("Adicionar link", "Add link")}</button>
           )}
         </div>
       )
