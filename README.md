@@ -165,7 +165,7 @@ Suporte para múltiplos idiomas:
 
 ## 📄 Licença
 
-Este projeto está licenciado sob os termos da licença [MIT](LICENSE).
+Proprietário — todos os direitos reservados. Copiar, redistribuir, modificar, hospedar ou rodar este código, ou usar o nome "Lunna" em outro bot, não é permitido sem autorização por escrito. Veja o [LICENSE](./LICENSE). A Lunna oficial está em https://lunnabot.fun (ID de aplicativo 1222333304028659792).
 
 ## 📧 Contato
 

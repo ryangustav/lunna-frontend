@@ -5,6 +5,7 @@ import { StatsBar } from "@/components/lunna/stats-bar"
 import { FeaturesSection } from "@/components/lunna/features-section"
 import { DashboardSection } from "@/components/lunna/dashboard-section"
 import { CtaSection } from "@/components/lunna/cta-section"
+import { FaqSection } from "@/components/lunna/faq-section"
 
 export default async function Home({
   params,
@@ -22,6 +23,7 @@ export default async function Home({
         <StatsBar />
         <FeaturesSection />
         <DashboardSection />
+        <FaqSection locale={locale} />
         <CtaSection />
       </main>
     </div>

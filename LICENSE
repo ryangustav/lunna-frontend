@@ -1,0 +1,48 @@
+Lunna — Proprietary License / Licença Proprietária
+Copyright (c) 2025-2026 Ryan Gustavo (ryangustav). All rights reserved. Todos os direitos reservados.
+
+This repository (Lunna website and dashboard) and everything in it — source code, configuration, assets, images,
+texts, translations, database schemas and documentation (the "Software") — is the exclusive
+property of the copyright holder. The name "Lunna", its logo, artwork and visual identity
+identify the official Lunna Discord bot (application ID 1222333304028659792,
+https://lunnabot.fun) and may not be used to identify any other bot, service or product.
+
+NO LICENSE IS GRANTED. Without prior written permission from the copyright holder, you may not:
+
+  1. copy, clone, download for reuse, mirror or redistribute the Software, in whole or in part;
+  2. modify it, translate it, or create derivative works based on it;
+  3. run, host, deploy or operate it, or any part of it, as a bot, website, API or service,
+     publicly or privately, for free or for profit;
+  4. sell, sublicense, rent or otherwise make it available to third parties;
+  5. use the name "Lunna", its logo or its artwork for another bot or service, or present any
+     copy as the official Lunna;
+  6. use the Software, in whole or in part, to train or fine-tune machine learning models.
+
+Being able to see this repository (for example on GitHub) does not grant any of the rights
+above. Viewing and forking within GitHub are allowed only to the extent required by GitHub's
+Terms of Service, and a fork does not grant permission to use, run or distribute the Software.
+
+Earlier versions of the Software that were published under other license terms remain under
+those terms only for the exact versions and only to the extent those terms required; this
+License applies to this version and all later versions.
+
+Any use not expressly authorized in writing is prohibited and constitutes infringement of
+copyright and of the Lunna name and identity, and may lead to takedown requests (DMCA and
+equivalents), reports to Discord and to bot listings, and legal action.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE SOFTWARE.
+
+For permission requests: https://discord.gg/DaUhFcjJfH
+
+--------------------------------------------------------------------------------------------
+Resumo em português (a versão em inglês acima prevalece em caso de divergência):
+
+Este repositório é de propriedade exclusiva do titular. Nenhuma licença é concedida. Sem
+autorização prévia por escrito é proibido: copiar, clonar para reuso, redistribuir, modificar,
+criar obras derivadas, hospedar ou rodar o código como bot, site, API ou serviço (gratuito ou
+pago), vender ou sublicenciar, usar o nome "Lunna", o logo ou a arte em outro bot ou apresentar
+uma cópia como a Lunna oficial, e usar o código para treinar modelos de IA. Poder ver o
+repositório não dá nenhum desses direitos. Qualquer uso não autorizado é violação de direitos
+autorais e da identidade da Lunna e pode resultar em remoção (DMCA), denúncia ao Discord e às
+listas de bots e medidas judiciais.
