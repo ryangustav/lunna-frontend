@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useTranslations } from "next-intl"
 import { Link } from "@/src/i18n/routing"
 import { Button } from "@/components/ui/button"
-import { Menu, Moon, Sun, LayoutDashboard, LogOut, ChevronDown, Crown, Coins, Gift, Ticket, ShieldCheck } from "lucide-react"
+import { Menu, Moon, Sun, LayoutDashboard, LogOut, ChevronDown, Crown, Coins, Gift, Ticket, ShieldCheck, Sparkles, Terminal, LifeBuoy } from "lucide-react"
 import { useTheme } from "next-themes"
 import { LanguageSwitcher, LanguageButtons, AccountLanguageSync } from "@/components/lunna/language-switcher"
 import {
@@ -126,11 +126,11 @@ export function Navbar() {
 
   const navLinks = useMemo(
     () => [
-      { label: t("features"), href: "/#features" },
-      { label: t("commands"), href: "/commands" },
+      { label: t("features"), href: "/#features", icon: Sparkles },
+      { label: t("commands"), href: "/commands", icon: Terminal },
       { label: t("vip"), href: "/vip", icon: Crown },
       { label: t("coins"), href: "/coins", icon: Coins },
-      { label: t("support"), href: "https://discord.gg/DaUhFcjJfH", isExternal: true },
+      { label: t("support"), href: "https://discord.gg/DaUhFcjJfH", isExternal: true, icon: LifeBuoy },
     ],
     [t]
   )
@@ -232,7 +232,7 @@ export function Navbar() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer gap-2 rounded-lg p-2.5 text-red-500 focus:bg-red-500/10 focus:text-red-500">
                     <LogOut className="h-4 w-4" />
-                    <span className="font-medium">Sair</span>
+                    <span className="font-medium">{L("Sair", "Log out")}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -289,7 +289,7 @@ export function Navbar() {
                       <Gift className="h-5 w-5" /> {t("daily")}
                     </Link>
                     <button onClick={handleLogout} className="flex items-center gap-3 text-lg font-semibold text-red-500 transition-colors hover:opacity-80">
-                      <LogOut className="h-5 w-5" /> Sair
+                      <LogOut className="h-5 w-5" /> {L("Sair", "Log out")}
                     </button>
                   </div>
                 ) : (

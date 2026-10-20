@@ -3,6 +3,7 @@ import { Navbar } from "@/components/lunna/navbar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Terminal } from "lucide-react"
+import { CommandsBrowser, type BrowserSection } from "@/components/lunna/commands-browser"
 import { API_PUBLIC, SITE_URL, pageUrl } from "@/lib/site"
 
 // Rendered on the server (and refreshed hourly) so search engines read every command in the HTML
@@ -46,7 +47,8 @@ export default async function CommandsPage({ params }: { params: Promise<{ local
   // English names/descriptions come from the bot's Discord localizations
   const L = (c: Sub) => ({
     name: (en && c.name_en) || c.name,
-    description: (en && c.description_en) || c.description,
+    // "「💰」Colete…" → "Colete…" (the bracket emoji is decoration for Discord's picker)
+    description: ((en && c.description_en) || c.description || "").replace(/^「[^」]*」\s*/, ""),
     usage: (en && c.usage_en) || c.usage,
   })
   const grouped = new Map<string, Command[]>()
@@ -58,6 +60,17 @@ export default async function CommandsPage({ params }: { params: Promise<{ local
   const sections = [...grouped.entries()].sort((a, b) => ORDER.indexOf(a[0]) - ORDER.indexOf(b[0]))
   const label = (key: string) => (CATEGORY[key] || CATEGORY.outros)[en ? 1 : 0]
   const anchor = (name: string) => name.replace(/^\//, "").replace(/\s+/g, "-")
+  // what the client search receives: the visible texts in this language, plus the other language's names to match
+  const browserSections: BrowserSection[] = sections.map(([key, items]) => ({
+    key,
+    label: label(key),
+    commands: items.map((c) => ({
+      ...L(c),
+      category: key,
+      alt: [c.name, c.name_en || "", c.description, c.description_en || ""],
+      subcommands: (c.subcommands || []).map((sc) => ({ ...L(sc), alt: [sc.name, sc.name_en || "", sc.description, sc.description_en || ""] })),
+    })),
+  }))
   const total = (commands || []).reduce((n, c) => n + Math.max(1, c.subcommands?.length || 0), 0)
 
   // the list as structured data: each command is a named item with its own URL fragment
@@ -94,15 +107,6 @@ export default async function CommandsPage({ params }: { params: Promise<{ local
               {t("subtitle")}{" "}
               {commands?.length ? (en ? `${total} commands and subcommands of the Lunna Discord bot.` : `${total} comandos e subcomandos da Lunna, o bot de Discord.`) : ""}
             </p>
-            {sections.length > 1 && (
-              <nav aria-label={en ? "Categories" : "Categorias"} className="flex flex-wrap justify-center gap-2 pt-2">
-                {sections.map(([key]) => (
-                  <a key={key} href={`#cat-${key}`} className="rounded-full border border-border bg-card px-3 py-1 text-[12px] font-medium text-muted-foreground hover:text-foreground">
-                    {label(key)}
-                  </a>
-                ))}
-              </nav>
-            )}
           </header>
 
           {commands === null && (
@@ -117,45 +121,18 @@ export default async function CommandsPage({ params }: { params: Promise<{ local
             </Card>
           )}
 
-          {sections.map(([key, items]) => (
-            <section key={key} id={`cat-${key}`} className="scroll-mt-24 space-y-4">
-              <h2 className="text-xl font-black tracking-tight">{label(key)}</h2>
-              <div className="grid gap-4 md:grid-cols-2">
-                {items.map((cmd) => {
-                  const c = L(cmd)
-                  return (
-                    <Card key={cmd.name} id={anchor(c.name)} className="scroll-mt-24 border-border bg-card/70">
-                      <CardContent className="space-y-3 p-6">
-                        <div className="flex items-center justify-between gap-2">
-                          <h3><code className="rounded-md bg-secondary px-2 py-1 text-sm font-bold text-primary">{c.name}</code></h3>
-                          <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">{label(key)}</Badge>
-                        </div>
-                        <p className="text-sm leading-relaxed text-muted-foreground">{c.description}</p>
-                        {cmd.subcommands?.length ? (
-                          <ul className="space-y-2 rounded-lg border border-border bg-secondary/50 p-3">
-                            {cmd.subcommands.map((s) => {
-                              const sc = L(s)
-                              return (
-                                <li key={s.name} id={anchor(sc.name)} className="scroll-mt-24">
-                                  <code className="text-sm font-semibold text-foreground">{sc.usage}</code>
-                                  {sc.description && <p className="text-[12px] text-muted-foreground">{sc.description}</p>}
-                                </li>
-                              )
-                            })}
-                          </ul>
-                        ) : (
-                          <div className="rounded-lg border border-border bg-secondary/50 p-3">
-                            <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{t("usage")}</p>
-                            <code className="mt-1 block text-sm text-foreground">{c.usage}</code>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  )
-                })}
-              </div>
-            </section>
-          ))}
+          {browserSections.length > 0 && (
+            <CommandsBrowser
+              sections={browserSections}
+              labels={{
+                search: en ? "Search commands (e.g. daily, ban, rpg, giveaway)" : "Buscar comandos (ex.: daily, ban, rpg, sorteio)",
+                all: en ? "All" : "Todos",
+                usage: t("usage"),
+                none: en ? "No command matches your search." : "Nenhum comando encontrado para essa busca.",
+                results: en ? "{n} command(s) found" : "{n} comando(s) encontrado(s)",
+              }}
+            />
+          )}
         </div>
       </main>
     </div>
