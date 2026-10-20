@@ -9,6 +9,7 @@ import { notFound } from "next/navigation"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Footer } from "@/components/lunna/footer"
 import { NoticeBanner } from "@/components/lunna/notice-banner"
+import { SITE_URL, DESCRIPTION, pageMetadata, siteJsonLd } from "@/lib/site"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,11 +24,22 @@ const geistMono = Geist_Mono({
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params
   const en = locale === "en"
+  const title = en ? "Lunna — Discord bot with RPG, economy and moderation" : "Lunna — Bot de Discord com RPG, economia e moderação"
   return {
-    title: en ? "Lunna — The heart your server needed" : "Lunna — O coração que seu servidor precisava",
-    description: en
-      ? "Discord bot with RPG, economy, AI moderation and a full dashboard for your community."
-      : "Bot de Discord com RPG, economia, moderação com IA e dashboard completo para sua comunidade.",
+    ...pageMetadata({ locale, path: "/", title, description: DESCRIPTION[en ? "en" : "pt"] }),
+    metadataBase: new URL(SITE_URL),
+    // pages set their own title: "<page> · Lunna"
+    title: { default: title, template: "%s · Lunna" },
+    applicationName: "Lunna",
+    authors: [{ name: "Lunna", url: SITE_URL }],
+    creator: "Lunna",
+    publisher: "Lunna",
+    category: "technology",
+    // Search Console / Bing Webmaster ownership (values from their "HTML tag" verification)
+    verification: {
+      google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+      other: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION ? { "msvalidate.01": process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION } : undefined,
+    },
     icons: {
       icon: "/favicon.ico",
       apple: "/apple-icon.png",
@@ -58,6 +70,8 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
+        {/* who the official Lunna is, for search engines (schema.org) */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd(locale === "en" ? "en" : "pt")).replace(/</g, "\\u003c") }} />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <NextIntlClientProvider messages={messages}>
             <div className="relative flex min-h-screen flex-col">
