@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ArrowLeft, RefreshCw, Search, Crown, Users, LogOut, Ban } from "lucide-react"
+import { ArrowLeft, RefreshCw, Search, Crown, Users, LogOut, Ban, Link2, Copy } from "lucide-react"
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { PageHeader, Section, Field, PrimaryButton, SecondaryButton, Pill, LoadingState, ErrorState } from "@/components/dashboard/primitives"
@@ -146,6 +146,9 @@ function GuildDetail({ id, onBack, onLeft }: { id: string; onBack: () => void; o
   const [error, setError] = useState<string | null>(null)
   const [reason, setReason] = useState("")
   const [acting, setActing] = useState<"leave" | "block" | null>(null)
+  const [inviteReason, setInviteReason] = useState("")
+  const [inviting, setInviting] = useState(false)
+  const [invite, setInvite] = useState<{ url: string; expires_at: string; channel: string } | null>(null)
 
   const load = () => { setError(null); api.getAdminGuild(id).then((r) => setData(r.data)).catch((e) => setError(e.message)) }
   useEffect(load, [id])
@@ -161,6 +164,14 @@ function GuildDetail({ id, onBack, onLeft }: { id: string; onBack: () => void; o
       toast({ title: block ? "Servidor bloqueado" : "A Lunna saiu do servidor", description: "A ação foi registrada." })
       onLeft()
     } catch (e: any) { toast({ title: "Não foi possível", description: e.message, variant: "destructive" }) } finally { setActing(null) }
+  }
+
+  const createInvite = async () => {
+    if (inviteReason.trim().length < 5) return toast({ title: "Escreva o motivo", description: "Ex.: o número da denúncia. Ele fica no registro de ações.", variant: "destructive" })
+    if (!window.confirm(`Gerar um convite para ${data?.name || id}?\n\nUso único, vale 1 hora. Fica no registro de ações.\n\nMotivo: ${inviteReason.trim()}`)) return
+    setInviting(true)
+    try { const r = await api.adminGuildInvite(id, inviteReason.trim()); setInvite(r.data) }
+    catch (e: any) { toast({ title: "Não foi possível", description: e.message, variant: "destructive" }) } finally { setInviting(false) }
   }
 
   const back = <button onClick={onBack} className="flex w-max items-center gap-2 text-[13px] font-medium text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Voltar para a lista</button>
@@ -223,6 +234,25 @@ function GuildDetail({ id, onBack, onLeft }: { id: string; onBack: () => void; o
         <dl className="grid gap-3 text-[13px] sm:grid-cols-3">
           {Object.entries(l.counts || {}).map(([k, v]) => <div key={k} className="rounded-[10px] border border-border p-3"><dt className="text-muted-foreground">{COUNTS[k] || k}</dt><dd className="text-[18px] font-bold text-foreground">{n(v)}</dd></div>)}
         </dl>
+      </Section>
+
+      <Section title="Convite para averiguação" description="Só para denúncias: gera um convite de uso único, válido por 1 hora, para alguém da equipe entrar e verificar o servidor.">
+        {invite ? (
+          <div className="flex flex-wrap items-center gap-3 rounded-[10px] border border-border bg-secondary/40 p-3">
+            <code className="min-w-0 flex-1 truncate text-[14px] text-foreground">{invite.url}</code>
+            <SecondaryButton onClick={() => navigator.clipboard.writeText(invite.url).then(() => toast({ title: "Convite copiado" })).catch(() => {})}><Copy className="h-4 w-4" /> Copiar</SecondaryButton>
+            <p className="w-full text-[12px] text-muted-foreground">Canal #{invite.channel || "?"} · expira {dt(invite.expires_at)} · não compartilhe fora da equipe.</p>
+          </div>
+        ) : (
+          <>
+            <Field label="Motivo (fica no registro de ações)">
+              <input className={inputCls} maxLength={300} value={inviteReason} placeholder="Ex.: denúncia #123, conteúdo proibido" onChange={(e) => setInviteReason(e.target.value)} />
+            </Field>
+            <div className="mt-4">
+              <SecondaryButton disabled={inviting} onClick={createInvite}><Link2 className="h-4 w-4" /> {inviting ? "Gerando…" : "Gerar convite"}</SecondaryButton>
+            </div>
+          </>
+        )}
       </Section>
 
       <Section title="Tirar a Lunna do servidor" description="A Lunna sai na hora. Bloquear também faz ela sair sozinha se alguém adicioná-la de novo. As configurações salvas do servidor não são apagadas.">
