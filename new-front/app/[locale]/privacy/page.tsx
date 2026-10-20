@@ -53,7 +53,7 @@ const translations: Record<string, T> = {
       intro: "Como a Lunna trata o texto das mensagens do Discord:",
       items: [
         { label: "Conversas dos servidores", value: "A Lunna não lê as conversas. O Discord só envia a ela o texto das mensagens que a mencionam, que respondem a ela ou que são enviadas na DM com ela." },
-        { label: "Mensagens para a IA", value: "Quando você menciona a Lunna, o texto (e imagens ou arquivos de texto anexados) é enviado ao Google Gemini para gerar a resposta. As últimas 3 trocas ficam na memória por até 15 minutos para manter o contexto e não são gravadas em banco de dados." },
+        { label: "Mensagens para a IA", value: "Quando você menciona a Lunna, o texto (e imagens ou arquivos de texto anexados) é enviado ao Anthropic (Claude) para gerar a resposta. As últimas 3 trocas ficam na memória por até 15 minutos para manter o contexto e não são gravadas em banco de dados." },
         { label: "Lunna IA (admins)", value: "O texto do pedido do admin e os passos executados ficam no histórico de pedidos do servidor, visível no dashboard para os admins daquele servidor." },
         { label: "Logs de mensagens apagadas e editadas", value: "Só em servidores cujos admins ativaram os logs, e só nas versões da Lunna com permissão de conteúdo de mensagens (como a Lunna Canary). O texto das mensagens recentes fica apenas na memória, por no máximo 24 horas e até 200 mensagens por canal, para que, se uma mensagem for apagada ou editada, o texto apareça no canal de log daquele servidor. Esse texto não é gravado em banco de dados e some ao fim do prazo, quando o log é desativado ou quando a Lunna sai do servidor." },
       ],
@@ -68,7 +68,7 @@ const translations: Record<string, T> = {
       intro: "Usamos alguns serviços para operar a Lunna. Eles recebem só o necessário para a sua parte do trabalho:",
       items: [
         { label: "Discord", value: "plataforma onde o bot funciona e login do site" },
-        { label: "Google (Gemini)", value: "texto e anexos das mensagens enviadas à IA, para gerar respostas" },
+        { label: "Anthropic (Claude)", value: "texto e anexos das mensagens enviadas à IA, para gerar respostas" },
         { label: "Prodia", value: "o texto do pedido de geração de imagem (/imagine)" },
         { label: "Stripe e Mercado Pago", value: "dados necessários para processar pagamentos" },
         { label: "MongoDB Atlas e Discloud", value: "banco de dados e hospedagem do bot e do site" },
@@ -161,7 +161,7 @@ const translations: Record<string, T> = {
       intro: "How Lunna handles the text of Discord messages:",
       items: [
         { label: "Server conversations", value: "Lunna does not read conversations. Discord only sends it the text of messages that mention it, reply to it or are sent in a DM with it." },
-        { label: "Messages to the AI", value: "When you mention Lunna, the text (and attached images or text files) is sent to Google Gemini to generate the answer. The last 3 exchanges stay in memory for up to 15 minutes to keep context and are not written to a database." },
+        { label: "Messages to the AI", value: "When you mention Lunna, the text (and attached images or text files) is sent to Anthropic (Claude) to generate the answer. The last 3 exchanges stay in memory for up to 15 minutes to keep context and are not written to a database." },
         { label: "Lunna AI (admins)", value: "The admin's request text and the executed steps are kept in the server's request history, visible in the dashboard to that server's admins." },
         { label: "Deleted and edited message logs", value: "Only in servers whose admins turned the logs on, and only in Lunna versions with the message content permission (such as Lunna Canary). The text of recent messages is kept in memory only, for at most 24 hours and up to 200 messages per channel, so that if a message is deleted or edited its text can be shown in that server's log channel. This text is never written to a database and is gone at the end of that window, when the log is turned off or when Lunna leaves the server." },
       ],
@@ -176,7 +176,7 @@ const translations: Record<string, T> = {
       intro: "We use a few services to run Lunna. They only receive what their part of the work needs:",
       items: [
         { label: "Discord", value: "the platform the bot runs on, and the website login" },
-        { label: "Google (Gemini)", value: "text and attachments of messages sent to the AI, to generate answers" },
+        { label: "Anthropic (Claude)", value: "text and attachments of messages sent to the AI, to generate answers" },
         { label: "Prodia", value: "the text of image generation requests (/imagine)" },
         { label: "Stripe and Mercado Pago", value: "the data needed to process payments" },
         { label: "MongoDB Atlas and Discloud", value: "database and hosting for the bot and website" },
