@@ -103,6 +103,8 @@ export const api = {
   adminLeaveGuild: (id: string, reason: string, block: boolean, name?: string) =>
     apiFetch(`/admin/guilds/${encodeURIComponent(id)}/leave`, { method: "POST", body: JSON.stringify({ reason, block, name }) }),
   adminUnblockGuild: (id: string) => apiFetch(`/admin/guilds/${encodeURIComponent(id)}/unblock`, { method: "POST", body: "{}" }),
+  adminGuildInvite: (id: string, reason: string) =>
+    apiFetch(`/admin/guilds/${encodeURIComponent(id)}/invite`, { method: "POST", body: JSON.stringify({ reason }) }),
   getAdminUser: (id: string) => apiFetch(`/admin/users/${encodeURIComponent(id)}`),
   adminUserAction: (id: string, action: "ban" | "unban" | "flag" | "unflag", reason: string) =>
     apiFetch(`/admin/users/${encodeURIComponent(id)}/action`, { method: "POST", body: JSON.stringify({ action, reason }) }),
