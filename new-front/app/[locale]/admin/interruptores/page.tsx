@@ -39,6 +39,7 @@ const FEATURE_GROUPS: { title: string; hint: string; items: Record<string, Featu
       automations: { label: "Automações", hint: "Reação → cargo, cargo de entrada e mensagens agendadas.", speaks: false },
       auto_dms: { label: "Mensagens automáticas por DM", hint: "Pausa o envio de todas as campanhas.", speaks: false },
       social_alerts: { label: "Alertas de YouTube, Twitch e RSS", hint: "Para de checar e postar. Ao religar, cada fonte posta no máximo os 3 itens mais recentes dos últimos 3 dias.", speaks: false },
+      vote_thanks: { label: "Agradecimento por voto (DM)", hint: "Pausa a mensagem de agradecimento enviada no privado após cada voto no top.gg. Os agradecimentos ficam na fila e saem ao religar.", speaks: false },
     },
   },
   {
