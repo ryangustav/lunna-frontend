@@ -34,6 +34,7 @@ const FEATURE_GROUPS: { title: string; hint: string; items: Record<string, Featu
       welcome: { label: "Boas-vindas e saída", hint: "Mensagens e banner de entrada e de saída.", speaks: false },
       autorole: { label: "Autorole", hint: "Cargo automático para quem entra.", speaks: false },
       member_counters: { label: "Contadores de membros", hint: "Canais com o número de membros param de atualizar.", speaks: false },
+      invite_tracker: { label: "Rastreador de convites", hint: "Param os anúncios de entrada/saída e os cargos por convites. As entradas continuam sendo contadas.", speaks: false },
       leveling: { label: "Ganho de XP (níveis)", hint: "Mensagens e voz deixam de dar XP. Ninguém é avisado.", speaks: false },
       automations: { label: "Automações", hint: "Reação → cargo, cargo de entrada e mensagens agendadas.", speaks: false },
       auto_dms: { label: "Mensagens automáticas por DM", hint: "Pausa o envio de todas as campanhas.", speaks: false },

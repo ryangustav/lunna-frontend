@@ -113,6 +113,20 @@ export const api = {
   deleteAutomation: (guildId: string, id: string) => apiFetch(`/guilds/${guildId}/automations/${id}`, { method: "DELETE" }),
   getTickets: (guildId: string) => apiFetch(`/guilds/${guildId}/tickets`),
   updateTickets: (guildId: string, data: any) => apiFetch(`/guilds/${guildId}/tickets`, { method: "PUT", body: JSON.stringify(data) }),
+  // Invite tracker
+  getInvites: (guildId: string) => apiFetch(`/guilds/${guildId}/invites`),
+  updateInvites: (guildId: string, data: any) => apiFetch(`/guilds/${guildId}/invites`, { method: "PUT", body: JSON.stringify(data) }),
+  getInviteMember: (guildId: string, userId: string) => apiFetch(`/guilds/${guildId}/invites/members/${userId}`),
+  addInviteBonus: (guildId: string, data: { user_id: string; amount: number; reason?: string }) =>
+    apiFetch(`/guilds/${guildId}/invites/bonus`, { method: "POST", body: JSON.stringify(data) }),
+  resetInvites: (guildId: string, userId?: string) =>
+    apiFetch(`/guilds/${guildId}/invites/reset`, { method: "POST", body: JSON.stringify(userId ? { user_id: userId } : {}) }),
+  searchMembers: (guildId: string, q: string) => apiFetch(`/guilds/${guildId}/members/search?q=${encodeURIComponent(q)}`),
+  // Giveaways (the bot posts and draws them within ~15s of each request)
+  getGiveaways: (guildId: string) => apiFetch(`/guilds/${guildId}/giveaways`),
+  createGiveaway: (guildId: string, data: any) => apiFetch(`/guilds/${guildId}/giveaways`, { method: "POST", body: JSON.stringify(data) }),
+  giveawayAction: (guildId: string, id: string, action: "end" | "cancel" | "reroll", count = 1) =>
+    apiFetch(`/guilds/${guildId}/giveaways/${id}/action`, { method: "POST", body: JSON.stringify({ action, count }) }),
   // site language → the bot answers commands in it too (lunarcoins.language)
   getMyLanguage: () => apiFetch("/me/language"),
   setMyLanguage: (language: "pt" | "en") => apiFetch("/me/language", { method: "PUT", body: JSON.stringify({ language }) }),

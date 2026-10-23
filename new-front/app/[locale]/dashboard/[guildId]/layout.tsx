@@ -24,6 +24,8 @@ import {
   Ticket,
   BellRing,
   Bot,
+  MailPlus,
+  Gift,
 } from "lucide-react"
 import { useT } from "@/lib/use-t"
 
@@ -54,6 +56,8 @@ export default function GuildDashboardLayout({
       title: t("Comunidade", "Community"),
       items: [
         { name: t("Entrada e saída", "Join and leave"), href: `${base}/welcome`, icon: <MessageSquare /> },
+        { name: t("Convites", "Invites"), href: `${base}/invites`, icon: <MailPlus />, badge: t("Novo", "New") },
+        { name: t("Sorteios", "Giveaways"), href: `${base}/giveaways`, icon: <Gift />, badge: t("Novo", "New") },
         { name: "Autorole", href: `${base}/autorole`, icon: <UserCheck /> },
         { name: t("Cargos por botão", "Button roles"), href: `${base}/role-panels`, icon: <MousePointerClick />, badge: t("Novo", "New") },
         { name: "Tickets", href: `${base}/tickets`, icon: <Ticket />, badge: t("Novo", "New") },
