@@ -127,7 +127,12 @@ function CheckoutContent() {
 
         // Fetch product information
         if (type === 'VIP') {
-          const tiersRes = await fetch(`${API_URL}/vip/tiers`);
+          // with the login, the backend returns the upgrade price (the same one the VIP page showed)
+          const token = document.cookie.split('; ').find((row) => row.startsWith('token='))?.split('=')[1];
+          const tiersRes = await fetch(`${API_URL}/vip/tiers`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            credentials: 'include',
+          });
           if (!tiersRes.ok) throw new Error('Failed to fetch tiers');
           const tiersData = await tiersRes.json();
           const list = Array.isArray(tiersData) ? tiersData : tiersData.data || [];
