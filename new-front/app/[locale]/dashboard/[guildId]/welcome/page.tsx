@@ -374,6 +374,8 @@ export default function WelcomePage({
         .replace(/{inviter_name}/g, t("Divulgador", "Inviter"))
         .replace(/{inviter_tag}/g, t("Divulgador#1111", "Inviter#1111"))
         .replace(/{inviter_id}/g, "987654321098765432")
+        .replace(/{inviter_invites}/g, "12")
+        .replace(/{invite_code}/g, "lunna")
     }
 
     // 3. Draw Title
@@ -554,7 +556,7 @@ export default function WelcomePage({
               <div className="space-y-2 animate-in fade-in duration-300">
                 <span className="text-xs font-semibold text-muted-foreground">{t("Variáveis Disponíveis (Clique para inserir):", "Variables (click to insert):")}</span>
                 <div className="flex flex-wrap gap-2">
-                  {["{user_mention}", "{username}", "{user_name}", "{user_tag}", "{user_id}", "{server_name}", "{guild_name}", "{total_members}", "{member_count}", "{member_count_ordinal}", "{inviter_mention}", "{inviter_name}", "{inviter_tag}", "{inviter_id}"].map((variable) => (
+                  {["{user_mention}", "{username}", "{user_name}", "{user_tag}", "{user_id}", "{server_name}", "{guild_name}", "{total_members}", "{member_count}", "{member_count_ordinal}", "{inviter_mention}", "{inviter_name}", "{inviter_tag}", "{inviter_id}", "{inviter_invites}", "{invite_code}"].map((variable) => (
                     <button
                       key={variable}
                       type="button"
@@ -970,7 +972,7 @@ export default function WelcomePage({
               <div className="space-y-2 animate-in fade-in duration-300">
                 <span className="text-xs font-semibold text-muted-foreground">{t("Variáveis Disponíveis (Clique para inserir):", "Variables (click to insert):")}</span>
                 <div className="flex flex-wrap gap-2">
-                  {["{user_mention}", "{username}", "{user_name}", "{user_tag}", "{user_id}", "{server_name}", "{guild_name}", "{total_members}", "{member_count}", "{member_count_ordinal}", "{inviter_mention}", "{inviter_name}", "{inviter_tag}", "{inviter_id}"].map((variable) => (
+                  {["{user_mention}", "{username}", "{user_name}", "{user_tag}", "{user_id}", "{server_name}", "{guild_name}", "{total_members}", "{member_count}", "{member_count_ordinal}", "{inviter_mention}", "{inviter_name}", "{inviter_tag}", "{inviter_id}", "{inviter_invites}", "{invite_code}"].map((variable) => (
                     <button
                       key={variable}
                       type="button"
