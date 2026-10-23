@@ -62,7 +62,7 @@ const DEFAULT_JOIN = (t: T) => t(
 const DEFAULT_LEAVE = (t: T) => t(
   "📤 **{username}** saiu. Tinha sido convidado(a) por **{inviter_name}**, que agora tem **{inviter_invites}** convite(s).",
   "📤 **{username}** left. They were invited by **{inviter_name}**, who now has **{inviter_invites}** invite(s).")
-const VARIABLES = ["{user_mention}", "{username}", "{user_id}", "{inviter_mention}", "{inviter_name}", "{inviter_id}", "{inviter_invites}", "{inviter_total}", "{inviter_fake}", "{inviter_leaves}", "{inviter_bonus}", "{invite_code}", "{server_name}", "{member_count}"]
+const VARIABLES = ["{user_mention}", "{username}", "{user_id}", "{inviter_mention}", "{inviter_name}", "{inviter_id}", "{valid_invites}", "{total_invites}", "{fake_invites}", "{leave_invites}", "{bonus_invites}", "{invite_code}", "{server_name}", "{member_count}"]
 
 const inputCls = "h-10 w-full rounded-[10px] border border-border bg-background px-3 text-[14px] text-foreground outline-none focus:border-[#7c3aed]/60"
 
@@ -242,8 +242,8 @@ export default function InvitesPage({ params }: { params: Promise<{ guildId: str
   const preview = (template: string) => template
     .replace(/{user_mention}/g, t("@Novo membro", "@New member")).replace(/{username}|{user_name}/g, t("novo.membro", "new.member"))
     .replace(/{user_id}/g, "123456789012345678").replace(/{inviter_mention}/g, "@Lunnarian").replace(/{inviter_name}/g, "Lunnarian")
-    .replace(/{inviter_id}/g, "987654321098765432").replace(/{inviter_invites}/g, "12").replace(/{inviter_total}/g, "15")
-    .replace(/{inviter_fake}/g, "1").replace(/{inviter_leaves}/g, "2").replace(/{inviter_bonus}/g, "0").replace(/{invite_code}/g, "lunna")
+    .replace(/{inviter_id}/g, "987654321098765432").replace(/{valid_invites}/g, "12").replace(/{total_invites}/g, "15")
+    .replace(/{fake_invites}/g, "1").replace(/{leave_invites}/g, "2").replace(/{bonus_invites}/g, "0").replace(/{invite_code}/g, "lunna")
     .replace(/{server_name}|{guild_name}/g, t("Servidor Demo", "Demo Server")).replace(/{member_count}/g, "1234")
     .replace(/\*\*(.+?)\*\*/g, "$1")
 
