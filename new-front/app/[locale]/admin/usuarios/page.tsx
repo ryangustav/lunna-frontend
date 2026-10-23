@@ -11,17 +11,21 @@ type LookupUser = {
   has_profile: boolean; coins: number; gacha_keys: number
   vip: { tier: string; until: string | null; active: boolean } | null
   flagged: boolean; flag_reason: string | null; banned: boolean; is_admin: boolean
+  unlock_all: boolean
   rpg: { rank: string; level: number } | null
   streak: { count: number; last_day: string | null } | null
   season_level: number; last_daily: string | null
   ledger: { amount: number; category: string; at: string | null }[]
 }
-type Action = "ban" | "unban" | "flag" | "unflag"
+type Action = "ban" | "unban" | "flag" | "unflag" | "unlock_all" | "revoke_unlock_all"
 
 const inputCls = "h-10 w-full rounded-[10px] border border-border bg-background px-3 text-[14px] text-foreground outline-none focus:border-[#7c3aed]/60"
 const n = (v: number) => (v || 0).toLocaleString("pt-BR")
 const dt = (v: string | null) => (v ? new Date(v).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—")
-const ACTION_LABEL: Record<Action, string> = { ban: "Banir do bot", unban: "Desbanir", flag: "Sinalizar", unflag: "Tirar sinalização" }
+const ACTION_LABEL: Record<Action, string> = {
+  ban: "Banir do bot", unban: "Desbanir", flag: "Sinalizar", unflag: "Tirar sinalização",
+  unlock_all: "Desbloquear todos os cosméticos", revoke_unlock_all: "Revogar desbloqueio total",
+}
 
 /**
  * Lookup by exact Discord id. Nothing is kept: the id is not put in the URL or in storage, and the
@@ -80,6 +84,7 @@ export default function AdminUsersPage() {
             action={<div className="flex flex-wrap justify-end gap-1.5">
               {user.banned && <Pill>Banido</Pill>}
               {user.flagged && <Pill tone="accent">Sinalizado</Pill>}
+              {user.unlock_all && <Pill tone="success">Tudo desbloqueado</Pill>}
               {user.vip && <Pill tone={user.vip.active ? "success" : "neutral"}>VIP {user.vip.tier}</Pill>}
               {user.is_admin && <Pill tone="accent">Admin</Pill>}
               {user.discord?.bot && <Pill>Bot</Pill>}
@@ -117,7 +122,7 @@ export default function AdminUsersPage() {
           </Section>
 
           {!user.is_admin && (
-            <Section title="Ações" description="Banir impede o uso de todos os comandos do bot. Sinalizar marca a conta como suspeita. Motivo obrigatório: fica no registro.">
+            <Section title="Ações" description="Banir impede o uso de todos os comandos do bot. Sinalizar marca a conta como suspeita. Desbloquear libera todos os fundos, molduras, cores, insígnias, layouts e packs (inclusive os que forem lançados depois), menos a moldura de desenvolvedor. Motivo obrigatório: fica no registro.">
               <Field label="Motivo">
                 <input className={inputCls} maxLength={300} value={reason} placeholder="Ex.: farm de moedas com contas alternativas" onChange={(e) => setReason(e.target.value)} />
               </Field>
@@ -128,6 +133,9 @@ export default function AdminUsersPage() {
                 {user.has_profile && (user.flagged
                   ? <SecondaryButton disabled={!!acting} onClick={() => act("unflag")}>{ACTION_LABEL.unflag}</SecondaryButton>
                   : <SecondaryButton disabled={!!acting} onClick={() => act("flag")}>{ACTION_LABEL.flag}</SecondaryButton>)}
+                {user.has_profile && (user.unlock_all
+                  ? <SecondaryButton disabled={!!acting} onClick={() => act("revoke_unlock_all")}>{acting === "revoke_unlock_all" ? "…" : ACTION_LABEL.revoke_unlock_all}</SecondaryButton>
+                  : <SecondaryButton disabled={!!acting} onClick={() => act("unlock_all")}>{acting === "unlock_all" ? "…" : ACTION_LABEL.unlock_all}</SecondaryButton>)}
               </div>
             </Section>
           )}

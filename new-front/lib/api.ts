@@ -106,7 +106,7 @@ export const api = {
   adminGuildInvite: (id: string, reason: string) =>
     apiFetch(`/admin/guilds/${encodeURIComponent(id)}/invite`, { method: "POST", body: JSON.stringify({ reason }) }),
   getAdminUser: (id: string) => apiFetch(`/admin/users/${encodeURIComponent(id)}`),
-  adminUserAction: (id: string, action: "ban" | "unban" | "flag" | "unflag", reason: string) =>
+  adminUserAction: (id: string, action: "ban" | "unban" | "flag" | "unflag" | "unlock_all" | "revoke_unlock_all", reason: string) =>
     apiFetch(`/admin/users/${encodeURIComponent(id)}/action`, { method: "POST", body: JSON.stringify({ action, reason }) }),
   getAgent: (guildId: string) => apiFetch(`/guilds/${guildId}/ai-agent`),
   updateAutomation: (guildId: string, id: string, enabled: boolean) => apiFetch(`/guilds/${guildId}/automations/${id}`, { method: "PATCH", body: JSON.stringify({ enabled }) }),

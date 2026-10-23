@@ -12,6 +12,7 @@ const ACTION: Record<string, string> = {
   "bot_config.update": "Alterou os interruptores", "codes.create": "Gerou códigos de resgate",
   "guild.view": "Consultou o servidor", "guild.leave": "Tirou a Lunna do servidor", "guild.block": "Bloqueou o servidor", "guild.unblock": "Desbloqueou o servidor", "guild.invite": "Gerou convite para averiguação",
   "user.view": "Consultou o usuário", "user.ban": "Baniu", "user.unban": "Desbaniu", "user.flag": "Sinalizou", "user.unflag": "Tirou a sinalização de",
+  "user.unlock_all": "Desbloqueou todos os cosméticos de", "user.revoke_unlock_all": "Revogou o desbloqueio total de",
 }
 
 function detailText(e: Entry) {
