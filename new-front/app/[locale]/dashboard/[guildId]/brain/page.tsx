@@ -7,12 +7,6 @@ import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { useT } from "@/lib/use-t"
 
-interface Channel {
-  id: string
-  name: string
-  type: number
-}
-
 export default function LunnaBrainPage({
   params,
 }: {
@@ -26,10 +20,7 @@ export default function LunnaBrainPage({
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [channels, setChannels] = useState<Channel[]>([])
-
   const [aiFaq, setAiFaq] = useState<string>("")
-  const [chatEventChannel, setChatEventChannel] = useState<string>("")
   const [isPremium, setIsPremium] = useState<boolean>(false)
 
   useEffect(() => {
@@ -38,19 +29,11 @@ export default function LunnaBrainPage({
         setLoading(true)
         setError(null)
 
-        const [settingsRes, channelsRes] = await Promise.all([
-          api.getGuildSettings(guildId),
-          api.getGuildChannels(guildId)
-        ])
+        const settingsRes = await api.getGuildSettings(guildId)
 
         if (settingsRes) {
           setAiFaq(settingsRes.ai_faq || "")
-          setChatEventChannel(settingsRes.chat_event_channel || "")
           setIsPremium(settingsRes.premium_type ? settingsRes.premium_type !== "free" : false)
-        }
-
-        if (channelsRes?.success) {
-          setChannels(channelsRes.data.filter((c: Channel) => c.type === 0))
         }
 
       } catch (err: any) {
@@ -81,7 +64,6 @@ export default function LunnaBrainPage({
     try {
       const payload = {
         ai_faq: aiFaq,
-        chat_event_channel: chatEventChannel || null
       }
 
       await api.updateGuildSettings(guildId, payload)
@@ -164,7 +146,7 @@ export default function LunnaBrainPage({
             {t("Cérebro da Lunna", "Lunna's Brain")}
           </h1>
           <p className="mt-2 text-muted-foreground text-sm max-w-xl font-medium">
-            {t("Customize o banco de dados e regras do chatbot de Inteligência Artificial para este servidor, além de configurar canais para eventos no chat.", "Set what the AI chatbot knows and the rules it follows in this server, and pick a channel for chat events.")}
+            {t("Customize o banco de dados e regras do chatbot de Inteligência Artificial para este servidor.", "Set what the AI chatbot knows and the rules it follows in this server.")}
           </p>
         </div>
 
@@ -213,48 +195,6 @@ export default function LunnaBrainPage({
                 <p className="text-xs font-semibold text-foreground">{t("Como usar no Discord?", "How to use it on Discord?")}</p>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   {t("Basta marcar a Lunna ou responder às mensagens dela. Ela usará as regras que você salvou acima para instruir as respostas dela aos usuários automaticamente!", "Just mention Lunna or reply to her messages. She uses what you saved above when answering, automatically!")}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Card 2: Chat Events Spawn Channel */}
-        <div className="rounded-[14px] border border-border bg-card p-6 md:p-8 space-y-6 shadow-sm relative overflow-hidden group hover:border-violet-500/30 transition-colors duration-300">
-          
-          <div className="space-y-1">
-            <h2 className="text-[15px] font-semibold text-foreground flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-violet-500/10 text-violet-400 text-sm font-semibold">2</span>
-              {t("Canais de Eventos de Chat (Boss & Baús)", "Chat event channel (bosses and chests)")}
-            </h2>
-            <p className="text-sm text-muted-foreground font-medium">
-              {t("Escolha o canal onde o bot irá spawnar batalhas de Boss interativas e Baús de Tesouro aleatórios periodicamente para movimentar e engajar os membros do chat!", "Pick the channel where the bot spawns boss battles and random treasure chests from time to time to liven up the chat!")}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-[2px] text-muted-foreground">{t("Canal de Spawns Ativos", "Spawn channel")}</label>
-              <select
-                value={chatEventChannel}
-                onChange={(e) => setChatEventChannel(e.target.value)}
-                className="w-full h-12 rounded-[10px] border border-border bg-secondary/20 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-violet-500/50"
-              >
-                <option value="" className="bg-card text-muted-foreground">{t("Desativado (Não spawnar eventos)", "Off (no events)")}</option>
-                {channels.map((ch) => (
-                  <option key={ch.id} value={ch.id} className="bg-card text-foreground">
-                    #{ch.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="rounded-[14px] bg-secondary/30 border border-border/40 p-4 flex items-start gap-3">
-              <Sparkles className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <p className="text-xs font-semibold text-foreground">{t("Eventos Disponíveis", "Available events")}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {t("Batalhas de chefe com cliques para bater no Boss e ganhar moedas, e Baús com cliques rápidos para coletar recompensas misteriosas.", "Boss battles where clicking hits the boss for coins, and chests where the fastest click grabs a mystery reward.")}
                 </p>
               </div>
             </div>
