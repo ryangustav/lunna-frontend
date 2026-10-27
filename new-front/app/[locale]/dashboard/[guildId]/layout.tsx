@@ -26,6 +26,7 @@ import {
   Bot,
   MailPlus,
   Gift,
+  PartyPopper,
 } from "lucide-react"
 import { useT } from "@/lib/use-t"
 
@@ -63,6 +64,7 @@ export default function GuildDashboardLayout({
         { name: "Tickets", href: `${base}/tickets`, icon: <Ticket />, badge: t("Novo", "New") },
         { name: t("Alertas de redes", "Social alerts"), href: `${base}/alertas`, icon: <BellRing />, badge: t("Novo", "New") },
         { name: t("Níveis", "Levels"), href: `${base}/levels`, icon: <Star />, badge: t("Novo", "New") },
+        { name: t("Eventos no chat", "Chat events"), href: `${base}/chat-events`, icon: <PartyPopper />, badge: t("Novo", "New") },
         { name: t("Contador de membros", "Member counter"), href: `${base}/member-counter`, icon: <Users /> },
         { name: t("Permissões", "Permissions"), href: `${base}/permissions`, icon: <Key /> },
         { name: t("Cérebro da Lunna", "Lunna's Brain"), href: `${base}/brain`, icon: <Brain /> },
