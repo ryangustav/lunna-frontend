@@ -1,7 +1,7 @@
 "use client"
 
 import React, { use, useEffect, useState, useRef } from "react"
-import { Save, AlertTriangle, MessageSquare, Image as ImageIcon, Type, Lock, Crown, Upload, Loader2, X, Send } from "lucide-react"
+import { Save, AlertTriangle, MessageSquare, Image as ImageIcon, Type, Lock, Crown, Upload, Loader2, X, Send, AlignLeft, AlignCenter, AlignRight } from "lucide-react"
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
@@ -61,6 +61,8 @@ export default function WelcomePage({
   const [welcomeBannerSubText, setWelcomeBannerSubText] = useState<string>("Have a great moment here!")
   const [welcomeBannerSubSize, setWelcomeBannerSubSize] = useState<number>(20)
   const [welcomeBannerFont, setWelcomeBannerFont] = useState<string>("Uni Sans")
+  const [welcomeBannerOverlay, setWelcomeBannerOverlay] = useState<number>(55)
+  const [welcomeBannerTextAlign, setWelcomeBannerTextAlign] = useState<"left" | "center" | "right">("center")
   const [activeTab, setActiveTab] = useState<string>("avatar")
   const [uploadingBg, setUploadingBg] = useState(false)
   const [testing, setTesting] = useState<"join" | "leave" | null>(null)
@@ -119,6 +121,8 @@ export default function WelcomePage({
           setWelcomeBannerSubText(settingsRes.welcome_banner_sub_text || "Have a great moment here!")
           setWelcomeBannerSubSize(settingsRes.welcome_banner_sub_size ?? 20)
           setWelcomeBannerFont(settingsRes.welcome_banner_font || "Uni Sans")
+          setWelcomeBannerOverlay(settingsRes.welcome_banner_overlay ?? 55)
+          setWelcomeBannerTextAlign(["left", "right"].includes(settingsRes.welcome_banner_text_align) ? settingsRes.welcome_banner_text_align : "center")
         }
 
         if (channelsRes.success) setChannels(channelsRes.data)
@@ -167,7 +171,9 @@ export default function WelcomePage({
         welcome_banner_sub_y: Number(welcomeBannerSubY),
         welcome_banner_sub_text: welcomeBannerSubText,
         welcome_banner_sub_size: Number(welcomeBannerSubSize),
-        welcome_banner_font: welcomeBannerFont
+        welcome_banner_font: welcomeBannerFont,
+        welcome_banner_overlay: Number(welcomeBannerOverlay),
+        welcome_banner_text_align: welcomeBannerTextAlign
   })
 
   // Save handler
@@ -357,8 +363,11 @@ export default function WelcomePage({
       } catch (err) {
         console.error("Failed to draw bg image on preview canvas", err)
       }
-      ctx.fillStyle = "rgba(15, 23, 42, 0.45)"
-      ctx.fillRect(0, 0, 800, 400)
+      // same dark layer the bot draws (WelcomeBannerGenerator)
+      if (welcomeBannerOverlay > 0) {
+        ctx.fillStyle = `rgba(22, 22, 26, ${welcomeBannerOverlay / 100})`
+        ctx.fillRect(0, 0, 800, 400)
+      }
     } else {
       const gradient = ctx.createLinearGradient(0, 0, 800, 400)
       gradient.addColorStop(0, '#0f172a')
@@ -432,9 +441,12 @@ export default function WelcomePage({
     ctx.restore()
 
     // Helper text renderer
+    // X is the texts' left edge, centre or right edge — same rule as the bot (WelcomeBannerGenerator)
     const drawText = (text: string, x: number, y: number, font: string, color: string, maxW: number) => {
+      if (welcomeBannerTextAlign === 'left') maxW = Math.max(40, 800 - x - 16)
+      if (welcomeBannerTextAlign === 'right') maxW = Math.max(40, x - 16)
       ctx.save()
-      ctx.textAlign = 'center'
+      ctx.textAlign = welcomeBannerTextAlign
       ctx.textBaseline = 'middle'
       ctx.font = font
       
@@ -505,7 +517,9 @@ export default function WelcomePage({
     welcomeBannerSubY,
     welcomeBannerSubText,
     welcomeBannerSubSize,
-    welcomeBannerFont
+    welcomeBannerFont,
+    welcomeBannerOverlay,
+    welcomeBannerTextAlign
   ])
 
   if (loading) {
@@ -833,6 +847,25 @@ export default function WelcomePage({
                     placeholder={t("ou cole um link direto: https://exemplo.com/fundo.png", "or paste a direct link: https://example.com/background.png")}
                     className="w-full h-11 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   />
+                  {welcomeBannerBackground && (
+                    <div className="space-y-1 pt-1">
+                      <div className="flex justify-between text-xs font-semibold text-foreground">
+                        <span>{t("Escurecer fundo", "Darken background")}</span>
+                        <span className="text-primary">{welcomeBannerOverlay}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        value={welcomeBannerOverlay}
+                        onChange={(e) => setWelcomeBannerOverlay(Number(e.target.value))}
+                        className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-[#7c3aed]"
+                      />
+                      <p className="text-[11px] text-muted-foreground">
+                        {t("Uma camada escura por cima da imagem para o texto ficar legível. Use 0% se a sua arte já tem espaço para o texto.", "A dark layer over the image so the text stays readable. Use 0% if your art already has room for the text.")}
+                      </p>
+                    </div>
+                  )}
                   <p className="text-xs text-muted-foreground">
                     {t("PNG, JPG, WebP ou GIF até 5 MB. Recortada para 800x400. Links de alguns sites podem ser bloqueados pelo próprio site; prefira enviar a imagem.", "PNG, JPG, WebP or GIF up to 5 MB, cropped to 800x400. Some sites block their images from being used elsewhere, so uploading is more reliable.")}
                   </p>
@@ -854,6 +887,34 @@ export default function WelcomePage({
                     <option value="More Sugar Regular">{t("Fofo Gamer (More Sugar)", "Cute gamer (More Sugar)")}</option>
                     <option value="sans-serif">{t("Clean Simples (Sans-serif)", "Simple clean (Sans-serif)")}</option>
                   </select>
+                </div>
+
+                {/* Text alignment: X of each text is its left edge, centre or right edge */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <AlignCenter className="h-4 w-4 text-indigo-400" />
+                    <span>{t("Alinhamento do Texto", "Text alignment")}</span>
+                  </label>
+                  <div className="grid grid-cols-3 gap-1 bg-secondary/30 p-1 rounded-[10px]">
+                    {([
+                      ["left", AlignLeft, t("Esquerda", "Left")],
+                      ["center", AlignCenter, t("Meio", "Center")],
+                      ["right", AlignRight, t("Direita", "Right")],
+                    ] as const).map(([value, Icon, label]) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setWelcomeBannerTextAlign(value)}
+                        className={`flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all ${welcomeBannerTextAlign === value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    {t("Vale para o título, o nome e o subtítulo. A posição X de cada um passa a ser a borda escolhida do texto.", "Applies to the title, name and subtitle. Each one's X position becomes that edge of the text.")}
+                  </p>
                 </div>
 
                 {/* Tab layout for customization categories */}
