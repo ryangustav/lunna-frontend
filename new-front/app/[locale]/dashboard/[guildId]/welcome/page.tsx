@@ -1,7 +1,7 @@
 "use client"
 
 import React, { use, useEffect, useState, useRef } from "react"
-import { Save, AlertTriangle, MessageSquare, Image as ImageIcon, Type, Lock, Crown } from "lucide-react"
+import { Save, AlertTriangle, MessageSquare, Image as ImageIcon, Type, Lock, Crown, Upload, Loader2, X } from "lucide-react"
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
@@ -34,6 +34,9 @@ export default function WelcomePage({
   const [welcomeChannel, setWelcomeChannel] = useState<string>("")
   const [welcomeMsg, setWelcomeMsg] = useState<string>("Bem-vindo {user_mention} ao servidor!")
   const [welcomeDeleteTime, setWelcomeDeleteTime] = useState<number>(0)
+  // vanity URL / invite not found ("" = Lunna's default text)
+  const [welcomeMsgVanity, setWelcomeMsgVanity] = useState<string>("")
+  const [welcomeMsgUnknown, setWelcomeMsgUnknown] = useState<string>("")
 
   const [leaveChannel, setLeaveChannel] = useState<string>("")
   const [leaveMsg, setLeaveMsg] = useState<string>("Adeus {user_mention}!")
@@ -58,6 +61,8 @@ export default function WelcomePage({
   const [welcomeBannerSubSize, setWelcomeBannerSubSize] = useState<number>(20)
   const [welcomeBannerFont, setWelcomeBannerFont] = useState<string>("Uni Sans")
   const [activeTab, setActiveTab] = useState<string>("avatar")
+  const [uploadingBg, setUploadingBg] = useState(false)
+  const bgFileInputRef = useRef<HTMLInputElement>(null)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [bgImageObj, setBgImageObj] = useState<HTMLImageElement | null>(null)
@@ -85,6 +90,8 @@ export default function WelcomePage({
           const wm = settingsRes.welcome_msg !== null && settingsRes.welcome_msg !== undefined ? settingsRes.welcome_msg : "Bem-vindo {user_mention} ao servidor!"
           setWelcomeMsg(wm === "Bem-vindo {user_mention} ao servidor!" ? t(wm, "Welcome {user_mention} to the server!") : wm)
           setWelcomeDeleteTime(settingsRes.welcome_delete_time || 0)
+          setWelcomeMsgVanity(settingsRes.welcome_msg_vanity || "")
+          setWelcomeMsgUnknown(settingsRes.welcome_msg_unknown || "")
 
           setLeaveChannel(settingsRes.leave_channel || "")
           const lm = settingsRes.leave_msg !== null && settingsRes.leave_msg !== undefined ? settingsRes.leave_msg : "Adeus {user_mention}!"
@@ -139,6 +146,8 @@ export default function WelcomePage({
         welcome_channel: welcomeChannel || null,
         welcome_msg: welcomeMsg, // Can be empty to disable text and keep only image
         welcome_delete_time: Number(welcomeDeleteTime),
+        welcome_msg_vanity: welcomeMsgVanity,
+        welcome_msg_unknown: welcomeMsgUnknown,
         leave_channel: leaveChannel || null,
         leave_msg: leaveMsg,
         leave_delete_time: Number(leaveDeleteTime),
@@ -178,6 +187,39 @@ export default function WelcomePage({
       })
     } finally {
       setSaving(false)
+    }
+  }
+
+  // Uploads the background to the CDN; the backend saves it right away and returns the URL
+  const handleBackgroundFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = "" // lets the same file be picked again
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: t("Imagem muito grande", "Image too large"),
+        description: t("A imagem passa de 5 MB. Envie um arquivo menor.", "The image is over 5 MB. Upload a smaller file."),
+        variant: "destructive"
+      })
+      return
+    }
+
+    setUploadingBg(true)
+    try {
+      const res = await api.uploadWelcomeBackground(guildId, file)
+      setWelcomeBannerBackground(res.url)
+      toast({
+        title: t("Imagem enviada!", "Image uploaded!"),
+        description: t("O fundo do banner foi atualizado.", "The banner background was updated."),
+      })
+    } catch (err: any) {
+      toast({
+        title: t("Erro ao enviar imagem", "Couldn't upload the image"),
+        description: err.message || t("Tente novamente com outro arquivo.", "Try again with another file."),
+        variant: "destructive"
+      })
+    } finally {
+      setUploadingBg(false)
     }
   }
 
@@ -369,6 +411,7 @@ export default function WelcomePage({
         .replace(/{server_name}/g, t("Servidor Demo", "Demo Server"))
         .replace(/{guild_name}/g, t("Servidor Demo", "Demo Server"))
         .replace(/{total_members}/g, "123")
+        .replace(/{member_count_ordinal}/g, "123rd")
         .replace(/{member_count}/g, "123")
         .replace(/{inviter_mention}/g, t("@Divulgador", "@Inviter"))
         .replace(/{inviter_name}/g, t("Divulgador", "Inviter"))
@@ -389,9 +432,13 @@ export default function WelcomePage({
     // 4. Draw Username
     drawText("Novo membro", welcomeBannerNameX, welcomeBannerNameY, `bold ${welcomeBannerNameSize}px "${fontName}"`, '#ffffff', 700)
 
-    // 5. Draw Subtitle
-    const subText = replaceMockPlaceholders(welcomeBannerSubText)
-    drawText(subText, welcomeBannerSubX, welcomeBannerSubY, `500 ${welcomeBannerSubSize}px "${fontName}"`, '#94a3b8', 700)
+    // 5. Draw Subtitle (one line per line break, the block centred on Y — same as the bot)
+    const subLines = replaceMockPlaceholders(welcomeBannerSubText).split(/\r?\n/)
+    const subLineHeight = welcomeBannerSubSize * 1.25
+    subLines.forEach((line, i) => {
+      const y = welcomeBannerSubY + (i - (subLines.length - 1) / 2) * subLineHeight
+      drawText(line, welcomeBannerSubX, y, `500 ${welcomeBannerSubSize}px "${fontName}"`, '#94a3b8', 700)
+    })
 
   }, [
     welcomeBannerEnabled,
@@ -574,6 +621,45 @@ export default function WelcomePage({
               </div>
             )}
           </div>
+
+          {/* Joins without a known inviter */}
+          <div className="space-y-4 rounded-[14px] border border-border/60 bg-secondary/10 p-4">
+            <div className="space-y-1">
+              <h3 className="text-sm font-semibold text-foreground">{t("Quando não há convite conhecido", "When there's no known invite")}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {t(
+                  "Enviadas no lugar da mensagem acima quando o membro entra pela URL personalizada ou quando não foi possível descobrir quem convidou. Deixe vazio para usar o texto padrão da Lunna (só quando a mensagem acima fala do convite; senão ela é mantida). Usam as mesmas variáveis.",
+                  "Sent instead of the message above when the member joins through the vanity URL or when we couldn't find who invited them. Leave empty for Lunna's default text (only when the message above mentions the invite; otherwise it's kept). Same variables."
+                )}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-foreground">{t("Entrou pela URL personalizada", "Joined through the vanity URL")}</label>
+              <textarea
+                value={welcomeMsgVanity}
+                onChange={(e) => setWelcomeMsgVanity(e.target.value)}
+                disabled={!welcomeChannel}
+                rows={2}
+                maxLength={2000}
+                placeholder={t("Bem-vindo {user_mention} ao servidor! Você entrou pela URL personalizada.", "Welcome {user_mention} to the server! You joined through the vanity URL.")}
+                className="w-full rounded-[10px] border border-border bg-secondary/30 px-3 py-2 text-sm font-medium text-foreground outline-none transition focus:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed resize-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-foreground">{t("Convite desconhecido", "Unknown invite")}</label>
+              <textarea
+                value={welcomeMsgUnknown}
+                onChange={(e) => setWelcomeMsgUnknown(e.target.value)}
+                disabled={!welcomeChannel}
+                rows={2}
+                maxLength={2000}
+                placeholder={t("Bem-vindo {user_mention} ao servidor! Não foi possível descobrir quem te convidou.", "Welcome {user_mention} to the server! We couldn't find out who invited you.")}
+                className="w-full rounded-[10px] border border-border bg-secondary/30 px-3 py-2 text-sm font-medium text-foreground outline-none transition focus:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed resize-none"
+              />
+            </div>
+          </div>
         </div>
 
         {/* 2. Banner de Boas-vindas por Imagem */}
@@ -633,15 +719,49 @@ export default function WelcomePage({
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <ImageIcon className="h-4 w-4 text-indigo-400" />
-                    <span>{t("URL da Imagem de Fundo (Opcional)", "Background image URL (optional)")}</span>
+                    <span>{t("Imagem de Fundo (Opcional)", "Background image (optional)")}</span>
                   </label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uploadingBg}
+                      onClick={() => bgFileInputRef.current?.click()}
+                      className="h-11 shrink-0 rounded-[10px] text-sm font-semibold"
+                    >
+                      {uploadingBg ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                      {uploadingBg ? t("Enviando...", "Uploading...") : t("Enviar imagem", "Upload image")}
+                    </Button>
+                    {welcomeBannerBackground && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={uploadingBg}
+                        onClick={() => setWelcomeBannerBackground("")}
+                        title={t("Remover fundo", "Remove background")}
+                        className="h-11 w-11 shrink-0 rounded-[10px] p-0"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <input
+                      ref={bgFileInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/gif"
+                      onChange={handleBackgroundFile}
+                      className="hidden"
+                    />
+                  </div>
                   <input
                     type="url"
                     value={welcomeBannerBackground}
                     onChange={(e) => setWelcomeBannerBackground(e.target.value)}
-                    placeholder={t("https://exemplo.com/fundo.png (deixe vazio para gradiente premium)", "https://example.com/background.png (leave empty for the premium gradient)")}
+                    placeholder={t("ou cole um link direto: https://exemplo.com/fundo.png", "or paste a direct link: https://example.com/background.png")}
                     className="w-full h-11 rounded-[10px] border border-border bg-secondary/30 px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    {t("PNG, JPG, WebP ou GIF até 5 MB. Recortada para 800x400. Links de alguns sites podem ser bloqueados pelo próprio site; prefira enviar a imagem.", "PNG, JPG, WebP or GIF up to 5 MB, cropped to 800x400. Some sites block their images from being used elsewhere, so uploading is more reliable.")}
+                  </p>
                 </div>
 
                 {/* Font selector settings */}
@@ -848,13 +968,14 @@ export default function WelcomePage({
                     <div className="space-y-4 animate-in fade-in duration-300">
                       <div className="space-y-2">
                         <label className="text-xs font-semibold text-foreground">{t("Texto do Subtítulo", "Subtitle text")}</label>
-                        <input
-                          type="text"
+                        <textarea
                           value={welcomeBannerSubText}
                           onChange={(e) => setWelcomeBannerSubText(e.target.value)}
                           placeholder="Have a great moment here!"
-                          className="w-full h-10 rounded-lg border border-border bg-secondary/20 px-3 text-xs font-semibold text-foreground outline-none transition focus:border-primary/50"
+                          rows={3}
+                          className="w-full rounded-lg border border-border bg-secondary/20 px-3 py-2 text-xs font-semibold text-foreground outline-none transition focus:border-primary/50 resize-none"
                         />
+                        <p className="text-[11px] text-muted-foreground">{t("Aperte Enter para quebrar a linha.", "Press Enter for a new line.")}</p>
                       </div>
 
                       <div className="space-y-1">

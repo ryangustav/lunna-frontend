@@ -24,7 +24,8 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
     headers.set("Authorization", `Bearer ${token}`)
   }
   // Only when there is a body: Fastify rejects an empty body declared as JSON (e.g. DELETE)
-  if (options.body !== undefined) headers.set("Content-Type", "application/json")
+  // FormData sets its own multipart Content-Type (with the boundary)
+  if (options.body !== undefined && !(options.body instanceof FormData)) headers.set("Content-Type", "application/json")
 
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
@@ -66,6 +67,11 @@ export const api = {
     method: "PATCH",
     body: JSON.stringify(data)
   }),
+  uploadWelcomeBackground: (guildId: string, file: File) => {
+    const form = new FormData()
+    form.append("file", file)
+    return apiFetch(`/guilds/${guildId}/welcome-banner/background`, { method: "POST", body: form })
+  },
   getGuildChannels: (guildId: string) => apiFetch(`/guilds/${guildId}/channels`),
   getGuildRoles: (guildId: string) => apiFetch(`/guilds/${guildId}/roles`),
   getRolePanels: (guildId: string) => apiFetch(`/guilds/${guildId}/role-panels`),
