@@ -1,11 +1,12 @@
 "use client"
 
 import React, { use, useEffect, useState, useRef } from "react"
-import { Save, AlertTriangle, MessageSquare, Image as ImageIcon, Type, Lock, Crown, Upload, Loader2, X } from "lucide-react"
+import { Save, AlertTriangle, MessageSquare, Image as ImageIcon, Type, Lock, Crown, Upload, Loader2, X, Send } from "lucide-react"
 import { api } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { useT } from "@/lib/use-t"
+import { serverText, pageLang } from "@/lib/server-text"
 
 interface Channel {
   id: string
@@ -62,6 +63,8 @@ export default function WelcomePage({
   const [welcomeBannerFont, setWelcomeBannerFont] = useState<string>("Uni Sans")
   const [activeTab, setActiveTab] = useState<string>("avatar")
   const [uploadingBg, setUploadingBg] = useState(false)
+  const [testing, setTesting] = useState<"join" | "leave" | null>(null)
+  const [testScenario, setTestScenario] = useState<"invite" | "vanity" | "unknown">("invite")
   const bgFileInputRef = useRef<HTMLInputElement>(null)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -136,13 +139,8 @@ export default function WelcomePage({
     loadData()
   }, [guildId])
 
-  // Save handler
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSaving(true)
-
-    try {
-      const payload = {
+  // Everything this page edits: saved by handleSave, and sent unsaved with a test message
+  const settingsPayload = () => ({
         welcome_channel: welcomeChannel || null,
         welcome_msg: welcomeMsg, // Can be empty to disable text and keep only image
         welcome_delete_time: Number(welcomeDeleteTime),
@@ -170,9 +168,15 @@ export default function WelcomePage({
         welcome_banner_sub_text: welcomeBannerSubText,
         welcome_banner_sub_size: Number(welcomeBannerSubSize),
         welcome_banner_font: welcomeBannerFont
-      }
+  })
 
-      await api.updateGuildSettings(guildId, payload)
+  // Save handler
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSaving(true)
+
+    try {
+      await api.updateGuildSettings(guildId, settingsPayload())
 
       toast({
         title: t("Sucesso!", "Saved!"),
@@ -187,6 +191,49 @@ export default function WelcomePage({
       })
     } finally {
       setSaving(false)
+    }
+  }
+
+  // Test message: the bot posts it in the channel as you joining/leaving, using the values on screen (even unsaved)
+  const handleTest = async (kind: "join" | "leave") => {
+    setTesting(kind)
+    try {
+      const { id } = await api.sendWelcomeTest(guildId, { kind, scenario: testScenario, overrides: settingsPayload() })
+
+      // the bot checks for tests every few seconds
+      const deadline = Date.now() + 25000
+      while (Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 1500))
+        const res = await api.getWelcomeTest(guildId, id)
+        if (res.status === "done") {
+          toast({
+            title: t("Mensagem de teste enviada!", "Test message sent!"),
+            description: t("Confira o canal configurado no Discord.", "Check the configured channel on Discord."),
+          })
+          return
+        }
+        if (res.status === "error") {
+          toast({
+            title: t("Não foi possível enviar o teste", "Couldn't send the test"),
+            description: serverText(res.error || "Ocorreu um erro ao enviar a mensagem de teste.", pageLang()),
+            variant: "destructive"
+          })
+          return
+        }
+      }
+      toast({
+        title: t("A Lunna não respondeu", "Lunna didn't answer"),
+        description: t("Ela pode estar reiniciando. Tente de novo em alguns instantes.", "She may be restarting. Try again in a moment."),
+        variant: "destructive"
+      })
+    } catch (err: any) {
+      toast({
+        title: t("Não foi possível enviar o teste", "Couldn't send the test"),
+        description: err.message || t("Tente novamente.", "Try again."),
+        variant: "destructive"
+      })
+    } finally {
+      setTesting(null)
     }
   }
 
@@ -660,6 +707,33 @@ export default function WelcomePage({
               />
             </div>
           </div>
+
+          {/* Test message */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <select
+              value={testScenario}
+              onChange={(e) => setTestScenario(e.target.value as "invite" | "vanity" | "unknown")}
+              disabled={!welcomeChannel || testing !== null}
+              className="h-10 rounded-[10px] border border-border bg-secondary/30 px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50 disabled:opacity-40"
+            >
+              <option value="invite" className="bg-card text-foreground">{t("Convite normal (você como convidador)", "Normal invite (you as the inviter)")}</option>
+              <option value="vanity" className="bg-card text-foreground">{t("Entrou pela URL personalizada", "Joined through the vanity URL")}</option>
+              <option value="unknown" className="bg-card text-foreground">{t("Convite desconhecido", "Unknown invite")}</option>
+            </select>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!welcomeChannel || testing !== null}
+              onClick={() => handleTest("join")}
+              className="h-10 rounded-full text-sm font-semibold"
+            >
+              {testing === "join" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+              {testing === "join" ? t("Enviando teste...", "Sending test...") : t("Enviar mensagem de teste", "Send test message")}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground -mt-3">
+            {t("A Lunna envia no canal escolhido como se você tivesse acabado de entrar, com o que está na tela (mesmo sem salvar), incluindo o banner.", "Lunna posts it in the chosen channel as if you had just joined, using what's on screen (even unsaved), banner included.")}
+          </p>
         </div>
 
         {/* 2. Banner de Boas-vindas por Imagem */}
@@ -1110,6 +1184,23 @@ export default function WelcomePage({
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Test message */}
+          <div className="space-y-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!leaveChannel || testing !== null}
+              onClick={() => handleTest("leave")}
+              className="h-10 rounded-full text-sm font-semibold"
+            >
+              {testing === "leave" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+              {testing === "leave" ? t("Enviando teste...", "Sending test...") : t("Enviar mensagem de teste", "Send test message")}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              {t("A Lunna envia no canal escolhido como se você tivesse saído, com o que está na tela (mesmo sem salvar). Nenhum convite é contado.", "Lunna posts it in the chosen channel as if you had left, using what's on screen (even unsaved). No invite is counted.")}
+            </p>
           </div>
         </div>
       </div>
