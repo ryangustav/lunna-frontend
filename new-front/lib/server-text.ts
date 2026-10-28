@@ -25,6 +25,21 @@ const PATTERNS: [string, string][] = [
   ["Não foi possível falar com o Discord para enviar o aviso. Tente salvar de novo.", "Couldn't reach Discord to post the notice. Try saving again."],
   ["O backend está sem o token do bot; o aviso não pôde ser enviado.", "The backend has no bot token, so the notice couldn't be posted."],
 
+  // welcome page: background upload and test message
+  ["O envio de imagens está indisponível no momento.", "Image uploads are unavailable right now."],
+  ["Nenhuma imagem enviada.", "No image was uploaded."],
+  ["A imagem passa de 5 MB. Envie um arquivo menor.", "The image is over 5 MB. Upload a smaller file."],
+  ["Formato não suportado. Envie PNG, JPG, WebP ou GIF.", "Unsupported format. Upload a PNG, JPG, WebP or GIF."],
+  ["Não foi possível ler a imagem. Envie um arquivo PNG, JPG, WebP ou GIF válido.", "Couldn't read the image. Upload a valid PNG, JPG, WebP or GIF."],
+  ["Aguarde alguns segundos antes de testar de novo.", "Wait a few seconds before testing again."],
+  ["Teste não encontrado.", "Test not found."],
+  ["Você precisa estar no servidor para receber a mensagem de teste.", "You need to be in the server to get the test message."],
+  ["Escolha um canal de envio antes de testar.", "Pick a channel before testing."],
+  ["A Lunna não tem permissão para ver ou enviar mensagens nesse canal (Ver canal e Enviar mensagens).", "Lunna can't see or send messages in that channel (View Channel and Send Messages)."],
+  ["A Lunna não tem permissão para enviar arquivos nesse canal, então o banner não pode ser enviado (Anexar arquivos).", "Lunna can't send files in that channel, so the banner can't be posted (Attach Files)."],
+  ["Não há nada para enviar: a mensagem está vazia e o banner está desativado.", "There's nothing to send: the message is empty and the banner is off."],
+  ["O Discord recusou a mensagem. Verifique as permissões da Lunna no canal.", "Discord refused the message. Check Lunna's permissions in the channel."],
+
   // role panels
   ["Painel não encontrado.", "Panel not found."],
   ["O painel precisa de um título.", "The panel needs a title."],

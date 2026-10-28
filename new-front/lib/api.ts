@@ -72,6 +72,11 @@ export const api = {
     form.append("file", file)
     return apiFetch(`/guilds/${guildId}/welcome-banner/background`, { method: "POST", body: form })
   },
+  sendWelcomeTest: (guildId: string, data: { kind: "join" | "leave"; scenario?: string; overrides: any }) => apiFetch(`/guilds/${guildId}/welcome-test`, {
+    method: "POST",
+    body: JSON.stringify(data)
+  }),
+  getWelcomeTest: (guildId: string, testId: string) => apiFetch(`/guilds/${guildId}/welcome-test/${testId}`),
   getGuildChannels: (guildId: string) => apiFetch(`/guilds/${guildId}/channels`),
   getGuildRoles: (guildId: string) => apiFetch(`/guilds/${guildId}/roles`),
   getRolePanels: (guildId: string) => apiFetch(`/guilds/${guildId}/role-panels`),
