@@ -63,6 +63,10 @@ export default function WelcomePage({
   const [welcomeBannerFont, setWelcomeBannerFont] = useState<string>("Uni Sans")
   const [welcomeBannerOverlay, setWelcomeBannerOverlay] = useState<number>(55)
   const [welcomeBannerTextAlign, setWelcomeBannerTextAlign] = useState<"left" | "center" | "right">("center")
+  // text colours: defaults are the bot's theme (cardTheme COLORS.muted / COLORS.text)
+  const [welcomeBannerTitleColor, setWelcomeBannerTitleColor] = useState<string>("#94a1b2")
+  const [welcomeBannerNameColor, setWelcomeBannerNameColor] = useState<string>("#fffffe")
+  const [welcomeBannerSubColor, setWelcomeBannerSubColor] = useState<string>("#94a1b2")
   const [activeTab, setActiveTab] = useState<string>("avatar")
   const [uploadingBg, setUploadingBg] = useState(false)
   const [testing, setTesting] = useState<"join" | "leave" | null>(null)
@@ -123,6 +127,9 @@ export default function WelcomePage({
           setWelcomeBannerFont(settingsRes.welcome_banner_font || "Uni Sans")
           setWelcomeBannerOverlay(settingsRes.welcome_banner_overlay ?? 55)
           setWelcomeBannerTextAlign(["left", "right"].includes(settingsRes.welcome_banner_text_align) ? settingsRes.welcome_banner_text_align : "center")
+          setWelcomeBannerTitleColor(settingsRes.welcome_banner_title_color || "#94a1b2")
+          setWelcomeBannerNameColor(settingsRes.welcome_banner_name_color || "#fffffe")
+          setWelcomeBannerSubColor(settingsRes.welcome_banner_sub_color || "#94a1b2")
         }
 
         if (channelsRes.success) setChannels(channelsRes.data)
@@ -173,7 +180,10 @@ export default function WelcomePage({
         welcome_banner_sub_size: Number(welcomeBannerSubSize),
         welcome_banner_font: welcomeBannerFont,
         welcome_banner_overlay: Number(welcomeBannerOverlay),
-        welcome_banner_text_align: welcomeBannerTextAlign
+        welcome_banner_text_align: welcomeBannerTextAlign,
+        welcome_banner_title_color: welcomeBannerTitleColor,
+        welcome_banner_name_color: welcomeBannerNameColor,
+        welcome_banner_sub_color: welcomeBannerSubColor
   })
 
   // Save handler
@@ -486,17 +496,17 @@ export default function WelcomePage({
 
     // 3. Draw Title
     const titleText = replaceMockPlaceholders(welcomeBannerTitleText)
-    drawText(titleText, welcomeBannerTitleX, welcomeBannerTitleY, `bold ${welcomeBannerTitleSize}px "${fontName}"`, '#e2e8f0', 700)
+    drawText(titleText, welcomeBannerTitleX, welcomeBannerTitleY, `bold ${welcomeBannerTitleSize}px "${fontName}"`, welcomeBannerTitleColor, 700)
 
     // 4. Draw Username
-    drawText("Novo membro", welcomeBannerNameX, welcomeBannerNameY, `bold ${welcomeBannerNameSize}px "${fontName}"`, '#ffffff', 700)
+    drawText("Novo membro", welcomeBannerNameX, welcomeBannerNameY, `bold ${welcomeBannerNameSize}px "${fontName}"`, welcomeBannerNameColor, 700)
 
     // 5. Draw Subtitle (one line per line break, the block centred on Y — same as the bot)
     const subLines = replaceMockPlaceholders(welcomeBannerSubText).split(/\r?\n/)
     const subLineHeight = welcomeBannerSubSize * 1.25
     subLines.forEach((line, i) => {
       const y = welcomeBannerSubY + (i - (subLines.length - 1) / 2) * subLineHeight
-      drawText(line, welcomeBannerSubX, y, `500 ${welcomeBannerSubSize}px "${fontName}"`, '#94a3b8', 700)
+      drawText(line, welcomeBannerSubX, y, `500 ${welcomeBannerSubSize}px "${fontName}"`, welcomeBannerSubColor, 700)
     })
 
   }, [
@@ -519,7 +529,10 @@ export default function WelcomePage({
     welcomeBannerSubSize,
     welcomeBannerFont,
     welcomeBannerOverlay,
-    welcomeBannerTextAlign
+    welcomeBannerTextAlign,
+    welcomeBannerTitleColor,
+    welcomeBannerNameColor,
+    welcomeBannerSubColor
   ])
 
   if (loading) {
@@ -799,6 +812,44 @@ export default function WelcomePage({
                 <p className="text-xs text-muted-foreground text-center">
                   * A imagem real gerada pelo bot usará a foto de perfil do novo membro.
                 </p>
+
+                {/* Text colours, one per text */}
+                <div className="space-y-3 rounded-[14px] border border-border/60 bg-secondary/10 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-foreground">{t("Cores do Texto", "Text colors")}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setWelcomeBannerTitleColor("#94a1b2")
+                        setWelcomeBannerNameColor("#fffffe")
+                        setWelcomeBannerSubColor("#94a1b2")
+                      }}
+                      className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {t("Restaurar padrão", "Reset to default")}
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {([
+                      [t("Título", "Title"), welcomeBannerTitleColor, setWelcomeBannerTitleColor],
+                      [t("Nome", "Name"), welcomeBannerNameColor, setWelcomeBannerNameColor],
+                      [t("Subtítulo", "Subtitle"), welcomeBannerSubColor, setWelcomeBannerSubColor],
+                    ] as const).map(([label, value, setter]) => (
+                      <label key={label} className="flex items-center gap-3 rounded-[10px] border border-border bg-secondary/30 px-3 py-2 cursor-pointer">
+                        <input
+                          type="color"
+                          value={value}
+                          onChange={(e) => setter(e.target.value)}
+                          className="h-8 w-8 shrink-0 cursor-pointer rounded-md border-0 bg-transparent p-0"
+                        />
+                        <span className="min-w-0">
+                          <span className="block text-xs font-semibold text-foreground">{label}</span>
+                          <span className="block text-[11px] font-mono uppercase text-muted-foreground">{value}</span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Controls Column */}
