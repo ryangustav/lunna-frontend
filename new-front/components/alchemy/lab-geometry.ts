@@ -163,8 +163,8 @@ export function geometry(catalog: Catalog) {
       const def = itemDef(f.item_id)!
       const [fa, fb] = footprint(def, f.flip)
       const [cx, cy] = point((f.i as number) + fa / 2, (f.j as number) + fb / 2)
-      const front = point((f.i as number) + fa, (f.j as number) + fb)[1]
-      return { r: rect(f, def, cx, cy + (front - cy) * 0.55, !!f.flip), depth: (f.i as number) + fa + (f.j as number) + fb, tie: (f.i as number) + fa }
+      // the feet stand on the centre of the footprint: the base of the sprite is the ground point
+      return { r: rect(f, def, cx, cy, !!f.flip), depth: (f.i as number) + fa + (f.j as number) + fb, tie: (f.i as number) + fa }
     }).sort((a, b) => a.depth - b.depth || a.tie - b.tie)
     for (const { r } of floorItems) { out.push(r); children(r) }
     return out
