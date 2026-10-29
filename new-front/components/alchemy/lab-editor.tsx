@@ -8,9 +8,11 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
-  BookOpen, Coins, Dice5, FlaskConical, Hourglass, Loader2, Lock, MousePointerClick, PackageOpen,
-  RotateCw, Save, ShoppingBag, Sparkles, Undo2, X,
+  AlertCircle, BookOpen, Check, CheckCircle2, Coins, Dice5, FlaskConical, Hourglass, Lock, PackageOpen,
+  RotateCw, Save, ShoppingBag, Undo2, X,
 } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { ErrorState, LoadingState, Pill, PrimaryButton, SecondaryButton } from "@/components/dashboard/primitives"
 import { api, isUnauthorized } from "@/lib/api"
 import { LOGIN_URL } from "@/lib/site"
 import { useNumberLocale, useT } from "@/lib/use-t"
@@ -382,7 +384,7 @@ export default function LabEditor() {
         const pulse = 0.5 + 0.5 * Math.sin(t * 4)
         if (dragDef.kind !== "wall") {
           ctx.lineWidth = 1
-          ctx.strokeStyle = "rgba(196, 167, 255, 0.16)"
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.12)"
           for (let i = 0; i < geo.N; i++) for (let j = 0; j < geo.N; j++) {
             if (!geo.tileOk(i, j)) continue
             poly(geo.footprintPoly(i, j, 1, 1))
@@ -391,13 +393,13 @@ export default function LabEditor() {
         }
         if (dragDef.kind === "wall") {
           for (const c of geo.wallCandidates(dragDef.span || 1)) {
-            ctx.fillStyle = `rgba(196, 167, 255, ${0.18 + pulse * 0.2})`
+            ctx.fillStyle = `rgba(124, 58, 237, ${0.35 + pulse * 0.25})`
             ctx.beginPath(); ctx.ellipse(c.x, c.y, 26, 9, 0, 0, Math.PI * 2); ctx.fill()
           }
         }
         if (dragDef.kind === "small") {
           for (const s of surfaceSpots(drag.uid)) {
-            ctx.fillStyle = `rgba(253, 224, 71, ${0.35 + pulse * 0.4})`
+            ctx.fillStyle = `rgba(124, 58, 237, ${0.55 + pulse * 0.35})`
             ctx.beginPath(); ctx.arc(s.x, s.y, 6, 0, Math.PI * 2); ctx.fill()
           }
         }
@@ -427,8 +429,8 @@ export default function LabEditor() {
         }
         ctx.save()
         if (isDragged) ctx.globalAlpha = drag!.target?.valid ? 0.88 : 0.5
-        const glow = selectedRef.current === d.entry.uid ? "rgba(192, 132, 252, 0.95)" : hover === d.entry.uid || isDragged ? "rgba(255, 255, 255, 0.55)" : null
-        if (glow) { ctx.shadowColor = glow; ctx.shadowBlur = selectedRef.current === d.entry.uid ? 18 + Math.sin(t * 3) * 6 : 14 }
+        const glow = selectedRef.current === d.entry.uid ? "rgba(124, 58, 237, 0.95)" : hover === d.entry.uid || isDragged ? "rgba(255, 255, 255, 0.45)" : null
+        if (glow) { ctx.shadowColor = glow; ctx.shadowBlur = selectedRef.current === d.entry.uid ? 16 : 10 }
         if (d.flip) { ctx.translate(d.x + d.w, d.y); ctx.scale(-1, 1); ctx.drawImage(img, 0, 0, d.w, d.h) }
         else ctx.drawImage(img, d.x, d.y, d.w, d.h)
         ctx.restore()
@@ -450,7 +452,7 @@ export default function LabEditor() {
         m.x += m.vx + Math.sin(t + m.ph) * 0.08
         m.y += m.vy
         if (m.y < -5) { m.y = H + 5; m.x = Math.random() * W }
-        ctx.fillStyle = `rgba(233, 213, 255, ${0.18 + 0.22 * (0.5 + 0.5 * Math.sin(t * 2 + m.ph))})`
+        ctx.fillStyle = `rgba(233, 213, 255, ${0.08 + 0.12 * (0.5 + 0.5 * Math.sin(t * 2 + m.ph))})`
         ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2); ctx.fill()
       }
 
@@ -459,15 +461,13 @@ export default function LabEditor() {
         const d = list.find((x) => x.entry.uid === hover)
         if (d) {
           const label = L(d.def.name, d.def.name_en)
-          ctx.font = "600 17px ui-sans-serif, system-ui, sans-serif"
+          ctx.font = "600 16px ui-sans-serif, system-ui, sans-serif"
           const tw = ctx.measureText(label).width
-          const x = Math.min(W - tw - 30, Math.max(8, d.x + d.w / 2 - tw / 2 - 12)), y = Math.max(8, d.y - 38)
-          ctx.fillStyle = "rgba(20, 12, 32, 0.88)"
-          ctx.strokeStyle = RARITY[d.def.rarity]?.color || "#a1a1aa"
-          ctx.lineWidth = 1.5
-          ctx.beginPath(); ctx.roundRect(x, y, tw + 24, 30, 8); ctx.fill(); ctx.stroke()
-          ctx.fillStyle = "#f5f3ff"
-          ctx.fillText(label, x + 12, y + 21)
+          const x = Math.min(W - tw - 30, Math.max(8, d.x + d.w / 2 - tw / 2 - 12)), y = Math.max(8, d.y - 36)
+          ctx.fillStyle = "rgba(15, 12, 20, 0.85)"
+          ctx.beginPath(); ctx.roundRect(x, y, tw + 24, 28, 14); ctx.fill()
+          ctx.fillStyle = "#ffffff"
+          ctx.fillText(label, x + 12, y + 19)
         }
       }
       raf = requestAnimationFrame(draw)
@@ -527,28 +527,28 @@ export default function LabEditor() {
 
   // ─── states before the editor ────────────────────────────────────────────
 
-  if (status === "loading") {
-    return (
-      <div className="flex aspect-[1376/768] w-full items-center justify-center rounded-3xl border border-purple-500/20 bg-[#120b1c]">
-        <div className="flex flex-col items-center gap-3 text-purple-200/80">
-          <FlaskConical className="h-10 w-10 animate-bounce text-purple-400" />
-          <span className="text-sm font-bold uppercase tracking-widest">{L("Descendo ao porão…", "Going down to the cellar…")}</span>
-        </div>
-      </div>
-    )
-  }
+  if (status === "loading") return <LoadingState />
+  if (status === "error") return <ErrorState message={L("Algo deu errado ao carregar o laboratório.", "Something went wrong loading the lab.")} onRetry={load} />
   if (status !== "ready" || !geo || !catalog || !lab) {
-    const content = {
-      anon: { title: L("Entre para decorar seu laboratório", "Log in to decorate your lab"), text: L("Conecte sua conta do Discord para abrir o porão de alquimia.", "Connect your Discord account to open the alchemy cellar."), action: <a href={LOGIN_URL} className="rounded-2xl bg-[#7c3aed] px-6 py-3 font-bold text-white shadow-lg shadow-purple-500/20 transition-transform hover:scale-[1.03]">{L("Entrar com Discord", "Log in with Discord")}</a> },
-      nolab: { title: L("Seu porão ainda está trancado", "Your cellar is still locked"), text: L("Use /alquimia no Discord uma vez para receber seu primeiro caldeirão. Depois volte aqui para decorar.", "Use /alquimia on Discord once to get your first cauldron. Then come back here to decorate."), action: <button onClick={load} className="rounded-2xl border border-purple-500/40 px-6 py-3 font-bold text-purple-200 transition-colors hover:bg-purple-500/10">{L("Já usei, recarregar", "Done, reload")}</button> },
-      error: { title: L("O porão não abriu", "The cellar didn't open"), text: L("Algo deu errado ao carregar o laboratório. Tente de novo.", "Something went wrong loading the lab. Try again."), action: <button onClick={load} className="rounded-2xl border border-purple-500/40 px-6 py-3 font-bold text-purple-200 transition-colors hover:bg-purple-500/10">{L("Tentar de novo", "Try again")}</button> },
-    }[status as "anon" | "nolab" | "error"] || { title: "", text: "", action: null }
+    const anon = status === "anon"
     return (
-      <div className="flex min-h-[420px] w-full flex-col items-center justify-center gap-5 rounded-3xl border border-purple-500/20 bg-[radial-gradient(ellipse_at_top,rgba(124,58,237,0.18),transparent_60%),#120b1c] p-10 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-purple-500/30 bg-purple-950/40"><Lock className="h-8 w-8 text-purple-300" /></div>
-        <h2 className="text-2xl font-black uppercase italic tracking-tight text-purple-50">{content.title}</h2>
-        <p className="max-w-md text-sm font-medium text-purple-200/70">{content.text}</p>
-        {content.action}
+      <div className="rounded-[14px] border border-border bg-card p-10 text-center">
+        <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-[10px] bg-secondary text-foreground">
+          {anon ? <Lock className="h-5 w-5" /> : <FlaskConical className="h-5 w-5" />}
+        </div>
+        <p className="mt-4 text-[15px] font-semibold text-foreground">
+          {anon ? L("Entre para decorar seu laboratório", "Log in to decorate your lab") : L("Seu laboratório ainda não existe", "Your lab doesn't exist yet")}
+        </p>
+        <p className="mx-auto mt-1 max-w-md text-[13px] leading-[1.6] text-muted-foreground">
+          {anon
+            ? L("Conecte sua conta do Discord para ver e arrumar seu porão de alquimia.", "Connect your Discord account to see and arrange your alchemy cellar.")
+            : L("Use /alquimia no Discord uma vez para receber seu primeiro caldeirão. Depois volte aqui.", "Use /alquimia on Discord once to get your first cauldron. Then come back here.")}
+        </p>
+        <div className="mt-5">
+          {anon
+            ? <a href={LOGIN_URL} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#7c3aed] px-5 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90">{L("Entrar com Discord", "Log in with Discord")}</a>
+            : <SecondaryButton onClick={load}>{L("Já usei, recarregar", "Done, reload")}</SecondaryButton>}
+        </div>
       </div>
     )
   }
@@ -556,47 +556,39 @@ export default function LabEditor() {
   // ─── the editor ──────────────────────────────────────────────────────────
 
   const xpPct = Math.min(100, Math.round(((lab.xp || 0) / Math.max(1, lab.need)) * 100))
-  const chips = [
-    { on: bonus.speed, icon: Hourglass, text: `-${Math.round(bonus.speed * 100)}% ${L("tempo", "time")}` },
-    { on: bonus.extra, icon: Dice5, text: `+${Math.round(bonus.extra * 100)}% ${L("extra", "extra")}` },
-    { on: bonus.xp, icon: BookOpen, text: `+${Math.round(bonus.xp * 100)}% XP` },
-    { on: bonus.sell, icon: Coins, text: `+${Math.round(bonus.sell * 100)}% ${L("venda", "sale")}` },
-  ]
+  const bonusList = [
+    { value: bonus.speed, icon: Hourglass, text: L(`${Math.round(bonus.speed * 100)}% mais rápido`, `${Math.round(bonus.speed * 100)}% faster`) },
+    { value: bonus.extra, icon: Dice5, text: L(`+${Math.round(bonus.extra * 100)}% poção extra`, `+${Math.round(bonus.extra * 100)}% extra potion`) },
+    { value: bonus.xp, icon: BookOpen, text: `+${Math.round(bonus.xp * 100)}% XP` },
+    { value: bonus.sell, icon: Coins, text: L(`+${Math.round(bonus.sell * 100)}% na venda`, `+${Math.round(bonus.sell * 100)}% when selling`) },
+  ].filter((b) => b.value > 0)
+  const storingHere = !!dragView && !dragRef.current?.fromTray
 
   return (
     <div className="flex w-full select-none flex-col gap-4" onContextMenu={(e) => e.preventDefault()}>
-      {/* HUD */}
-      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-purple-500/20 bg-[#150d22]/90 px-4 py-3 shadow-[0_0_40px_-18px_rgba(124,58,237,0.6)]">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-purple-400/40 bg-gradient-to-br from-purple-600 to-fuchsia-700 text-lg font-black text-white shadow-inner">{lab.level}</div>
-          <div className="w-36">
-            <div className="text-[10px] font-black uppercase tracking-widest text-purple-300/80">{L("Alquimista", "Alchemist")}</div>
-            <div className="mt-1 h-2 overflow-hidden rounded-full bg-purple-950">
-              <div className="h-full rounded-full bg-gradient-to-r from-purple-400 to-fuchsia-400 transition-all" style={{ width: `${xpPct}%` }} />
+      {/* Status */}
+      <section className="flex flex-col gap-4 rounded-[14px] border border-border bg-card p-5 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-4">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-secondary text-[15px] font-bold text-foreground">{lab.level}</div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="text-[15px] font-semibold text-foreground">{L(`Alquimista nível ${lab.level}`, `Level ${lab.level} alchemist`)}</span>
+              <span className="text-[12px] text-muted-foreground">{n(lab.xp)} / {n(lab.need)} XP</span>
             </div>
-            <div className="mt-0.5 text-[10px] font-bold text-purple-200/60">{n(lab.xp)} / {n(lab.need)} XP</div>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary">
+              <div className="h-full rounded-full bg-[#7c3aed] transition-all" style={{ width: `${xpPct}%` }} />
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 rounded-xl border border-yellow-500/20 bg-yellow-500/5 px-3 py-1.5 text-sm font-black text-yellow-300">
-          <Coins className="h-4 w-4" /> {n(coins)}
+        <div className="flex flex-wrap items-center gap-2">
+          <Pill><Coins className="mr-1 h-3 w-3" /> {n(coins)}</Pill>
+          <Pill tone="accent"><FlaskConical className="mr-1 h-3 w-3" /> {placedCauldrons}/{lab.cauldron_slots} {L("caldeirões", "cauldrons")}</Pill>
+          <PrimaryButton onClick={() => setShopOpen(true)}><ShoppingBag className="h-4 w-4" /> {L("Loja", "Shop")}</PrimaryButton>
         </div>
-        <div className="flex items-center gap-1.5 rounded-xl border border-purple-500/20 bg-purple-500/5 px-3 py-1.5 text-sm font-bold text-purple-100">
-          <FlaskConical className="h-4 w-4 text-purple-300" /> {placedCauldrons}/{lab.cauldron_slots} {L("caldeirões", "cauldrons")}
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {chips.map((c) => (
-            <span key={c.text} className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-bold ${c.on ? "bg-emerald-500/15 text-emerald-300" : "bg-white/5 text-white/30"}`}>
-              <c.icon className="h-3 w-3" /> {c.text}
-            </span>
-          ))}
-        </div>
-        <button onClick={() => setShopOpen(true)} className="ml-auto flex items-center gap-2 rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 px-4 py-2 text-sm font-black uppercase tracking-wide text-amber-950 shadow-lg shadow-amber-500/20 transition-transform hover:scale-[1.04] active:scale-95">
-          <ShoppingBag className="h-4 w-4" /> {L("Loja", "Shop")}
-        </button>
-      </div>
+      </section>
 
       {/* Scene */}
-      <div className="relative overflow-hidden rounded-3xl border-2 border-purple-500/25 bg-[#120b1c] shadow-[0_0_60px_-20px_rgba(124,58,237,0.55)]">
+      <div className="relative overflow-hidden rounded-[14px] border border-border bg-card">
         <canvas
           ref={canvasRef}
           className="block aspect-[1376/768] w-full touch-none"
@@ -605,178 +597,187 @@ export default function LabEditor() {
           onPointerLeave={() => { hoverRef.current = { uid: null, x: 0, y: 0 } }}
           onContextMenu={(e) => e.preventDefault()}
         />
-        <div className="pointer-events-none absolute inset-0 rounded-3xl shadow-[inset_0_0_80px_rgba(10,4,20,0.85)]" />
 
-        {/* inspector of the selected piece */}
+        {/* selected piece */}
         {selEntry && selDef && !dragView && (
-          <div className="absolute right-3 top-3 w-60 rounded-2xl border bg-[#1a1028]/95 p-3 shadow-2xl backdrop-blur" style={{ borderColor: `${RARITY[selDef.rarity]?.color}66` }}>
+          <div className="absolute right-3 top-3 w-64 rounded-[14px] border border-border bg-card/95 p-4 shadow-lg backdrop-blur">
             <div className="flex items-start gap-3">
-              <div className="rounded-xl border border-white/10 bg-black/30 p-1"><SpriteIcon sprite={selDef.sprite} size={56} flip={!!selEntry.flip} /></div>
+              <div className="rounded-[10px] bg-secondary p-1"><SpriteIcon sprite={selDef.sprite} size={48} flip={!!selEntry.flip} /></div>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-black text-purple-50">{L(selDef.name, selDef.name_en)}</div>
-                <div className="text-[10px] font-black uppercase tracking-widest" style={{ color: RARITY[selDef.rarity]?.color }}>{L(RARITY[selDef.rarity]?.pt, RARITY[selDef.rarity]?.en)}</div>
+                <div className="truncate text-[15px] font-semibold text-foreground">{L(selDef.name, selDef.name_en)}</div>
+                <RarityLabel rarity={selDef.rarity} L={L} />
               </div>
-              <button onClick={() => setSelected(null)} className="text-purple-300/60 hover:text-purple-100"><X className="h-4 w-4" /></button>
+              <button onClick={() => setSelected(null)} className="text-muted-foreground transition-colors hover:text-foreground" aria-label={L("Fechar", "Close")}><X className="h-4 w-4" /></button>
             </div>
             <ItemStats def={selDef} L={L} />
-            {brewing.has(selEntry.uid) && <div className="mt-2 rounded-lg bg-fuchsia-500/10 px-2 py-1 text-[11px] font-bold text-fuchsia-300">🫧 {L("Preparando poções agora", "Brewing potions now")}</div>}
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <button disabled={selDef.kind === "wall"} onClick={() => flip(selEntry.uid)} className="flex items-center justify-center gap-1.5 rounded-xl border border-purple-500/30 bg-purple-500/10 py-2 text-xs font-bold text-purple-100 transition-colors hover:bg-purple-500/20 disabled:opacity-30">
-                <RotateCw className="h-3.5 w-3.5" /> {L("Girar", "Turn")} <kbd className="rounded bg-black/30 px-1 text-[9px]">R</kbd>
-              </button>
-              <button disabled={brewing.has(selEntry.uid)} onClick={() => store(selEntry.uid)} className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 py-2 text-xs font-bold text-purple-100 transition-colors hover:bg-white/10 disabled:opacity-30">
+            {brewing.has(selEntry.uid) && <p className="mt-2 text-[12px] text-[#a78bfa]">{L("Preparando poções agora", "Brewing potions now")}</p>}
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <SecondaryButton disabled={selDef.kind === "wall"} onClick={() => flip(selEntry.uid)} className="px-3 py-2">
+                <RotateCw className="h-3.5 w-3.5" /> {L("Girar", "Turn")}
+              </SecondaryButton>
+              <SecondaryButton disabled={brewing.has(selEntry.uid)} onClick={() => store(selEntry.uid)} className="px-3 py-2">
                 <PackageOpen className="h-3.5 w-3.5" /> {L("Guardar", "Store")}
-              </button>
+              </SecondaryButton>
             </div>
           </div>
         )}
 
-        {/* drag hint */}
+        {/* while dragging */}
         {dragView && (
-          <div className={`pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-widest shadow-lg ${dragView.valid ? "bg-emerald-500/90 text-emerald-950" : "bg-black/70 text-purple-100"}`}>
-            {dragView.valid ? L("Solte para colocar", "Release to place") : L("Procure um lugar livre", "Find a free spot")}
+          <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full border border-border bg-card/95 px-3 py-1 text-[12px] font-medium text-foreground shadow-sm">
+            {dragView.valid ? L("Solte para colocar", "Release to place") : storingHere ? L("Solte no depósito para guardar", "Drop on storage to store it") : L("Procure um lugar livre", "Find a free spot")}
           </div>
         )}
 
-        {/* toast */}
         {toast && (
-          <div className={`pointer-events-none absolute bottom-4 left-1/2 max-w-[90%] -translate-x-1/2 rounded-2xl border px-4 py-2.5 text-center text-sm font-bold shadow-2xl backdrop-blur ${toast.kind === "ok" ? "border-emerald-400/30 bg-emerald-950/85 text-emerald-200" : "border-red-400/30 bg-red-950/85 text-red-200"}`}>
+          <div className="pointer-events-none absolute bottom-3 left-1/2 flex max-w-[90%] -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-card/95 px-4 py-2 text-[13px] text-foreground shadow-lg">
+            {toast.kind === "ok" ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" /> : <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />}
             {toast.text}
           </div>
         )}
       </div>
 
-      {/* Storage bar */}
-      <div ref={trayRef} className={`rounded-2xl border bg-[#150d22]/90 p-3 transition-colors ${dragView && !dragRef.current?.fromTray ? "border-amber-400/50 bg-amber-500/5" : "border-purple-500/20"}`}>
-        <div className="mb-2 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-purple-300/80">
-            <PackageOpen className="h-4 w-4" /> {L("Depósito", "Storage")}
-            <span className="font-medium normal-case tracking-normal text-purple-300/40">
-              {dragView && !dragRef.current?.fromTray ? L("solte aqui para guardar", "drop here to store") : L("arraste para o porão ou clique para colocar", "drag into the cellar or click to place")}
-            </span>
+      {/* Storage */}
+      <section ref={trayRef} className={`rounded-[14px] border bg-card p-5 transition-colors ${storingHere ? "border-[#7c3aed]/60" : "border-border"}`}>
+        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-[15px] font-semibold text-foreground">{L("Depósito", "Storage")}</h2>
+            <p className="text-[13px] text-muted-foreground">{L("Arraste um item para o porão ou clique para colocá-lo num lugar livre.", "Drag an item into the cellar or click it to place it in a free spot.")}</p>
           </div>
-          <div className="hidden items-center gap-1.5 text-[10px] font-bold text-purple-300/40 md:flex">
-            <MousePointerClick className="h-3.5 w-3.5" /> {L("arraste para mover · R gira · Del guarda", "drag to move · R turns · Del stores")}
+          <p className="text-[12px] text-muted-foreground">{L("R gira · Delete guarda · Esc solta a seleção", "R turns · Delete stores · Esc deselects")}</p>
+        </div>
+        {stored.length === 0 ? (
+          <p className="rounded-[10px] border border-dashed border-border py-6 text-center text-[13px] text-muted-foreground">
+            {L("Nada guardado. Compre móveis na loja.", "Nothing stored. Buy furniture in the shop.")}
+          </p>
+        ) : (
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {stored.map(([itemId, entries]) => {
+              const def = geo.itemDef(itemId)
+              if (!def) return null
+              return (
+                <button
+                  key={itemId}
+                  onPointerDown={(e) => { e.preventDefault(); startPress(entries[0].uid, true, e.clientX, e.clientY) }}
+                  className="relative flex h-[76px] w-[76px] shrink-0 cursor-grab items-center justify-center rounded-[10px] border border-border bg-secondary transition-colors hover:border-[#7c3aed]/50 active:cursor-grabbing"
+                  style={{ touchAction: "none" }}
+                  title={L(def.name, def.name_en)}
+                >
+                  <SpriteIcon sprite={def.sprite} size={60} />
+                  {entries.length > 1 && <span className="absolute bottom-1 right-1.5 text-[11px] font-semibold text-muted-foreground">×{entries.length}</span>}
+                </button>
+              )
+            })}
           </div>
-        </div>
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {stored.length === 0 && (
-            <div className="flex h-20 w-full items-center justify-center rounded-xl border border-dashed border-purple-500/20 text-xs font-bold text-purple-300/40">
-              {L("Vazio. Compre móveis na loja!", "Empty. Buy furniture in the shop!")}
-            </div>
-          )}
-          {stored.map(([itemId, entries]) => {
-            const def = geo.itemDef(itemId)
-            if (!def) return null
-            return (
-              <button
-                key={itemId}
-                onPointerDown={(e) => { e.preventDefault(); startPress(entries[0].uid, true, e.clientX, e.clientY) }}
-                className="group relative flex h-20 w-20 shrink-0 cursor-grab items-center justify-center rounded-xl border bg-gradient-to-b from-white/5 to-black/30 transition-transform hover:-translate-y-0.5 active:cursor-grabbing"
-                style={{ borderColor: `${RARITY[def.rarity]?.color}55`, touchAction: "none" }}
-                title={L(def.name, def.name_en)}
-              >
-                <SpriteIcon sprite={def.sprite} size={64} />
-                {entries.length > 1 && <span className="absolute bottom-1 right-1 rounded-md bg-black/70 px-1.5 text-[10px] font-black text-white">×{entries.length}</span>}
-                <span className="absolute inset-x-0 -bottom-0.5 h-0.5 rounded-full opacity-70" style={{ background: RARITY[def.rarity]?.color }} />
-              </button>
-            )
-          })}
-        </div>
-      </div>
+        )}
+      </section>
 
-      {/* Save bar */}
-      <div className={`sticky bottom-4 z-20 flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 shadow-2xl backdrop-blur transition-all ${dirty ? "border-amber-400/40 bg-[#24160a]/90 opacity-100" : "pointer-events-none translate-y-4 border-transparent bg-transparent opacity-0"}`}>
-        <span className="flex items-center gap-2 text-sm font-bold text-amber-200"><Sparkles className="h-4 w-4" /> {L("Você mudou o laboratório", "You changed the lab")}</span>
+      {/* Furniture bonuses */}
+      <section className="rounded-[14px] border border-border bg-card p-5">
+        <h2 className="text-[15px] font-semibold text-foreground">{L("Bônus do laboratório", "Lab bonuses")}</h2>
+        <p className="text-[13px] text-muted-foreground">{L("Somente o que está no porão conta. Vale no /alquimia depois de salvar.", "Only what's in the cellar counts. Applies in /alquimia after saving.")}</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {bonusList.length
+            ? bonusList.map((b) => <Pill key={b.text} tone="success"><b.icon className="mr-1 h-3 w-3" /> {b.text}</Pill>)
+            : <Pill>{L("Nenhum bônus ainda", "No bonus yet")}</Pill>}
+        </div>
+      </section>
+
+      {/* Save */}
+      <div className={`sticky bottom-4 z-20 flex items-center justify-between gap-3 rounded-[14px] border border-border bg-card px-5 py-3 shadow-lg transition-all ${dirty ? "opacity-100" : "pointer-events-none translate-y-4 opacity-0"}`}>
+        <span className="text-[13px] text-muted-foreground">{L("Você tem mudanças não salvas.", "You have unsaved changes.")}</span>
         <div className="flex gap-2">
-          <button onClick={() => { setFurniture(saved); setSelected(null) }} className="flex items-center gap-1.5 rounded-xl border border-white/10 px-3 py-2 text-xs font-bold text-white/80 hover:bg-white/5">
-            <Undo2 className="h-4 w-4" /> {L("Desfazer", "Undo")}
-          </button>
-          <button onClick={save} disabled={busy === "save"} className="flex items-center gap-1.5 rounded-xl bg-gradient-to-b from-emerald-400 to-emerald-600 px-4 py-2 text-xs font-black uppercase tracking-wide text-emerald-950 shadow-lg shadow-emerald-500/20 disabled:opacity-60">
-            {busy === "save" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} {L("Salvar", "Save")}
-          </button>
+          <SecondaryButton onClick={() => { setFurniture(saved); setSelected(null) }}><Undo2 className="h-4 w-4" /> {L("Desfazer", "Undo")}</SecondaryButton>
+          <PrimaryButton onClick={save} loading={busy === "save"}>{busy !== "save" && <Save className="h-4 w-4" />} {L("Salvar", "Save")}</PrimaryButton>
         </div>
       </div>
 
       {/* Shop */}
-      {shopOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm" onPointerDown={(e) => { if (e.target === e.currentTarget) setShopOpen(false) }}>
-          <div className="flex max-h-[88vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-amber-500/30 bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.12),transparent_55%),#170f20] shadow-[0_0_80px_-20px_rgba(245,158,11,0.45)]">
-            <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
-              <div>
-                <div className="text-xs font-black uppercase tracking-[0.25em] text-amber-300/80">{L("Empório da Madame Verbena", "Madame Verbena's Emporium")}</div>
-                <div className="text-xl font-black italic text-amber-50">{L("O que vai levar hoje?", "What will it be today?")}</div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1.5 rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-3 py-1.5 text-sm font-black text-yellow-300"><Coins className="h-4 w-4" /> {n(coins)}</span>
-                <button onClick={() => setShopOpen(false)} className="rounded-xl p-2 text-white/60 hover:bg-white/5 hover:text-white"><X className="h-5 w-5" /></button>
-              </div>
-            </div>
-            <div className="flex gap-2 overflow-x-auto px-5 pt-4">
-              {SHOP_TABS.map((tab) => (
-                <button key={tab.id} onClick={() => setShopTab(tab.id)} className={`shrink-0 rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors ${shopTab === tab.id ? "bg-amber-400 text-amber-950" : "bg-white/5 text-amber-100/70 hover:bg-white/10"}`}>
-                  {L(tab.pt, tab.en)}
-                </button>
-              ))}
-            </div>
-            <div className="grid grid-cols-1 gap-3 overflow-y-auto p-5 sm:grid-cols-2 lg:grid-cols-3">
-              {catalog.furniture.filter((f) => f.kind === shopTab && f.price > 0).sort((a, b) => a.level - b.level || a.price - b.price).map((def) => {
-                const locked = level < def.level
-                const poor = coins < def.price
-                const r = RARITY[def.rarity] || RARITY.comum
-                return (
-                  <div key={def.id} className="relative flex flex-col rounded-2xl border bg-gradient-to-b from-white/[0.04] to-black/20 p-3" style={{ borderColor: `${r.color}44`, boxShadow: `inset 0 0 30px -18px ${r.color}` }}>
-                    <div className="flex items-start gap-3">
-                      <div className="relative rounded-xl border border-white/10 bg-black/30 p-1">
-                        <SpriteIcon sprite={def.sprite} size={76} dim={locked} />
-                        {locked && <Lock className="absolute inset-0 m-auto h-6 w-6 text-white/80" />}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-black leading-tight text-amber-50">{L(def.name, def.name_en)}</div>
-                        <div className="mt-0.5 text-[10px] font-black uppercase tracking-widest" style={{ color: r.color }}>{L(r.pt, r.en)} · {def.set === "lunar" ? L("Lunar", "Lunar") : def.set === "caldeirao" ? L("Caldeirão", "Cauldron") : L("Simples", "Simple")}</div>
-                        {owned(def.id) > 0 && <div className="mt-1 text-[10px] font-bold text-emerald-300">✓ {L(`você tem ${owned(def.id)}`, `you own ${owned(def.id)}`)}</div>}
-                      </div>
-                    </div>
-                    <ItemStats def={def} L={L} />
-                    <button
-                      onClick={() => buy(def)}
-                      disabled={locked || poor || busy === def.id}
-                      className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-amber-400 to-amber-600 py-2 text-sm font-black text-amber-950 shadow-md transition-transform enabled:hover:scale-[1.02] disabled:from-zinc-700 disabled:to-zinc-800 disabled:text-zinc-400"
-                    >
-                      {busy === def.id ? <Loader2 className="h-4 w-4 animate-spin" /> : locked ? <Lock className="h-4 w-4" /> : <Coins className="h-4 w-4" />}
-                      {locked ? L(`Nível ${def.level}`, `Level ${def.level}`) : n(def.price)}
-                    </button>
-                  </div>
-                )
-              })}
-            </div>
+      <Dialog open={shopOpen} onOpenChange={setShopOpen}>
+        <DialogContent className="flex max-h-[88vh] flex-col gap-0 overflow-hidden rounded-[14px] p-0 sm:max-w-4xl">
+          <DialogHeader className="border-b border-border p-6 text-left">
+            <span className="text-[11px] font-bold uppercase tracking-[2px] text-[#7c3aed]">{L("Loja", "Shop")}</span>
+            <DialogTitle className="text-[22px] font-bold tracking-[-0.5px]">{L("Móveis e caldeirões", "Furniture and cauldrons")}</DialogTitle>
+            <DialogDescription className="text-[13px]">
+              {L("O que você compra vai para o depósito. Seu saldo:", "What you buy goes to storage. Your balance:")} <span className="font-semibold text-foreground">{n(coins)}</span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-2 overflow-x-auto px-6 pt-4">
+            {SHOP_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setShopTab(tab.id)}
+                className={`shrink-0 rounded-full border px-3 py-1 text-[12px] font-medium transition-colors ${shopTab === tab.id ? "border-[#7c3aed] bg-[#7c3aed] text-white" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}
+              >
+                {L(tab.pt, tab.en)}
+              </button>
+            ))}
           </div>
-        </div>
-      )}
+          <div className="grid grid-cols-1 gap-3 overflow-y-auto p-6 sm:grid-cols-2 lg:grid-cols-3">
+            {catalog.furniture.filter((f) => f.kind === shopTab && f.price > 0).sort((a, b) => a.level - b.level || a.price - b.price).map((def) => {
+              const locked = level < def.level
+              const have = owned(def.id)
+              return (
+                <div key={def.id} className="flex flex-col rounded-[14px] border border-border bg-card p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="rounded-[10px] bg-secondary p-1"><SpriteIcon sprite={def.sprite} size={64} dim={locked} /></div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[14px] font-semibold leading-snug text-foreground">{L(def.name, def.name_en)}</div>
+                      <RarityLabel rarity={def.rarity} L={L} />
+                      {have > 0 && <div className="mt-0.5 text-[12px] text-muted-foreground">{L(`Você tem ${have}`, `You own ${have}`)}</div>}
+                    </div>
+                  </div>
+                  <ItemStats def={def} L={L} />
+                  <div className="mt-auto flex items-center justify-between gap-2 pt-4">
+                    <span className="flex items-center gap-1 text-[14px] font-semibold text-foreground"><Coins className="h-4 w-4 text-muted-foreground" /> {n(def.price)}</span>
+                    {locked
+                      ? <Pill><Lock className="mr-1 h-3 w-3" /> {L(`Nível ${def.level}`, `Level ${def.level}`)}</Pill>
+                      : <PrimaryButton onClick={() => buy(def)} loading={busy === def.id} disabled={coins < def.price} className="px-4 py-2">{L("Comprar", "Buy")}</PrimaryButton>}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
 
-/** Bonus / cauldron stats of a piece, as small game chips. */
+function RarityLabel({ rarity, L }: { rarity: string; L: (pt: string, en: string) => string }) {
+  const r = RARITY[rarity] || RARITY.comum
+  return (
+    <span className="mt-0.5 flex items-center gap-1.5 text-[12px] text-muted-foreground">
+      <span className="h-1.5 w-1.5 rounded-full" style={{ background: r.color }} />
+      {L(r.pt, r.en)}
+    </span>
+  )
+}
+
+/** What a piece does, as short lines. */
 function ItemStats({ def, L }: { def: ItemDef; L: (pt: string, en: string) => string }) {
-  const chips: string[] = []
+  const lines: string[] = []
   if (def.cauldron) {
-    chips.push(L(`${def.cauldron.capacity} poções por vez`, `${def.cauldron.capacity} potions at a time`))
-    if (def.cauldron.speed > 1) chips.push(`⏳ -${Math.round((1 - 1 / def.cauldron.speed) * 100)}% ${L("tempo", "time")}`)
-    if (def.cauldron.extra) chips.push(`🎲 +${Math.round(def.cauldron.extra * 100)}% ${L("extra", "extra")}`)
+    lines.push(L(`Prepara ${def.cauldron.capacity} poções por vez`, `Brews ${def.cauldron.capacity} potions at a time`))
+    if (def.cauldron.speed > 1) lines.push(L(`${Math.round((1 - 1 / def.cauldron.speed) * 100)}% mais rápido`, `${Math.round((1 - 1 / def.cauldron.speed) * 100)}% faster`))
+    if (def.cauldron.extra) lines.push(L(`${Math.round(def.cauldron.extra * 100)}% de chance de poção extra`, `${Math.round(def.cauldron.extra * 100)}% extra potion chance`))
   }
   const b = def.bonus || {}
-  if (b.speed) chips.push(`⏳ -${Math.round(b.speed * 100)}% ${L("tempo", "time")}`)
-  if (b.extra) chips.push(`🎲 +${Math.round(b.extra * 100)}% ${L("poção extra", "extra potion")}`)
-  if (b.xp) chips.push(`📖 +${Math.round(b.xp * 100)}% XP`)
-  if (b.sell) chips.push(`💰 +${Math.round(b.sell * 100)}% ${L("na venda", "selling")}`)
-  if (def.slots?.length) chips.push(L(`🧺 cabe ${def.slots.length} objeto(s) em cima`, `🧺 holds ${def.slots.length} object(s)`))
-  if (def.kind === "wall") chips.push(L("🧱 vai na parede", "🧱 goes on a wall"))
-  if (def.kind === "small") chips.push(L("🕯️ vai no chão ou em cima de móveis", "🕯️ floor or on furniture"))
-  if (!chips.length) chips.push(L("✨ decoração", "✨ decoration"))
+  if (b.speed) lines.push(L(`Poções ${Math.round(b.speed * 100)}% mais rápidas`, `Potions ${Math.round(b.speed * 100)}% faster`))
+  if (b.extra) lines.push(L(`+${Math.round(b.extra * 100)}% de chance de poção extra`, `+${Math.round(b.extra * 100)}% extra potion chance`))
+  if (b.xp) lines.push(L(`+${Math.round(b.xp * 100)}% de XP de alquimia`, `+${Math.round(b.xp * 100)}% alchemy XP`))
+  if (b.sell) lines.push(L(`+${Math.round(b.sell * 100)}% na venda para a Madame Verbena`, `+${Math.round(b.sell * 100)}% selling to Madame Verbena`))
+  if (def.slots?.length) lines.push(L(`Cabem ${def.slots.length} objeto(s) em cima`, `Holds ${def.slots.length} object(s) on top`))
+  if (def.kind === "wall") lines.push(L("Vai na parede", "Goes on a wall"))
+  if (def.kind === "small") lines.push(L("Vai no chão ou em cima de mesas e prateleiras", "Goes on the floor or on tables and shelves"))
+  if (!lines.length) lines.push(L("Decoração", "Decoration"))
   return (
-    <div className="mt-2 flex flex-wrap gap-1">
-      {chips.map((c) => <span key={c} className="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] font-bold text-purple-100/80">{c}</span>)}
-    </div>
+    <ul className="mt-3 space-y-1">
+      {lines.map((line) => (
+        <li key={line} className="flex items-start gap-2 text-[13px] leading-[1.5] text-muted-foreground">
+          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#7c3aed]" /> {line}
+        </li>
+      ))}
+    </ul>
   )
 }
