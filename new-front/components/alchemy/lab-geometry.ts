@@ -197,10 +197,18 @@ export function geometry(catalog: Catalog) {
     return out
   }
 
+  /** The ground a floor piece covers (room px): its footprint shrunk towards its centre, as in the bot. */
+  const shadowQuad = (def: ItemDef, i: number, j: number, flip?: boolean) => {
+    const [fa, fb] = footprint(def, flip)
+    const k = 0.45 + 0.15 * (fa + fb - 2)
+    const cx = i + fa / 2, cy = j + fb / 2
+    return [[i, j], [i + fa, j], [i + fa, j + fb], [i, j + fb]].map(([x, y]) => point(cx + (x - cx) * k, cy + (y - cy) * k))
+  }
+
   /** The four corners of a footprint (room px), for highlighting. */
   const footprintPoly = (i: number, j: number, fa: number, fb: number) => [point(i, j), point(i + fa, j), point(i + fa, j + fb), point(i, j + fb)]
 
-  return { N, itemDef, point, toGrid, tileOk, footprint, slotsForLevel, validate, drawList, bonuses, wallCandidates, footprintPoly }
+  return { N, itemDef, point, toGrid, tileOk, footprint, slotsForLevel, validate, drawList, bonuses, wallCandidates, footprintPoly, shadowQuad }
 }
 
 export type Geometry = ReturnType<typeof geometry>
