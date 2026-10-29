@@ -421,10 +421,12 @@ export default function LabEditor() {
         const img = loadedSprite(d.sprite?.url)
         if (!img) continue
         const isDragged = drag?.uid === d.entry.uid
-        // contact shadow: the footprint the piece stands on, so it sits exactly under its feet
+        // contact shadow behind the feet, so the piece stands on the floor
         if (d.entry.mode === "floor") {
-          poly(geo.shadowQuad(d.def, d.entry.i as number, d.entry.j as number, d.entry.flip))
-          ctx.fillStyle = "rgba(10, 6, 16, 0.3)"
+          const s = geo.shadowOf(d)
+          ctx.fillStyle = "rgba(10, 6, 16, 0.35)"
+          ctx.beginPath()
+          ctx.ellipse(s.x, s.y, s.rx, s.ry, 0, 0, Math.PI * 2)
           ctx.fill()
         }
         ctx.save()
