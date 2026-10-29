@@ -423,8 +423,7 @@ export default function LabEditor() {
         const isDragged = drag?.uid === d.entry.uid
         // contact shadow: the footprint the piece stands on, so it sits exactly under its feet
         if (d.entry.mode === "floor") {
-          const [fa, fb] = geo.footprint(d.def, d.entry.flip)
-          poly(geo.footprintPoly(d.entry.i as number, d.entry.j as number, fa, fb))
+          poly(geo.shadowQuad(d.def, d.entry.i as number, d.entry.j as number, d.entry.flip))
           ctx.fillStyle = "rgba(10, 6, 16, 0.3)"
           ctx.fill()
         }
