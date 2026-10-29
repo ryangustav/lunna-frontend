@@ -197,18 +197,22 @@ export function geometry(catalog: Catalog) {
     return out
   }
 
-  /** The ground a floor piece covers (room px): its footprint shrunk towards its centre, as in the bot. */
-  const shadowQuad = (def: ItemDef, i: number, j: number, flip?: boolean) => {
-    const [fa, fb] = footprint(def, flip)
-    const k = 0.45 + 0.15 * (fa + fb - 2)
-    const cx = i + fa / 2, cy = j + fb / 2
-    return [[i, j], [i + fa, j], [i + fa, j + fb], [i, j + fb]].map(([x, y]) => point(cx + (x - cx) * k, cy + (y - cy) * k))
+  /** Contact shadow of a drawn floor piece, as in the bot's shadowOf: { x, y, rx, ry } in room px. */
+  const shadowOf = (d: Drawn) => {
+    const [fa, fb] = footprint(d.def, d.entry.flip)
+    const i = d.entry.i as number, j = d.entry.j as number
+    const q = [point(i, j), point(i + fa, j), point(i + fa, j + fb), point(i, j + fb)]
+    const qw = Math.max(...q.map((p) => p[0])) - Math.min(...q.map((p) => p[0]))
+    const qh = Math.max(...q.map((p) => p[1])) - Math.min(...q.map((p) => p[1]))
+    const rx = Math.min(qw / 2, d.w * 0.48)
+    const ry = rx * (qh / qw)
+    return { x: d.x + d.w / 2, y: d.y + d.h - ry * 0.8, rx, ry }
   }
 
   /** The four corners of a footprint (room px), for highlighting. */
   const footprintPoly = (i: number, j: number, fa: number, fb: number) => [point(i, j), point(i + fa, j), point(i + fa, j + fb), point(i, j + fb)]
 
-  return { N, itemDef, point, toGrid, tileOk, footprint, slotsForLevel, validate, drawList, bonuses, wallCandidates, footprintPoly, shadowQuad }
+  return { N, itemDef, point, toGrid, tileOk, footprint, slotsForLevel, validate, drawList, bonuses, wallCandidates, footprintPoly, shadowOf }
 }
 
 export type Geometry = ReturnType<typeof geometry>
