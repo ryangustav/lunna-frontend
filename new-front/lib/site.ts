@@ -8,6 +8,8 @@ import type { Metadata } from "next"
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://lunnabot.fun").replace(/\/$/, "")
 export const BOT_ID = "1222333304028659792"
 export const INVITE_URL = `https://discord.com/oauth2/authorize?client_id=${BOT_ID}&permissions=8&scope=bot%20applications.commands`
+/** Discord login through the API (it sets the "token" cookie and comes back to the site). */
+export const LOGIN_URL = `https://discord.com/oauth2/authorize?client_id=${BOT_ID}&response_type=code&redirect_uri=https%3A%2F%2Fapi.lunnabot.fun%2Fv1%2Fauth%2Fdiscord%2Fcallback&scope=guilds+email+identify`
 export const SUPPORT_URL = "https://discord.gg/DaUhFcjJfH"
 export const TOPGG_URL = `https://top.gg/bot/${BOT_ID}`
 export const APP_DIRECTORY_URL = `https://discord.com/application-directory/${BOT_ID}`

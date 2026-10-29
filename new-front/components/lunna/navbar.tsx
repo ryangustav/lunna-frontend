@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useTranslations } from "next-intl"
 import { Link } from "@/src/i18n/routing"
 import { Button } from "@/components/ui/button"
-import { Menu, Moon, Sun, LayoutDashboard, LogOut, ChevronDown, Crown, Coins, Gift, Ticket, ShieldCheck, Sparkles, Terminal, LifeBuoy } from "lucide-react"
+import { Menu, Moon, Sun, LayoutDashboard, LogOut, ChevronDown, Crown, Coins, Gift, Ticket, ShieldCheck, Sparkles, Terminal, LifeBuoy, FlaskConical } from "lucide-react"
 import { useTheme } from "next-themes"
 import { LanguageSwitcher, LanguageButtons, AccountLanguageSync } from "@/components/lunna/language-switcher"
 import {
@@ -229,6 +229,12 @@ export function Navbar() {
                       <span className="font-medium">{t("daily")}</span>
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="cursor-pointer gap-2 rounded-lg p-2.5">
+                    <Link href="/alquimia">
+                      <FlaskConical className="h-4 w-4" />
+                      <span className="font-medium">{L("Laboratório de alquimia", "Alchemy lab")}</span>
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer gap-2 rounded-lg p-2.5 text-red-500 focus:bg-red-500/10 focus:text-red-500">
                     <LogOut className="h-4 w-4" />
@@ -287,6 +293,9 @@ export function Navbar() {
                     )}
                     <Link href="/daily" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">
                       <Gift className="h-5 w-5" /> {t("daily")}
+                    </Link>
+                    <Link href="/alquimia" className="flex items-center gap-3 text-lg font-semibold text-foreground/70 transition-colors hover:text-foreground">
+                      <FlaskConical className="h-5 w-5" /> {L("Laboratório de alquimia", "Alchemy lab")}
                     </Link>
                     <button onClick={handleLogout} className="flex items-center gap-3 text-lg font-semibold text-red-500 transition-colors hover:opacity-80">
                       <LogOut className="h-5 w-5" /> {L("Sair", "Log out")}

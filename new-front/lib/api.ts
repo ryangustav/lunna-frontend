@@ -138,6 +138,10 @@ export const api = {
   createGiveaway: (guildId: string, data: any) => apiFetch(`/guilds/${guildId}/giveaways`, { method: "POST", body: JSON.stringify(data) }),
   giveawayAction: (guildId: string, id: string, action: "end" | "cancel" | "reroll", count = 1) =>
     apiFetch(`/guilds/${guildId}/giveaways/${id}/action`, { method: "POST", body: JSON.stringify({ action, count }) }),
+  // Alchemy lab editor (/alquimia): the bot publishes the catalog, the player buys and arranges furniture
+  getAlchemyLab: () => apiFetch("/alchemy/lab"),
+  buyAlchemyItem: (itemId: string) => apiFetch("/alchemy/buy", { method: "POST", body: JSON.stringify({ item_id: itemId }) }),
+  saveAlchemyLayout: (furniture: any[]) => apiFetch("/alchemy/layout", { method: "PUT", body: JSON.stringify({ furniture }) }),
   // site language → the bot answers commands in it too (lunarcoins.language)
   getMyLanguage: () => apiFetch("/me/language"),
   setMyLanguage: (language: "pt" | "en") => apiFetch("/me/language", { method: "PUT", body: JSON.stringify({ language }) }),
